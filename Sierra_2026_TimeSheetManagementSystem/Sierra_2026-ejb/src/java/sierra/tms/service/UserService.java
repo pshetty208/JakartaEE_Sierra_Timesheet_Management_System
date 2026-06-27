@@ -1,6 +1,6 @@
-package com.jee.services;
+package sierra.tms.service;
 
-import com.jee.dto.UserDto;
+import sierra.tms.dto.UserDto;
 import jakarta.ejb.Remote;
 import java.util.List;
 
