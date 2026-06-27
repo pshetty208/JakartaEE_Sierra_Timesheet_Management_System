@@ -1,7 +1,7 @@
-package com.jee.web;
+package sierra.tms.web;
 
-import com.jee.dto.UserDto;
-import com.jee.services.UserService;
+import sierra.tms.dto.UserDto;
+import sierra.tms.service.UserService;
 import jakarta.ejb.EJB;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;

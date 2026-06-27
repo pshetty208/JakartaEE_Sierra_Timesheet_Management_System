@@ -1,7 +1,6 @@
-package com.jee.dao;
+package sierra.tms.dao;
 
-import com.jee.dto.UserDto;
-import com.jee.entities.UserEntity;
+import sierra.tms.entities.UserEntity;
 import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
@@ -16,7 +15,7 @@ import java.util.List;
 @Stateless
 public class UserDao {
     
-    @PersistenceContext(unitName = "Sierra-pu")
+    @PersistenceContext(unitName = "Sierra-tms-pu")
     private EntityManager em;
 
     public void save(UserEntity person) {
