@@ -1,30 +1,47 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html">
-    <h:head>
-        <title>Title</title>
-    </h:head>
-    <h:body>
-        
-        <h:form>
-            <h:panelGrid columns="2">
-                <h:outputLabel value="Name"/>
-                <h:inputText value="#{userBean.name}"/>
-            </h:panelGrid>
-            
-            <br/>
-            
-            <h:commandButton value="Save" action="#{userBean.save}"/> 
-            
-            <br/>
-            
-            <h:dataTable value="#{userBean.people}" var="user">
-                <h:column> #{user.name} </h:column>
-            </h:dataTable>
-            
-            
-        </h:form>
-        
-    </h:body>
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core">
+
+<h:head>
+    <title>Person Management</title>
+</h:head>
+
+<h:body>
+
+    <h2>Person Management</h2>
+
+    <h:form>
+
+        <h:panelGrid columns="2">
+
+            <h:outputLabel value="First Name:"/>
+            <h:inputText value="#{personBean.person.firstName}" required="true"/>
+
+            <h:outputLabel value="Last Name:"/>
+            <h:inputText value="#{personBean.person.lastName}" required="true"/>
+
+            <h:outputLabel value="Email:"/>
+            <h:inputText value="#{personBean.person.emailAddress}" required="true"/>
+
+            <h:outputLabel value="Date of Birth:"/>
+            <h:inputText value="#{personBean.person.dateOfBirth}">
+                <f:convertDateTime type="localDate" pattern="yyyy-MM-dd"/>
+            </h:inputText>
+
+        </h:panelGrid>
+
+        <br/>
+
+        <h:commandButton value="Save"
+                         action="#{personBean.save}"/>
+
+        <br/><br/>
+
+        <h:messages style="color:red"/>
+
+    </h:form>
+
+</h:body>
 </html>
