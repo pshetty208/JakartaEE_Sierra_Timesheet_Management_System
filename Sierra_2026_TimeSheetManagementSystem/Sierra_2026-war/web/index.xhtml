@@ -8,6 +8,17 @@
     <h:body>
         
         <h:form>
+            <h:panelGrid columns="2" rendered="#{not empty currentPersonBean.currentPerson}">
+                <h:outputLabel value="Signed in as"/>
+                <h:outputText value="#{currentPersonBean.currentPerson.emailAddress}"/>
+            </h:panelGrid>
+
+            <h:panelGroup layout="block" rendered="#{empty currentPersonBean.currentPerson}">
+                <h:outputText value="No Person record is linked to this login yet."/>
+            </h:panelGroup>
+
+            <br/>
+
             <h:panelGrid columns="2">
                 <h:outputLabel value="Name"/>
                 <h:inputText value="#{userBean.name}"/>
