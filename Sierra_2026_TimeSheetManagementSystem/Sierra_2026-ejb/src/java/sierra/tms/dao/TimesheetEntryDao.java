@@ -1,0 +1,49 @@
+package sierra.tms.dao;
+
+import sierra.tms.entities.TimesheetEntryEntity;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import java.util.List;
+
+/**
+ *
+ * @author pranavpanhale
+ */
+@LocalBean
+@Stateless
+public class TimesheetEntryDao {
+
+    @PersistenceContext(unitName = "Sierra-tms-pu")
+    private EntityManager em;
+
+    public void save(TimesheetEntryEntity entry) {
+        em.persist(entry);
+    }
+
+    public TimesheetEntryEntity findById(Long id) {
+        return em.find(TimesheetEntryEntity.class, id);
+    }
+
+    public List<TimesheetEntryEntity> findByTimesheetId(Long timesheetId) {
+        return em.createQuery(
+                "SELECT entry FROM TimesheetEntryEntity entry"
+                + " WHERE entry.timesheet.id = :timesheetId"
+                + " ORDER BY entry.entryDate, entry.startTime",
+                TimesheetEntryEntity.class)
+                .setParameter("timesheetId", timesheetId)
+                .getResultList();
+    }
+
+    public TimesheetEntryEntity update(TimesheetEntryEntity entry) {
+        return em.merge(entry);
+    }
+
+    public void delete(Long id) {
+        TimesheetEntryEntity entry = em.find(TimesheetEntryEntity.class, id);
+        if (entry != null) {
+            em.remove(entry);
+        }
+    }
+}
