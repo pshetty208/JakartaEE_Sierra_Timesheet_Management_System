@@ -20,6 +20,9 @@ public class TimesheetDao {
 
     public void save(TimesheetEntity timesheet) {
         em.persist(timesheet);
+        // IDENTITY keys are only assigned once the INSERT runs, so flush here
+        // to make the generated id readable by the caller.
+        em.flush();
     }
 
     public TimesheetEntity findById(Long id) {
