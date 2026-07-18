@@ -30,10 +30,12 @@ public class TimesheetEntryDao {
     }
 
     public List<TimesheetEntryEntity> findByTimesheetId(Long timesheetId) {
+        // Alias is "te", not "entry": ENTRY is a reserved JPQL keyword (ENTRY(m)
+        // over a Map), so using it as an identification variable fails to parse.
         return em.createQuery(
-                "SELECT entry FROM TimesheetEntryEntity entry"
-                + " WHERE entry.timesheet.id = :timesheetId"
-                + " ORDER BY entry.entryDate, entry.startTime",
+                "SELECT te FROM TimesheetEntryEntity te"
+                + " WHERE te.timesheet.id = :timesheetId"
+                + " ORDER BY te.entryDate, te.startTime",
                 TimesheetEntryEntity.class)
                 .setParameter("timesheetId", timesheetId)
                 .getResultList();
