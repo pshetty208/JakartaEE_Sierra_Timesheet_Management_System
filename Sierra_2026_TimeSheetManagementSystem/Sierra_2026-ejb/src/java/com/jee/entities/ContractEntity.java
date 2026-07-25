@@ -11,8 +11,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -33,11 +33,11 @@ public class ContractEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false)
+    @OneToOne(optional = false)
     @JoinColumn(name = "employee_id", nullable = false)
     private RoleEntity employee;
 
-    @ManyToOne(optional = false)
+    @OneToOne(optional = false)
     @JoinColumn(name = "supervisor_id", nullable = false)
     private RoleEntity supervisor;
 
@@ -73,19 +73,19 @@ public class ContractEntity implements Serializable {
     @Column(name = "archive_duration", nullable = false)
     private int archiveDuration;
 
-    @ManyToMany
+    @OneToMany
     @JoinTable(
             name = "Assistant_Contract",
             joinColumns = @JoinColumn(name = "contract_id"),
-            inverseJoinColumns = @JoinColumn(name = "assistant_id")
+            inverseJoinColumns = @JoinColumn(name = "assistant_id", unique = true)
     )
     private Set<RoleEntity> assistants;
 
-    @ManyToMany
+    @OneToMany
     @JoinTable(
             name = "Secretary_Contract",
             joinColumns = @JoinColumn(name = "contract_id"),
-            inverseJoinColumns = @JoinColumn(name = "secretary_id")
+            inverseJoinColumns = @JoinColumn(name = "secretary_id", unique = true)
     )
     private Set<RoleEntity> secretaries;
 

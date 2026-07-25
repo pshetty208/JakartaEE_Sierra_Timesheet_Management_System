@@ -5,6 +5,7 @@ import com.jee.dto.PersonDto;
 import com.jee.entities.PersonEntity;
 import com.jee.services.PersonService;
 import jakarta.annotation.Resource;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
 import jakarta.ejb.SessionContext;
 import jakarta.ejb.Stateless;
@@ -23,15 +24,15 @@ public class PersonServiceImpl implements PersonService {
     private SessionContext sessionContext;
 
     @Override
-    public PersonDto findByEmailAddress(String emailAddress) {
-        PersonEntity entity = dao.findByEmailAddress(emailAddress);
-        return entity == null ? null : createDTO(entity);
-    }
-
-    @Override
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
     public PersonDto getCurrentPerson() {
         String emailAddress = sessionContext.getCallerPrincipal().getName();
         return findByEmailAddress(emailAddress);
+    }
+
+    private PersonDto findByEmailAddress(String emailAddress) {
+        PersonEntity entity = dao.findByEmailAddress(emailAddress);
+        return entity == null ? null : createDTO(entity);
     }
 
     private PersonDto createDTO(PersonEntity entity) {

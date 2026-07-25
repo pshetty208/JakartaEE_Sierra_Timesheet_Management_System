@@ -10,7 +10,5 @@ import jakarta.ejb.Remote;
 @Remote
 public interface PersonService {
 
-    public PersonDto findByEmailAddress(String emailAddress);
-
     public PersonDto getCurrentPerson();
 }
