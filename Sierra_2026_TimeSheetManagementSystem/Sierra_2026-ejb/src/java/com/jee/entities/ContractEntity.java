@@ -1,7 +1,11 @@
 package com.jee.entities;
 
+import com.jee.enums.ContractStatus;
+import com.jee.enums.TimesheetFrequency;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,8 +44,9 @@ public class ContractEntity implements Serializable {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private String status;
+    private ContractStatus status;
 
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
@@ -49,8 +54,9 @@ public class ContractEntity implements Serializable {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
-    private String frequency;
+    private TimesheetFrequency frequency;
 
     @Column(name = "hours_per_week", nullable = false)
     private double hoursPerWeek;
@@ -84,6 +90,10 @@ public class ContractEntity implements Serializable {
     private Set<RoleEntity> secretaries;
 
     public ContractEntity() {
+        status = ContractStatus.PREPARED;
+        workingDaysPerWeek = 5;
+        vacationDaysPerYear = 20;
+        archiveDuration = 24;
         assistants = new LinkedHashSet<>();
         secretaries = new LinkedHashSet<>();
     }
@@ -116,11 +126,11 @@ public class ContractEntity implements Serializable {
         this.name = name;
     }
 
-    public String getStatus() {
+    public ContractStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ContractStatus status) {
         this.status = status;
     }
 
@@ -140,11 +150,11 @@ public class ContractEntity implements Serializable {
         this.endDate = endDate;
     }
 
-    public String getFrequency() {
+    public TimesheetFrequency getFrequency() {
         return frequency;
     }
 
-    public void setFrequency(String frequency) {
+    public void setFrequency(TimesheetFrequency frequency) {
         this.frequency = frequency;
     }
 
