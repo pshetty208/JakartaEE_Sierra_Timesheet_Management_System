@@ -1,0 +1,28 @@
+.avatar-example-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.avatar-example-card {
+    padding: 1rem;
+    background: #ffffff;
+    border: 1px solid #d7dce2;
+    border-radius: 0.5rem;
+}
+
+.avatar-example-card h5 {
+    margin: 0 0 1rem;
+}
+
+.avatar-example-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.avatar-example-spacer {
+    margin-left: 0.5rem;
+}
