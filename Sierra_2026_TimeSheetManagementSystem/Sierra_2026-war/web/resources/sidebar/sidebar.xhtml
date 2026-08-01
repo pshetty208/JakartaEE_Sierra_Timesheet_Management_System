@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="jakarta.faces.composite"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui">
+    <cc:interface>
+        <cc:attribute name="widgetVar" default="appSidebar"/>
+        <cc:attribute name="position" default="left"/>
+        <cc:attribute name="styleClass" default="app-sidebar"/>
+        <cc:facet name="trigger"/>
+        <cc:facet name="content"/>
+    </cc:interface>
+
+    <cc:implementation>
+        <h:outputStylesheet library="sidebar" name="sidebar.css"/>
+        <h:outputScript library="sidebar" name="sidebar.js"/>
+
+        <cc:renderFacet name="trigger"/>
+
+        <p:sidebar widgetVar="#{cc.attrs.widgetVar}"
+                   position="#{cc.attrs.position}"
+                   modal="true"
+                   blockScroll="true"
+                   styleClass="#{cc.attrs.styleClass}">
+            <cc:renderFacet name="content"/>
+        </p:sidebar>
+    </cc:implementation>
+</html>
