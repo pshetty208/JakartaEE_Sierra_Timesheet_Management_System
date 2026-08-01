@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:avatar="jakarta.faces.composite/avatar">
+    <h:head>
+        <title>Avatar Component Example</title>
+    </h:head>
+    <h:body>
+        <h1>Avatar</h1>
+
+        <div class="avatar-example-grid">
+            <div class="avatar-example-card">
+                <h5>Label</h5>
+                <div class="avatar-example-row">
+                    <avatar:avatar label="P" size="xlarge"/>
+                    <avatar:avatar label="V" size="large" style="background-color:#2196F3; color:#fff"/>
+                    <avatar:avatar label="U" style="background-color:#9c27b0; color:#fff"/>
+                </div>
+            </div>
+
+            <div class="avatar-example-card">
+                <h5>Label - Circle</h5>
+                <div class="avatar-example-row">
+                    <avatar:avatar label="P" size="xlarge" shape="circle"/>
+                    <avatar:avatar label="V" size="large" shape="circle" style="background-color:#2196F3; color:#fff"/>
+                    <avatar:avatar label="U" shape="circle" style="background-color:#9c27b0; color:#fff"/>
+                </div>
+            </div>
+
+            <div class="avatar-example-card">
+                <h5>Label - Badge and Dynamic</h5>
+                <div class="avatar-example-row">
+                    <p:badge value="4">
+                        <avatar:avatar label="U" size="xlarge"/>
+                    </p:badge>
+                    <avatar:avatar label="PrimeFaces Rocks" dynamicColor="true" size="large"/>
+                    <avatar:avatar label="Johann Chrysostom Wolfgang Amadeus Mozart"
+                                   dynamicColor="true"
+                                   lightness="80"
+                                   title="Wolfgang Amadeus Mozart"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="avatar-example-grid">
+            <div class="avatar-example-card">
+                <h5>Icon</h5>
+                <div class="avatar-example-row">
+                    <avatar:avatar icon="pi pi-user" size="xlarge"/>
+                    <avatar:avatar icon="pi pi-user" size="large" style="background-color:#2196F3; color:#fff"/>
+                    <avatar:avatar icon="pi pi-user" style="background-color:#9c27b0; color:#fff"/>
+                </div>
+            </div>
+
+            <div class="avatar-example-card">
+                <h5>Icon - Circle</h5>
+                <div class="avatar-example-row">
+                    <avatar:avatar icon="pi pi-user" size="xlarge" shape="circle"/>
+                    <avatar:avatar icon="pi pi-user" size="large" shape="circle" style="background-color:#2196F3; color:#fff"/>
+                    <avatar:avatar icon="pi pi-user" shape="circle" style="background-color:#9c27b0; color:#fff"/>
+                </div>
+            </div>
+
+            <div class="avatar-example-card">
+                <h5>Icon - Badge</h5>
+                <div class="avatar-example-row">
+                    <p:badge value="4">
+                        <avatar:avatar icon="pi pi-user" size="xlarge"/>
+                    </p:badge>
+                </div>
+            </div>
+        </div>
+
+        <div class="avatar-example-grid">
+            <div class="avatar-example-card">
+                <h5>Image Fallback</h5>
+                <div class="avatar-example-row">
+                    <avatar:avatar label="AE" size="xlarge" shape="circle" style="background-color:#0f766e; color:#fff"/>
+                    <avatar:avatar label="AJ" size="large" shape="circle" style="background-color:#2563eb; color:#fff"/>
+                    <avatar:avatar label="OM" shape="circle" style="background-color:#7c3aed; color:#fff"/>
+                </div>
+            </div>
+
+            <div class="avatar-example-card">
+                <h5>Avatar Group</h5>
+                <avatar:avatarGroup>
+                    <avatar:avatar label="AE" size="large" shape="circle" style="background-color:#0f766e; color:#fff"/>
+                    <avatar:avatar label="AJ" size="large" shape="circle" style="background-color:#2563eb; color:#fff"/>
+                    <avatar:avatar label="OM" size="large" shape="circle" style="background-color:#7c3aed; color:#fff"/>
+                    <avatar:avatar label="IB" size="large" shape="circle" style="background-color:#be123c; color:#fff"/>
+                    <avatar:avatar label="XF" size="large" shape="circle" style="background-color:#c2410c; color:#fff"/>
+                    <avatar:avatar label="+2" size="large" shape="circle" style="background-color:#9c27b0; color:#fff"/>
+                </avatar:avatarGroup>
+            </div>
+
+            <div class="avatar-example-card">
+                <h5>Gravatar and Fallback</h5>
+                <div class="avatar-example-row">
+                    <avatar:avatar label="Walter" size="xlarge"/>
+                    <avatar:avatar gravatar="contact@primetek.com.tr" gravatarConfig="d=mp" size="large"/>
+                    <avatar:avatar gravatar="notfound@avatar.com" label="Not Found"/>
+                    <avatar:avatar icon="pi pi-user"/>
+                </div>
+            </div>
+        </div>
+    </h:body>
+</html>
