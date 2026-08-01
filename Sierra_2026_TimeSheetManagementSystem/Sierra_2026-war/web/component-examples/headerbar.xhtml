@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="jakarta.faces.core"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:headerbar="jakarta.faces.composite/headerbar">
+    <h:head>
+        <title>Headerbar Component Example</title>
+    </h:head>
+    <h:body>
+        <headerbar:headerbar>
+            <f:facet name="start">
+                <h:panelGroup layout="block" styleClass="app-headerbar__brand">
+                    <span class="app-headerbar__brand-mark">S</span>
+                    <span>Sierra TMS</span>
+                </h:panelGroup>
+            </f:facet>
+
+            <p:submenu label="Dashboard" icon="pi pi-fw pi-home">
+                <p:column>
+                    <p:submenu label="Overview">
+                        <p:menuitem value="Home" outcome="/index"/>
+                        <p:menuitem value="Component examples" outcome="/component-examples/index"/>
+                    </p:submenu>
+                </p:column>
+            </p:submenu>
+
+            <p:submenu label="Timesheets" icon="pi pi-fw pi-calendar">
+                <p:column>
+                    <p:submenu label="Timesheets">
+                        <p:menuitem value="My timesheets" url="#"/>
+                        <p:menuitem value="Approvals" url="#"/>
+                    </p:submenu>
+                </p:column>
+                <p:column>
+                    <p:submenu label="Reports">
+                        <p:menuitem value="Weekly summary" url="#"/>
+                        <p:menuitem value="Monthly export" url="#"/>
+                    </p:submenu>
+                </p:column>
+            </p:submenu>
+
+            <p:submenu label="Contracts" icon="pi pi-fw pi-file">
+                <p:column>
+                    <p:submenu label="Contracts">
+                        <p:menuitem value="Active contracts" url="#"/>
+                        <p:menuitem value="Draft contracts" url="#"/>
+                    </p:submenu>
+                </p:column>
+            </p:submenu>
+
+            <p:submenu label="Settings" icon="pi pi-fw pi-cog">
+                <p:column>
+                    <p:submenu label="Account">
+                        <p:menuitem value="Profile" url="#"/>
+                        <p:menuitem value="Preferences" url="#"/>
+                    </p:submenu>
+                </p:column>
+            </p:submenu>
+
+            <f:facet name="end">
+                <h:panelGroup layout="block" styleClass="app-headerbar__actions">
+                    <span class="ui-input-icon-left">
+                        <i class="pi pi-fw pi-search"></i>
+                        <p:inputText styleClass="app-headerbar__search" placeholder="Search"/>
+                    </span>
+                    <p:button value="Logout" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
+                </h:panelGroup>
+            </f:facet>
+        </headerbar:headerbar>
+    </h:body>
+</html>
