@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:userProfileMenu="jakarta.faces.composite/userProfileMenu">
+    <h:head>
+        <title>User Profile Menu Component Example</title>
+    </h:head>
+    <h:body>
+        <h1>User Profile Menu</h1>
+
+        <h:form>
+            <div class="menu-example-card">
+                <userProfileMenu:userProfileMenu name="Prajna Shetty"
+                                                 subtitle="Project Admin"
+                                                 label="PS"
+                                                 showSubtitle="true">
+                    <p:submenu label="Account">
+                        <p:menuitem value="Profile" outcome="/component-examples/index" icon="pi pi-user"/>
+                        <p:menuitem value="Preferences" url="#" icon="pi pi-cog"/>
+                    </p:submenu>
+                    <p:submenu label="Workspace">
+                        <p:menuitem value="Timesheets" url="#" icon="pi pi-calendar"/>
+                        <p:menuitem value="Approvals" url="#" icon="pi pi-check-circle"/>
+                    </p:submenu>
+                    <p:submenu label="Session">
+                        <p:menuitem value="Logout" url="#" icon="pi pi-sign-out"/>
+                    </p:submenu>
+                </userProfileMenu:userProfileMenu>
+            </div>
+        </h:form>
+    </h:body>
+</html>

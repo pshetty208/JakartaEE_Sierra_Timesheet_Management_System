@@ -39,8 +39,9 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    white-space: nowrap;
 }
 
 .app-headerbar__search {
-    width: 12rem;
+    width: 10rem;
 }

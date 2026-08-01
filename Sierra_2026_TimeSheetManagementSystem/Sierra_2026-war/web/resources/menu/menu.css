@@ -1,0 +1,30 @@
+.menu-example-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    gap: 1rem;
+}
+
+.menu-example-card {
+    padding: 1rem;
+    background: #ffffff;
+    border: 1px solid #d7dce2;
+    border-radius: 0.5rem;
+}
+
+.menu-example-card h5 {
+    margin: 0 0 1rem;
+}
+
+.app-menu {
+    width: 100%;
+}
+
+.app-menu-trigger {
+    display: inline-block;
+}
+
+.app-menu.ui-menu-dynamic {
+    width: auto;
+    min-width: 14rem;
+    max-width: 20rem;
+}
