@@ -16,6 +16,7 @@ public class PersonDto implements Serializable {
     private String lastName;
     private LocalDate dateOfBirth;
     private String emailAddress;
+    private boolean universityStaff;
     private boolean consent;
 
     public PersonDto() {
@@ -27,12 +28,14 @@ public class PersonDto implements Serializable {
             String lastName,
             LocalDate dateOfBirth,
             String emailAddress,
+            boolean universityStaff,
             boolean consent) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
         this.emailAddress = emailAddress;
+        this.universityStaff = universityStaff;
         this.consent = consent;
     }
 
@@ -74,6 +77,14 @@ public class PersonDto implements Serializable {
 
     public void setEmailAddress(String emailAddress) {
         this.emailAddress = emailAddress;
+    }
+
+    public boolean isUniversityStaff() {
+        return universityStaff;
+    }
+
+    public void setUniversityStaff(boolean universityStaff) {
+        this.universityStaff = universityStaff;
     }
 
     public boolean isConsent() {

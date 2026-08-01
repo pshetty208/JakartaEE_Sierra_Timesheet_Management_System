@@ -38,6 +38,9 @@ public class PersonEntity implements Serializable {
     @Column(name = "email_address", nullable = false, unique = true, length = 100)
     private String emailAddress;
 
+    @Column(name = "university_staff", nullable = false)
+    private boolean universityStaff;
+
     @Column(nullable = false)
     private boolean consent;
 
@@ -82,6 +85,14 @@ public class PersonEntity implements Serializable {
 
     public void setEmailAddress(String emailAddress) {
         this.emailAddress = emailAddress;
+    }
+
+    public boolean isUniversityStaff() {
+        return universityStaff;
+    }
+
+    public void setUniversityStaff(boolean universityStaff) {
+        this.universityStaff = universityStaff;
     }
 
     public boolean isConsent() {

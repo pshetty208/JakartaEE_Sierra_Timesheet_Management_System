@@ -42,6 +42,7 @@ public class PersonServiceImpl implements PersonService {
                 entity.getLastName(),
                 entity.getDateOfBirth(),
                 entity.getEmailAddress(),
+                entity.isUniversityStaff(),
                 entity.isConsent()
         );
     }

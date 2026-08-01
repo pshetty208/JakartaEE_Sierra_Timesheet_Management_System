@@ -34,11 +34,11 @@ public class ContractEntity implements Serializable {
     private Long id;
 
     @OneToOne(optional = false)
-    @JoinColumn(name = "employee_id", nullable = false)
+    @JoinColumn(name = "employee_id", nullable = false, unique = true)
     private RoleEntity employee;
 
     @OneToOne(optional = false)
-    @JoinColumn(name = "supervisor_id", nullable = false)
+    @JoinColumn(name = "supervisor_id", nullable = false, unique = true)
     private RoleEntity supervisor;
 
     @Column(nullable = false, length = 100)

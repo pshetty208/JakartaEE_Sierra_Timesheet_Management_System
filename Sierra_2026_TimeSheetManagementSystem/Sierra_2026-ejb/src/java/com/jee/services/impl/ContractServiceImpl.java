@@ -35,18 +35,19 @@ public class ContractServiceImpl implements ContractService {
     @Override
     @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public ContractDto getContractById(Long id) {
-        ContractEntity entity = contractDao.findById(id);
-        if (entity == null) {
+        ContractEntity contract = contractDao.findById(id);
+        if (contract == null) {
             return null;
         }
 
         PersonEntity currentPerson = getCurrentPerson();
-        if (currentPerson == null || !isAssignedToContract(currentPerson, entity)) {
+        if (currentPerson == null
+                || !isAuthorizedToViewContract(currentPerson, contract)) {
             throw new EJBAccessException(
                     "The current user is not authorized to view this contract.");
         }
 
-        return createDTO(entity);
+        return createDTO(contract);
     }
 
     private PersonEntity getCurrentPerson() {
@@ -54,15 +55,21 @@ public class ContractServiceImpl implements ContractService {
         return personDao.findByEmailAddress(emailAddress);
     }
 
-    private boolean isAssignedToContract(
+    private boolean isAuthorizedToViewContract(
             PersonEntity person,
             ContractEntity contract) {
         Long personId = person.getId();
 
-        return belongsToPerson(contract.getEmployee(), personId)
-                || belongsToPerson(contract.getSupervisor(), personId)
+        if (belongsToPerson(contract.getEmployee(), personId)) {
+            return true;
+        }
+
+        boolean hasStaffContractRole
+                = belongsToPerson(contract.getSupervisor(), personId)
                 || containsPerson(contract.getAssistants(), personId)
                 || containsPerson(contract.getSecretaries(), personId);
+
+        return person.isUniversityStaff() && hasStaffContractRole;
     }
 
     private boolean containsPerson(Set<RoleEntity> roles, Long personId) {

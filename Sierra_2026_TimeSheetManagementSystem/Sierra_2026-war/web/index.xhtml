@@ -11,6 +11,8 @@
             <h:panelGrid columns="2" rendered="#{not empty currentPersonBean.currentPerson}">
                 <h:outputLabel value="Signed in as"/>
                 <h:outputText value="#{currentPersonBean.currentPerson.emailAddress}"/>
+                <h:outputLabel value="University staff"/>
+                <h:outputText value="#{currentPersonBean.currentPerson.universityStaff ? 'Yes' : 'No'}"/>
             </h:panelGrid>
 
             <h:panelGroup layout="block" rendered="#{empty currentPersonBean.currentPerson}">
@@ -19,20 +21,22 @@
 
             <br/>
 
-            <h:panelGrid columns="2">
-                <h:outputLabel value="Name"/>
-                <h:inputText value="#{userBean.name}"/>
-            </h:panelGrid>
-            
-            <br/>
-            
-            <h:commandButton value="Save" action="#{userBean.save}"/> 
-            
-            <br/>
-            
-            <h:dataTable value="#{userBean.people}" var="user">
-                <h:column> #{user.name} </h:column>
-            </h:dataTable>
+            <h:panelGroup layout="block" rendered="#{request.isUserInRole('ADMIN')}">
+                <h:panelGrid columns="2">
+                    <h:outputLabel value="Name"/>
+                    <h:inputText value="#{userBean.name}"/>
+                </h:panelGrid>
+
+                <br/>
+
+                <h:commandButton value="Save" action="#{userBean.save}"/>
+
+                <br/>
+
+                <h:dataTable value="#{userBean.people}" var="user">
+                    <h:column> #{user.name} </h:column>
+                </h:dataTable>
+            </h:panelGroup>
             
             
         </h:form>
