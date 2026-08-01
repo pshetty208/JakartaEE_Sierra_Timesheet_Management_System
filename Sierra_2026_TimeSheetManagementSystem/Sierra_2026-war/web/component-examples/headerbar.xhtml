@@ -4,7 +4,8 @@
       xmlns:f="jakarta.faces.core"
       xmlns:h="jakarta.faces.html"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:headerbar="jakarta.faces.composite/headerbar">
+      xmlns:headerbar="jakarta.faces.composite/headerbar"
+      xmlns:userProfileMenu="jakarta.faces.composite/userProfileMenu">
     <h:head>
         <title>Headerbar Component Example</title>
     </h:head>
@@ -65,7 +66,17 @@
                         <i class="pi pi-fw pi-search"></i>
                         <p:inputText styleClass="app-headerbar__search" placeholder="Search"/>
                     </span>
-                    <p:button value="Logout" icon="pi pi-fw pi-sign-out" styleClass="ui-button-info"/>
+                    <userProfileMenu:userProfileMenu name="Prajna Shetty"
+                                                     subtitle="Project Admin"
+                                                     label="PS">
+                        <p:submenu label="Account">
+                            <p:menuitem value="Profile" outcome="/component-examples/userProfileMenu" icon="pi pi-user"/>
+                            <p:menuitem value="Preferences" url="#" icon="pi pi-cog"/>
+                        </p:submenu>
+                        <p:submenu label="Session">
+                            <p:menuitem value="Logout" url="#" icon="pi pi-sign-out"/>
+                        </p:submenu>
+                    </userProfileMenu:userProfileMenu>
                 </h:panelGroup>
             </f:facet>
         </headerbar:headerbar>
