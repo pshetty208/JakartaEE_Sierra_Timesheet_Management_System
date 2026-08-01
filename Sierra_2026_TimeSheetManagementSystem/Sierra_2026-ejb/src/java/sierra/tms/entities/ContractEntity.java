@@ -2,10 +2,19 @@ package sierra.tms.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.io.Serializable;
+import java.time.LocalDate;
+import sierra.tms.utils.ContractStatus;
+import sierra.tms.utils.Frequency;
 
 /**
  *
@@ -13,67 +22,68 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name="Contract")
-public class ContractEntity {
- 
+public class ContractEntity implements Serializable {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
-    @Column(name = "employee_id", nullable=false)
-    private String employeeId;
-    
-    @Column(name = "supervisor_id", nullable=false)
-    private String supervisorId;
-    
-    @Column(name = "name", nullable=false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "employee_id", nullable = false)
+    private PersonEntity employee;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "supervisor_id", nullable = false)
+    private PersonEntity supervisor;
+
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
-    
-    @Column(name = "status", nullable=false)
-    private String status;
-    
-    @Column(name = "start_date", nullable=false)
-    private String startDate;
-    
-    @Column(name = "end_date", nullable=false)
-    private String endDate;
-    
-    @Column(name = "frequency", nullable=false)
-    private String frequency;
-    
-    @Column(name = "hours_per_week", nullable=false)
-    private String hoursPerWeek;
-    
-    @Column(name = "working_days_per_week", nullable=false)
-    private String workingDaysPerWeek;
-    
-    @Column(name = "vacation_days_per_year", nullable=false)
-    private String vacationDaysPerYear;
-    
-    @Column(name = "termination_date", nullable=false)
-    private String terminationDate;
-    
-    @Column(name = "archive_duration", nullable=false)
-    private String archiveDuration;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private ContractStatus status = ContractStatus.PREPARED;
+
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
+
+    @Column(name = "end_date", nullable = false)
+    private LocalDate endDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "frequency", nullable = false)
+    private Frequency frequency;
+
+    @Column(name = "hours_per_week", nullable = false)
+    private Integer hoursPerWeek;
+
+    @Column(name = "working_days_per_week", nullable = false)
+    private Integer workingDaysPerWeek = 5;
+
+    @Column(name = "vacation_days_per_year", nullable = false)
+    private Integer vacationDaysPerYear = 20;
+
+    @Column(name = "termination_date")
+    private LocalDate terminationDate;
+
+    @Column(name = "archive_duration", nullable = false)
+    private Integer archiveDuration = 24;
 
     public ContractEntity() {
     }
 
-    public ContractEntity(Long id, String employeeId, String supervisorId, String name, String status, String startDate, String endDate, String frequency, String hoursPerWeek, String workingDaysPerWeek, String vacationDaysPerYear, String terminationDate, String archiveDuration) {
+    public ContractEntity(Long id, PersonEntity employee, PersonEntity supervisor, String name, LocalDate startDate, LocalDate endDate, Frequency frequency, Integer hoursPerWeek, LocalDate terminationDate) {
         this.id = id;
-        this.employeeId = employeeId;
-        this.supervisorId = supervisorId;
+        this.employee = employee;
+        this.supervisor = supervisor;
         this.name = name;
-        this.status = status;
         this.startDate = startDate;
         this.endDate = endDate;
         this.frequency = frequency;
         this.hoursPerWeek = hoursPerWeek;
-        this.workingDaysPerWeek = workingDaysPerWeek;
-        this.vacationDaysPerYear = vacationDaysPerYear;
         this.terminationDate = terminationDate;
-        this.archiveDuration = archiveDuration;
     }
-    
+
     public Long getId() {
         return id;
     }
@@ -82,20 +92,20 @@ public class ContractEntity {
         this.id = id;
     }
 
-    public String getEmployeeId() {
-        return employeeId;
+    public PersonEntity getEmployee() {
+        return employee;
     }
 
-    public void setEmployeeId(String employeeId) {
-        this.employeeId = employeeId;
+    public void setEmployee(PersonEntity employee) {
+        this.employee = employee;
     }
 
-    public String getSupervisorId() {
-        return supervisorId;
+    public PersonEntity getSupervisor() {
+        return supervisor;
     }
 
-    public void setSupervisorId(String supervisorId) {
-        this.supervisorId = supervisorId;
+    public void setSupervisor(PersonEntity supervisor) {
+        this.supervisor = supervisor;
     }
 
     public String getName() {
@@ -106,78 +116,76 @@ public class ContractEntity {
         this.name = name;
     }
 
-    public String getStatus() {
+    public ContractStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ContractStatus status) {
         this.status = status;
     }
 
-    public String getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(String startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public String getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(String endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 
-    public String getFrequency() {
+    public Frequency getFrequency() {
         return frequency;
     }
 
-    public void setFrequency(String frequency) {
+    public void setFrequency(Frequency frequency) {
         this.frequency = frequency;
     }
 
-    public String getHoursPerWeek() {
+    public Integer getHoursPerWeek() {
         return hoursPerWeek;
     }
 
-    public void setHoursPerWeek(String hoursPerWeek) {
+    public void setHoursPerWeek(Integer hoursPerWeek) {
         this.hoursPerWeek = hoursPerWeek;
     }
 
-    public String getWorkingDaysPerWeek() {
+    public Integer getWorkingDaysPerWeek() {
         return workingDaysPerWeek;
     }
 
-    public void setWorkingDaysPerWeek(String workingDaysPerWeek) {
+    public void setWorkingDaysPerWeek(Integer workingDaysPerWeek) {
         this.workingDaysPerWeek = workingDaysPerWeek;
     }
 
-    public String getVacationDaysPerYear() {
+    public Integer getVacationDaysPerYear() {
         return vacationDaysPerYear;
     }
 
-    public void setVacationDaysPerYear(String vacationDaysPerYear) {
+    public void setVacationDaysPerYear(Integer vacationDaysPerYear) {
         this.vacationDaysPerYear = vacationDaysPerYear;
     }
 
-    public String getTerminationDate() {
+    public LocalDate getTerminationDate() {
         return terminationDate;
     }
 
-    public void setTerminationDate(String terminationDate) {
+    public void setTerminationDate(LocalDate terminationDate) {
         this.terminationDate = terminationDate;
     }
 
-    public String getArchiveDuration() {
+    public Integer getArchiveDuration() {
         return archiveDuration;
     }
 
-    public void setArchiveDuration(String archiveDuration) {
+    public void setArchiveDuration(Integer archiveDuration) {
         this.archiveDuration = archiveDuration;
     }
     
-    
-
 }

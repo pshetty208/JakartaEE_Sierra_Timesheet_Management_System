@@ -5,20 +5,29 @@ import java.util.List;
 import sierra.tms.dto.PersonDto;
 import sierra.tms.utils.RoleType;
 
-
+/**
+ *
+ * @author prajnashetty
+ */
 @Remote
 public interface PersonService {
     
-    public void save(PersonDto dto);
+    void createPerson(PersonDto dto);
 
-    public PersonDto findById(Long id);
+    PersonDto findById(Long id);
 
-    public List<PersonDto> findAll();
-    
-    public PersonDto update(PersonDto person);
+    List<PersonDto> findAll();
 
-    public void delete(Long id);
-    
-    public void changeRole(Long personId, String roleType);
-        
+    PersonDto update(PersonDto dto);
+
+    void delete(Long id);
+
+    void giveConsent(Long personId);
+
+    void changePreferredLanguage(Long personId, String language);
+
+    void assignRole(Long personId, RoleType role);
+
+    void removeRole(Long personId, RoleType role);
+
 }

@@ -7,6 +7,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.List;
 
+/**
+ *
+ * @author prajnashetty
+ */
 @LocalBean
 @Stateless
 public class PersonDao {
@@ -20,6 +24,17 @@ public class PersonDao {
     
     public PersonEntity findById(Long id) {
         return em.find(PersonEntity.class, id);
+    }
+    
+    public PersonEntity findByEmail(String email){
+        List<PersonEntity> persons =
+            em.createQuery(
+                    "SELECT p FROM PersonEntity p WHERE p.emailAddress=:email",
+                    PersonEntity.class)
+                    .setParameter("email", email)
+                    .getResultList();
+
+        return persons.isEmpty() ? null : persons.get(0);
     }
 
     public List<PersonEntity> findAll() {

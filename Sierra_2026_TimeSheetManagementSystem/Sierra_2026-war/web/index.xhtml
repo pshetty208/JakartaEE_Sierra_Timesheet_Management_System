@@ -1,47 +1,161 @@
-<?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
+
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core">
 
 <h:head>
-    <title>Person Management</title>
+    <title>Contract CRUD Test</title>
 </h:head>
 
 <h:body>
 
-    <h2>Person Management</h2>
+    <h1>Contract CRUD Test</h1>
 
-    <h:form>
+    <h:messages globalOnly="true"/>
 
-        <h:panelGrid columns="2">
+    <h:form id="contractForm">
 
-            <h:outputLabel value="First Name:"/>
-            <h:inputText value="#{personBean.person.firstName}" required="true"/>
+        <h:panelGrid columns="2" cellpadding="5">
 
-            <h:outputLabel value="Last Name:"/>
-            <h:inputText value="#{personBean.person.lastName}" required="true"/>
+            <h:outputLabel for="employeeId" value="Employee ID"/>
+            <h:inputText id="employeeId"
+                         value="#{contractBean.contract.employeeId}" />
 
-            <h:outputLabel value="Email:"/>
-            <h:inputText value="#{personBean.person.emailAddress}" required="true"/>
+            <h:outputLabel for="supervisorId" value="Supervisor ID"/>
+            <h:inputText id="supervisorId"
+                         value="#{contractBean.contract.supervisorId}" />
 
-            <h:outputLabel value="Date of Birth:"/>
-            <h:inputText value="#{personBean.person.dateOfBirth}">
-                <f:convertDateTime type="localDate" pattern="yyyy-MM-dd"/>
-            </h:inputText>
+            <h:outputLabel for="name" value="Contract Name"/>
+            <h:inputText id="name"
+                         value="#{contractBean.contract.name}" />
+
+            <h:outputLabel for="status" value="Status"/>
+            <h:selectOneMenu id="status"
+                             value="#{contractBean.contract.status}">
+                <f:selectItems value="#{contractBean.statuses}"
+                               var="s"
+                               itemValue="#{s}"
+                               itemLabel="#{s}" />
+            </h:selectOneMenu>
+
+            <h:outputLabel for="startDate" value="Start Date (yyyy-MM-dd)"/>
+            <h:inputText id="startDate"
+                         value="#{contractBean.contract.startDate}" />
+
+            <h:outputLabel for="endDate" value="End Date (yyyy-MM-dd)"/>
+            <h:inputText id="endDate"
+                         value="#{contractBean.contract.endDate}" />
+
+            <h:outputLabel for="hours" value="Hours Per Week"/>
+            <h:inputText id="hours"
+                         value="#{contractBean.contract.hoursPerWeek}" />
+
+            <h:outputLabel for="days" value="Working Days Per Week"/>
+            <h:inputText id="days"
+                         value="#{contractBean.contract.workingDaysPerWeek}" />
+
+            <h:outputLabel for="vacation" value="Vacation Days Per Year"/>
+            <h:inputText id="vacation"
+                         value="#{contractBean.contract.vacationDaysPerYear}" />
+
+            <h:outputLabel for="termination" value="Termination Date (yyyy-MM-dd)"/>
+            <h:inputText id="termination"
+                         value="#{contractBean.contract.terminationDate}" />
+
+            <h:outputLabel for="archive" value="Archive Duration"/>
+            <h:inputText id="archive"
+                         value="#{contractBean.contract.archiveDuration}" />
 
         </h:panelGrid>
 
         <br/>
 
-        <h:commandButton value="Save"
-                         action="#{personBean.save}"/>
+        <h:commandButton value="Create"
+                         action="#{contractBean.create}" />
 
-        <br/><br/>
+        <h:commandButton value="Update"
+                         action="#{contractBean.update}" />
 
-        <h:messages style="color:red"/>
+        <h:commandButton value="Clear"
+                         action="#{contractBean.init}" />
+
+        <hr/>
+
+        <h:dataTable value="#{contractBean.contracts}"
+                     var="c"
+                     border="1">
+
+            <h:column>
+                <f:facet name="header">ID</f:facet>
+                #{c.id}
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">Employee</f:facet>
+                #{c.employeeId}
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">Supervisor</f:facet>
+                #{c.supervisorId}
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">Name</f:facet>
+                #{c.name}
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">Status</f:facet>
+                #{c.status}
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">Start Date</f:facet>
+                #{c.startDate}
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">End Date</f:facet>
+                #{c.endDate}
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">Hours</f:facet>
+                #{c.hoursPerWeek}
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">Working Days</f:facet>
+                #{c.workingDaysPerWeek}
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">Vacation</f:facet>
+                #{c.vacationDaysPerYear}
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">Archive</f:facet>
+                #{c.archiveDuration}
+            </h:column>
+
+            <h:column>
+                <f:facet name="header">Actions</f:facet>
+
+                <h:commandButton value="Load"
+                                 action="#{contractBean.load(c.id)}" />
+
+                <h:commandButton value="Delete"
+                                 action="#{contractBean.delete(c.id)}" />
+
+            </h:column>
+
+        </h:dataTable>
 
     </h:form>
 
 </h:body>
+
 </html>

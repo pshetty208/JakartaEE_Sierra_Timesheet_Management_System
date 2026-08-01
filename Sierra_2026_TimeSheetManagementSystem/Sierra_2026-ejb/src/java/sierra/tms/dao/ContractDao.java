@@ -27,9 +27,11 @@ public class ContractDao {
     }
 
     public List<ContractEntity> findAll() {
-        return em.createQuery("SELECT user FROM ContractEntity contract",
-                ContractEntity.class)
-                .getResultList();
+
+    return em.createQuery(
+            "SELECT c FROM ContractEntity c",
+            ContractEntity.class)
+            .getResultList();
     }
     
     public ContractEntity update(ContractEntity contract) {
