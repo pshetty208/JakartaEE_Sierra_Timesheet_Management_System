@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="jakarta.faces.composite"
+      xmlns:f="jakarta.faces.core"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui">
+    <cc:interface>
+        <cc:attribute name="orientation" default="horizontal"/>
+        <cc:attribute name="autoDisplay" default="false"/>
+        <cc:attribute name="styleClass" default="app-headerbar"/>
+        <cc:facet name="start"/>
+        <cc:facet name="end"/>
+    </cc:interface>
+
+    <cc:implementation>
+        <h:outputStylesheet library="headerbar" name="headerbar.css"/>
+
+        <header class="#{cc.attrs.styleClass}">
+            <h:form styleClass="app-headerbar__form">
+                <p:megaMenu orientation="#{cc.attrs.orientation}"
+                            autoDisplay="#{cc.attrs.autoDisplay}"
+                            styleClass="app-headerbar__menu">
+                    <f:facet name="start">
+                        <cc:renderFacet name="start"/>
+                    </f:facet>
+
+                    <cc:insertChildren/>
+
+                    <f:facet name="end">
+                        <cc:renderFacet name="end"/>
+                    </f:facet>
+                </p:megaMenu>
+            </h:form>
+        </header>
+    </cc:implementation>
+</html>
