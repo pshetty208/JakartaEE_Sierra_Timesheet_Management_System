@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html">
+    <h:head>
+        <title>Sierra Login</title>
+    </h:head>
+    <h:body>
+        <h1>Sierra Login</h1>
+
+        <form method="post" action="#{request.contextPath}/j_security_check">
+            <p>
+                <label for="j_username">Email</label><br/>
+                <input id="j_username" type="text" name="j_username"/>
+            </p>
+            <p>
+                <label for="j_password">Password</label><br/>
+                <input id="j_password" type="password" name="j_password"/>
+            </p>
+            <p>
+                <button type="submit">Login</button>
+            </p>
+        </form>
+
+    </h:body>
+</html>

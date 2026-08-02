@@ -4,10 +4,6 @@ import jakarta.ejb.Stateless;
 import java.time.LocalDate;
 import java.util.Set;
 
-/**
- *
- * @author prajnashetty
- */
 @Stateless
 public class HolidayServiceImpl {
 

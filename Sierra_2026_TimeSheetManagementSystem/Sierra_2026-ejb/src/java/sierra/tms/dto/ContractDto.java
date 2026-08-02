@@ -2,14 +2,15 @@ package sierra.tms.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import sierra.tms.utils.ContractStatus;
 import sierra.tms.utils.Frequency;
 
-/**
- *
- * @author prajnashetty
- */
+
 public class ContractDto implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private Long id;
 
@@ -22,7 +23,7 @@ public class ContractDto implements Serializable {
     private ContractStatus status;
 
     private LocalDate startDate;
-    
+
     private Frequency frequency;
 
     private LocalDate endDate;
@@ -36,13 +37,35 @@ public class ContractDto implements Serializable {
     private LocalDate terminationDate;
 
     private Integer archiveDuration;
-    
+
     private Double vacationHours;
 
+    private Set<Long> assistantRoleIds;
+
+    private Set<Long> secretaryRoleIds;
+
+
     public ContractDto() {
+        assistantRoleIds = new LinkedHashSet<>();
+        secretaryRoleIds = new LinkedHashSet<>();
     }
 
-    public ContractDto(Long id, Long employeeId, Long supervisorId, String name, ContractStatus status, LocalDate startDate, Frequency frequency, LocalDate endDate, Integer hoursPerWeek, Integer workingDaysPerWeek, Integer vacationDaysPerYear, LocalDate terminationDate, Integer archiveDuration) {
+
+    public ContractDto(
+            Long id,
+            Long employeeId,
+            Long supervisorId,
+            String name,
+            ContractStatus status,
+            LocalDate startDate,
+            Frequency frequency,
+            LocalDate endDate,
+            Integer hoursPerWeek,
+            Integer workingDaysPerWeek,
+            Integer vacationDaysPerYear,
+            LocalDate terminationDate,
+            Integer archiveDuration) {
+
         this.id = id;
         this.employeeId = employeeId;
         this.supervisorId = supervisorId;
@@ -56,7 +79,10 @@ public class ContractDto implements Serializable {
         this.vacationDaysPerYear = vacationDaysPerYear;
         this.terminationDate = terminationDate;
         this.archiveDuration = archiveDuration;
+        this.assistantRoleIds = new LinkedHashSet<>();
+        this.secretaryRoleIds = new LinkedHashSet<>();
     }
+
 
     public Long getId() {
         return id;
@@ -66,6 +92,7 @@ public class ContractDto implements Serializable {
         this.id = id;
     }
 
+
     public Long getEmployeeId() {
         return employeeId;
     }
@@ -73,6 +100,7 @@ public class ContractDto implements Serializable {
     public void setEmployeeId(Long employeeId) {
         this.employeeId = employeeId;
     }
+
 
     public Long getSupervisorId() {
         return supervisorId;
@@ -82,6 +110,7 @@ public class ContractDto implements Serializable {
         this.supervisorId = supervisorId;
     }
 
+
     public String getName() {
         return name;
     }
@@ -89,6 +118,7 @@ public class ContractDto implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
+
 
     public ContractStatus getStatus() {
         return status;
@@ -98,6 +128,7 @@ public class ContractDto implements Serializable {
         this.status = status;
     }
 
+
     public LocalDate getStartDate() {
         return startDate;
     }
@@ -105,6 +136,7 @@ public class ContractDto implements Serializable {
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
+
 
     public Frequency getFrequency() {
         return frequency;
@@ -114,6 +146,7 @@ public class ContractDto implements Serializable {
         this.frequency = frequency;
     }
 
+
     public LocalDate getEndDate() {
         return endDate;
     }
@@ -121,6 +154,7 @@ public class ContractDto implements Serializable {
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
+
 
     public Integer getHoursPerWeek() {
         return hoursPerWeek;
@@ -130,6 +164,7 @@ public class ContractDto implements Serializable {
         this.hoursPerWeek = hoursPerWeek;
     }
 
+
     public Integer getWorkingDaysPerWeek() {
         return workingDaysPerWeek;
     }
@@ -137,6 +172,7 @@ public class ContractDto implements Serializable {
     public void setWorkingDaysPerWeek(Integer workingDaysPerWeek) {
         this.workingDaysPerWeek = workingDaysPerWeek;
     }
+
 
     public Integer getVacationDaysPerYear() {
         return vacationDaysPerYear;
@@ -146,6 +182,7 @@ public class ContractDto implements Serializable {
         this.vacationDaysPerYear = vacationDaysPerYear;
     }
 
+
     public LocalDate getTerminationDate() {
         return terminationDate;
     }
@@ -153,6 +190,7 @@ public class ContractDto implements Serializable {
     public void setTerminationDate(LocalDate terminationDate) {
         this.terminationDate = terminationDate;
     }
+
 
     public Integer getArchiveDuration() {
         return archiveDuration;
@@ -162,6 +200,7 @@ public class ContractDto implements Serializable {
         this.archiveDuration = archiveDuration;
     }
 
+
     public Double getVacationHours() {
         return vacationHours;
     }
@@ -170,5 +209,21 @@ public class ContractDto implements Serializable {
         this.vacationHours = vacationHours;
     }
 
-    
+
+    public Set<Long> getAssistantRoleIds() {
+        return assistantRoleIds;
+    }
+
+    public void setAssistantRoleIds(Set<Long> assistantRoleIds) {
+        this.assistantRoleIds = assistantRoleIds;
+    }
+
+
+    public Set<Long> getSecretaryRoleIds() {
+        return secretaryRoleIds;
+    }
+
+    public void setSecretaryRoleIds(Set<Long> secretaryRoleIds) {
+        this.secretaryRoleIds = secretaryRoleIds;
+    }
 }

@@ -7,14 +7,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.List;
 
-/**
- *
- * @author prajnashetty
- */
 @LocalBean
 @Stateless
 public class PersonDao {
-    
+
     @PersistenceContext(unitName = "Sierra-tms-pu")
     private EntityManager em;
 
@@ -32,9 +28,10 @@ public class PersonDao {
                     "SELECT p FROM PersonEntity p WHERE p.emailAddress=:email",
                     PersonEntity.class)
                     .setParameter("email", email)
-                    .getResultList();
-
-        return persons.isEmpty() ? null : persons.get(0);
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     public List<PersonEntity> findAll() {
