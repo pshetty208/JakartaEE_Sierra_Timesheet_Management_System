@@ -6,11 +6,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import sierra.tms.entities.TimesheetEntity;
 
-/**
- *
- * @author prajnashetty
- */
-
 @Stateless
 @LocalBean
 public class TimesheetDao {

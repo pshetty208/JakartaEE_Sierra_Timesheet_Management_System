@@ -1,5 +1,6 @@
 package sierra.tms.dao;
 
+import com.jee.entities.ContractEntity;
 import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
@@ -7,14 +8,10 @@ import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import sierra.tms.entities.ContractEntity;
 
-/**
- *
- * @author prajnashetty
- */
 @LocalBean
 @Stateless
 public class ContractDao {
-    
+
     @PersistenceContext(unitName = "Sierra-tms-pu")
     private EntityManager em;
 

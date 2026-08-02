@@ -12,10 +12,6 @@ import sierra.tms.entities.ContractEntity;
 import sierra.tms.entities.TimesheetEntity;
 import sierra.tms.service.HolidayService;
 
-/**
- *
- * @author prajnashetty
- */
 @Stateless
 public class VacationCalculationServiceImpl
         implements VacationCalculationService {

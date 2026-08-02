@@ -11,11 +11,6 @@ import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import sierra.tms.entities.ContractEntity;
 
-/**
- *
- * @author prajnashetty
- */
-
 @Stateless
 public class ContractHoursService {
 
@@ -28,7 +23,7 @@ public class ContractHoursService {
         long durationInMonths = ChronoUnit.MONTHS.between(
                 YearMonth.from(contract.getStartDate()),
                 YearMonth.from(contract.getEndDate())
-        ) + 1; // Jan 1 through Dec 31 = 12 months
+        ) + 1;
 
         return BigDecimal.valueOf(contract.getVacationDaysPerYear())
                 .multiply(BigDecimal.valueOf(durationInMonths))

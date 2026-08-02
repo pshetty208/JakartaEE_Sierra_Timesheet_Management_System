@@ -5,10 +5,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import sierra.tms.utils.TimeSheetStatus;
 
-/**
- *
- * @author prajnashetty
- */
 @Entity
 @Table(name = "Timesheet")
 public class TimesheetEntity implements Serializable {
