@@ -4,10 +4,6 @@ import jakarta.ejb.Remote;
 import java.util.List;
 import sierra.tms.dto.ContractDto;
 
-/**
- *
- * @author prajnashetty
- */
 @Remote
 public interface ContractService {
     
@@ -20,5 +16,7 @@ public interface ContractService {
     ContractDto update(ContractDto dto);
 
     void delete(Long id);
+
+    ContractDto getContractById(Long id);
     
 }

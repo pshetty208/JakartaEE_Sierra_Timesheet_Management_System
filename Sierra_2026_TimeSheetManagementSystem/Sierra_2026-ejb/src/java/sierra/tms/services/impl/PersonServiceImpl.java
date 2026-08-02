@@ -11,16 +11,14 @@ import sierra.tms.entities.RoleEntity;
 import sierra.tms.service.PersonService;
 import sierra.tms.utils.RoleType;
 
-/**
- *
- * @author prajnashetty
- */
 @Stateless
 public class PersonServiceImpl implements PersonService{
 
     @EJB
     private PersonDao personDao;
 
+    @Resource
+    private SessionContext sessionContext;
 
     @Override
     public void createPerson(PersonDto dto) {
@@ -159,4 +157,27 @@ public class PersonServiceImpl implements PersonService{
         return dto;
     }
 
+    @Override
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
+    public PersonDto getCurrentPerson() {
+        String emailAddress = sessionContext.getCallerPrincipal().getName();
+        return findByEmailAddress(emailAddress);
+    }
+
+    private PersonDto findByEmailAddress(String emailAddress) {
+        PersonEntity entity = dao.findByEmailAddress(emailAddress);
+        return entity == null ? null : createDTO(entity);
+    }
+
+    private PersonDto createDTO(PersonEntity entity) {
+        return new PersonDto(
+                entity.getId(),
+                entity.getFirstName(),
+                entity.getLastName(),
+                entity.getDateOfBirth(),
+                entity.getEmailAddress(),
+                entity.isUniversityStaff(),
+                entity.isConsent()
+        );
+    }
 }

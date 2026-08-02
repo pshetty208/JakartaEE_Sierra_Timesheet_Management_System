@@ -4,10 +4,6 @@ import jakarta.ejb.Remote;
 import java.time.LocalDate;
 import java.util.Set;
 
-/**
- *
- * @author prajnashetty
- */
 @Remote
 public interface HolidayService {
 

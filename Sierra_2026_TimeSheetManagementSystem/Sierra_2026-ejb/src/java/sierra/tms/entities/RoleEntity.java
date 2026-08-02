@@ -14,52 +14,63 @@ import jakarta.persistence.Table;
 import java.io.Serializable;
 import sierra.tms.utils.RoleType;
 
-/**
- *
- * @author prajnashetty
- */
 @Entity
 @Table(name = "Roles")
 public class RoleEntity implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role_type", nullable = false)
     private RoleType role;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "person_id", nullable = false)
     private PersonEntity person;
 
+
     public RoleEntity() {
     }
+
 
     public RoleEntity(RoleType role, PersonEntity person) {
         this.role = role;
         this.person = person;
     }
 
+
     public Long getId() {
         return id;
     }
+
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
 
     public RoleType getRole() {
         return role;
     }
 
+
     public void setRole(RoleType role) {
         this.role = role;
     }
 
+
     public PersonEntity getPerson() {
         return person;
     }
+
 
     public void setPerson(PersonEntity person) {
         this.person = person;

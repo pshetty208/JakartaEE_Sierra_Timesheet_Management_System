@@ -5,10 +5,6 @@ import java.util.List;
 import sierra.tms.dto.PersonDto;
 import sierra.tms.utils.RoleType;
 
-/**
- *
- * @author prajnashetty
- */
 @Remote
 public interface PersonService {
     
@@ -29,5 +25,7 @@ public interface PersonService {
     void assignRole(Long personId, RoleType role);
 
     void removeRole(Long personId, RoleType role);
+
+    PersonDto getCurrentPerson();
 
 }

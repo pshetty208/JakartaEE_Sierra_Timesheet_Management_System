@@ -1,0 +1,18 @@
+CREATE DATABASE IF NOT EXISTS sierra
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE sierra;
+
+CREATE TABLE IF NOT EXISTS SIERRA_AUTH_USER (
+  username       VARCHAR(100) NOT NULL,
+  password_hash  VARCHAR(64) NOT NULL,
+  PRIMARY KEY (username)
+);
+
+CREATE TABLE IF NOT EXISTS SIERRA_AUTH_GROUP (
+  username    VARCHAR(100) NOT NULL,
+  group_name  VARCHAR(30) NOT NULL,
+  PRIMARY KEY (username, group_name),
+  FOREIGN KEY (username) REFERENCES SIERRA_AUTH_USER(username) ON DELETE CASCADE
+);
