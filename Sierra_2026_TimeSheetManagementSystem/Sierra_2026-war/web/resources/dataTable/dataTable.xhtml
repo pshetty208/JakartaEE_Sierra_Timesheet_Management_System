@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="jakarta.faces.composite"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui">
+    <cc:interface>
+        <cc:attribute name="value" required="true"/>
+        <cc:attribute name="rowKey"/>
+        <cc:attribute name="paginator" default="true"/>
+        <cc:attribute name="rows" default="10"/>
+        <cc:attribute name="emptyMessage" default="No records found"/>
+        <cc:attribute name="style"/>
+        <cc:attribute name="styleClass" default="app-data-table"/>
+        <cc:attribute name="stripedRows" default="true"/>
+        <cc:attribute name="reflow" default="true"/>
+    </cc:interface>
+
+    <cc:implementation>
+        <h:outputStylesheet library="dataTable" name="dataTable.css"/>
+
+        <p:dataTable value="#{cc.attrs.value}"
+                     var="row"
+                     rowKey="#{cc.attrs.rowKey}"
+                     paginator="#{cc.attrs.paginator}"
+                     rows="#{cc.attrs.rows}"
+                     emptyMessage="#{cc.attrs.emptyMessage}"
+                     style="#{cc.attrs.style}"
+                     styleClass="#{cc.attrs.styleClass}"
+                     stripedRows="#{cc.attrs.stripedRows}"
+                     reflow="#{cc.attrs.reflow}">
+            <cc:insertChildren/>
+        </p:dataTable>
+    </cc:implementation>
+</html>

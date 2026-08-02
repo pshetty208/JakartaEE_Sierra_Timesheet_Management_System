@@ -64,6 +64,7 @@ Use attributes for configuration and facets for projected markup:
 - Main JSF page: `Sierra_2026-war/index.xhtml`
 - Faces-mapped main page: `Sierra_2026-war/faces/index.xhtml`
 - Component examples index: `Sierra_2026-war/component-examples/index.xhtml`
+- Data table component example: `Sierra_2026-war/component-examples/dataTable.xhtml`
 
 ## Misc Architectural Knowledge
 
