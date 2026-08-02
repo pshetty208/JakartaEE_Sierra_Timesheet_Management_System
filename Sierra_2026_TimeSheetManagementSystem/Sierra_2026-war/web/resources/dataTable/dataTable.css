@@ -1,0 +1,14 @@
+.data-table-example-card {
+    padding: 1rem;
+    background: #ffffff;
+    border: 1px solid #d7dce2;
+    border-radius: 0.5rem;
+}
+
+.data-table-example-card h5 {
+    margin: 0 0 1rem;
+}
+
+.app-data-table {
+    width: 100%;
+}

@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:dataTable="jakarta.faces.composite/dataTable">
+    <h:head>
+        <title>Data Table Component Example</title>
+    </h:head>
+    <h:body>
+        <h1>Data Table</h1>
+
+        <h:form>
+            <div class="data-table-example-card">
+                <h5>Users</h5>
+                <dataTable:dataTable value="#{componentExampleBean.users}"
+                                     rowKey="#{row.id}"
+                                     rows="5"
+                                     emptyMessage="No users found">
+                    <p:column headerText="ID" sortBy="#{row.id}">
+                        <h:outputText value="#{row.id}"/>
+                    </p:column>
+                    <p:column headerText="Name" sortBy="#{row.name}" filterBy="#{row.name}">
+                        <h:outputText value="#{row.name}"/>
+                    </p:column>
+                    <p:column headerText="Actions">
+                        <p:button value="View"
+                                  icon="pi pi-search"
+                                  outcome="/component-examples/dataTable"
+                                  styleClass="ui-button-sm"/>
+                    </p:column>
+                </dataTable:dataTable>
+            </div>
+        </h:form>
+    </h:body>
+</html>
