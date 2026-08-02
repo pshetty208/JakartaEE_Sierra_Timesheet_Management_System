@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="jakarta.faces.composite"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui">
+    <cc:interface>
+        <cc:attribute name="overlay" default="false"/>
+        <cc:attribute name="trigger"/>
+        <cc:attribute name="triggerLabel" default="Show"/>
+        <cc:attribute name="triggerIcon" default="pi pi-bars"/>
+        <cc:attribute name="my"/>
+        <cc:attribute name="at"/>
+        <cc:attribute name="toggleable" default="false"/>
+        <cc:attribute name="model"/>
+        <cc:attribute name="style"/>
+        <cc:attribute name="styleClass" default="app-menu"/>
+        <cc:facet name="trigger"/>
+    </cc:interface>
+
+    <cc:implementation>
+        <h:outputStylesheet library="menu" name="menu.css"/>
+
+        <h:panelGroup id="menuTrigger"
+                      layout="block"
+                      rendered="#{cc.attrs.overlay}"
+                      styleClass="app-menu-trigger">
+            <cc:renderFacet name="trigger"/>
+            <p:commandButton value="#{cc.attrs.triggerLabel}"
+                             type="button"
+                             icon="#{cc.attrs.triggerIcon}"
+                             rendered="#{empty cc.facets.trigger}"/>
+        </h:panelGroup>
+
+        <p:menu overlay="#{cc.attrs.overlay}"
+                trigger="#{cc.attrs.overlay ? 'menuTrigger' : cc.attrs.trigger}"
+                my="#{cc.attrs.my}"
+                at="#{cc.attrs.at}"
+                toggleable="#{cc.attrs.toggleable}"
+                model="#{cc.attrs.model}"
+                style="#{cc.attrs.style}"
+                styleClass="#{cc.attrs.styleClass}">
+            <cc:insertChildren/>
+        </p:menu>
+    </cc:implementation>
+</html>

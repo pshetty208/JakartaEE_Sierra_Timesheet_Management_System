@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="jakarta.faces.composite"
+      xmlns:f="jakarta.faces.core"
+      xmlns:h="jakarta.faces.html"
+      xmlns:avatar="jakarta.faces.composite/avatar"
+      xmlns:menu="jakarta.faces.composite/menu">
+    <cc:interface>
+        <cc:attribute name="name" default="User"/>
+        <cc:attribute name="subtitle"/>
+        <cc:attribute name="label"/>
+        <cc:attribute name="icon"/>
+        <cc:attribute name="shape" default="circle"/>
+        <cc:attribute name="size"/>
+        <cc:attribute name="showSubtitle" default="false"/>
+        <cc:attribute name="style"/>
+        <cc:attribute name="styleClass" default="app-user-profile-menu"/>
+        <cc:attribute name="menuStyleClass" default="app-user-profile-menu__overlay"/>
+        <cc:attribute name="my" default="right top"/>
+        <cc:attribute name="at" default="right bottom"/>
+    </cc:interface>
+
+    <cc:implementation>
+        <h:outputStylesheet library="userProfileMenu" name="userProfileMenu.css"/>
+
+        <menu:menu overlay="true"
+                   my="#{cc.attrs.my}"
+                   at="#{cc.attrs.at}"
+                   styleClass="#{cc.attrs.menuStyleClass}">
+            <f:facet name="trigger">
+                <h:panelGroup layout="block"
+                              styleClass="#{cc.attrs.styleClass}"
+                              style="#{cc.attrs.style}">
+                    <avatar:avatar label="#{cc.attrs.label}"
+                                   icon="#{cc.attrs.icon}"
+                                   shape="#{cc.attrs.shape}"
+                                   size="#{cc.attrs.size}"
+                                   styleClass="app-user-profile-menu__avatar"/>
+                    <span class="app-user-profile-menu__text">
+                        <span class="app-user-profile-menu__name">#{cc.attrs.name}</span>
+                        <span class="app-user-profile-menu__subtitle #{cc.attrs.showSubtitle ? '' : 'app-user-profile-menu__subtitle--hidden'}">
+                            #{cc.attrs.subtitle}
+                        </span>
+                    </span>
+                    <span class="pi pi-angle-down app-user-profile-menu__chevron" aria-hidden="true"></span>
+                </h:panelGroup>
+            </f:facet>
+            <cc:insertChildren/>
+        </menu:menu>
+    </cc:implementation>
+</html>

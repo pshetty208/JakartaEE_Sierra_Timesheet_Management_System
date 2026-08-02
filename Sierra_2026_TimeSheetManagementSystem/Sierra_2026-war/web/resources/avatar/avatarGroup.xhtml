@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="jakarta.faces.composite"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui">
+    <cc:interface>
+        <cc:attribute name="style"/>
+        <cc:attribute name="styleClass"/>
+    </cc:interface>
+
+    <cc:implementation>
+        <h:outputStylesheet library="avatar" name="avatar.css"/>
+
+        <p:avatarGroup style="#{cc.attrs.style}"
+                       styleClass="#{cc.attrs.styleClass}">
+            <cc:insertChildren/>
+        </p:avatarGroup>
+    </cc:implementation>
+</html>
