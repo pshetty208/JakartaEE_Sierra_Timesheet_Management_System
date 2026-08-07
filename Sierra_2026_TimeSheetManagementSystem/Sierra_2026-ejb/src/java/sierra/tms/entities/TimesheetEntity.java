@@ -3,7 +3,7 @@ package sierra.tms.entities;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
-import sierra.tms.utils.TimeSheetStatus;
+import sierra.tms.utils.enums.TimeSheetStatus;
 
 @Entity
 @Table(name = "Timesheet")

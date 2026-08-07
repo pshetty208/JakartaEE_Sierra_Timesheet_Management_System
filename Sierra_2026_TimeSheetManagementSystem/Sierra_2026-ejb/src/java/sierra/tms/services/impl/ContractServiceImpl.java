@@ -1,18 +1,24 @@
-package sierra.tms.service.impl;
+package sierra.tms.services.impl;
 
+import jakarta.annotation.Resource;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
+import jakarta.ejb.EJBAccessException;
+import jakarta.ejb.SessionContext;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import sierra.tms.dao.ContractDao;
 import sierra.tms.dao.PersonDao;
 import sierra.tms.dto.ContractDto;
 import sierra.tms.entities.ContractEntity;
 import sierra.tms.entities.PersonEntity;
-import sierra.tms.service.ContractService;
-import sierra.tms.service.VacationCalculationService;
-import sierra.tms.utils.ContractStatus;
-import sierra.tms.utils.RoleType;
+import sierra.tms.services.VacationCalculationService;
+import sierra.tms.services.ContractService;
+import sierra.tms.utils.enums.ContractStatus;
+import sierra.tms.utils.enums.RoleType;
 
 @Stateless
 public class ContractServiceImpl implements ContractService {
@@ -58,7 +64,7 @@ public class ContractServiceImpl implements ContractService {
         }
 
         ContractEntity existing = getRequiredContract(dto.getId());
-        validateContractForState(existing);//CN6
+        validateContractForState(existing);
         toEntity(dto, existing);
 
         ContractEntity updated = contractDao.update(existing);
@@ -68,7 +74,7 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public void delete(Long id) {
         ContractEntity contract = getRequiredContract(id);
-        validateContractForState(contract);//CN6
+        validateContractForState(contract);
         contractDao.delete(getRequiredContract(id));
     }
 
@@ -298,17 +304,17 @@ public class ContractServiceImpl implements ContractService {
         return person.isUniversityStaff() && hasStaffContractRole;
     }
 
-    private boolean containsPerson(Set<RoleEntity> roles, Long personId) {
-        for (RoleEntity role : roles) {
-            if (belongsToPerson(role, personId)) {
+    private boolean containsPerson(Set<PersonEntity> persons, Long personId) {
+        for (PersonEntity person : persons) {
+            if (belongsToPerson(person, personId)) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean belongsToPerson(RoleEntity role, Long personId) {
-        return personId.equals(role.getPerson().getId());
+    private boolean belongsToPerson(PersonEntity person, Long personId) {
+        return person != null && personId.equals(person.getId());
     }
 
     private ContractDto createDTO(ContractEntity entity) {
@@ -326,16 +332,16 @@ public class ContractServiceImpl implements ContractService {
                 entity.getVacationDaysPerYear(),
                 entity.getTerminationDate(),
                 entity.getArchiveDuration(),
-                createRoleIdSet(entity.getAssistants()),
-                createRoleIdSet(entity.getSecretaries())
+                createPersonIdSet(entity.getAssistants()),
+                createPersonIdSet(entity.getSecretaries())
         );
     }
 
-    private Set<Long> createRoleIdSet(Set<RoleEntity> roles) {
-        Set<Long> roleIds = new LinkedHashSet<>();
-        for (RoleEntity role : roles) {
-            roleIds.add(role.getId());
+    private Set<Long> createPersonIdSet(Set<PersonEntity> people) {
+        Set<Long> ids = new LinkedHashSet<>();
+        for (PersonEntity person : people) {
+            ids.add(person.getId());
         }
-        return roleIds;
+        return ids;
     }
 }

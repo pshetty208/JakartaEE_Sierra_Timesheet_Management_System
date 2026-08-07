@@ -1,6 +1,6 @@
-package sierra.tms.service.impl;
+package sierra.tms.services.impl;
 
-import sierra.tms.service.VacationCalculationService;
+import sierra.tms.services.VacationCalculationService;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityNotFoundException;
@@ -10,7 +10,7 @@ import sierra.tms.dao.ContractDao;
 import sierra.tms.dao.TimesheetDao;
 import sierra.tms.entities.ContractEntity;
 import sierra.tms.entities.TimesheetEntity;
-import sierra.tms.service.HolidayService;
+import sierra.tms.services.HolidayService;
 
 @Stateless
 public class VacationCalculationServiceImpl

@@ -17,8 +17,8 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import sierra.tms.utils.ContractStatus;
-import sierra.tms.utils.Frequency;
+import sierra.tms.utils.enums.ContractStatus;
+import sierra.tms.utils.enums.Frequency;
 
 @Entity
 @Table(name = "Contract")

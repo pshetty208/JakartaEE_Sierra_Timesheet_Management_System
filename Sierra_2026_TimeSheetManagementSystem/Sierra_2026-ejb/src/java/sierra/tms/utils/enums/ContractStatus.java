@@ -1,4 +1,4 @@
-package sierra.tms.utils;
+package sierra.tms.utils.enums;
 
 public enum ContractStatus {
     PREPARED,
