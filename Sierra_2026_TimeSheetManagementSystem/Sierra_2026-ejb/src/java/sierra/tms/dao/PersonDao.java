@@ -4,6 +4,7 @@ import sierra.tms.entities.PersonEntity;
 import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import java.util.List;
 
@@ -22,17 +23,18 @@ public class PersonDao {
         return em.find(PersonEntity.class, id);
     }
     
-    public PersonEntity findByEmail(String email){
-        List<PersonEntity> persons =
-            em.createQuery(
-                    "SELECT p FROM PersonEntity p WHERE p.emailAddress=:email",
-                    PersonEntity.class)
-                    .setParameter("email", email)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
+    public PersonEntity findByEmailAddress(String emailAddress) {
+            try {
+                return em.createQuery(
+                        "SELECT person FROM PersonEntity person "
+                        + "WHERE person.emailAddress = :emailAddress",
+                        PersonEntity.class)
+                        .setParameter("emailAddress", emailAddress)
+                        .getSingleResult();
+            } catch (NoResultException e) {
+                return null;
+            }
         }
-    }
 
     public List<PersonEntity> findAll() {
         return em.createQuery("SELECT person FROM PersonEntity person",

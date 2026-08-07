@@ -1,6 +1,5 @@
-package sierra.tms.service;
+package sierra.tms.services;
 
-import sierra.tms.service.impl.HolidayServiceImpl;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import java.math.BigDecimal;
@@ -15,7 +14,7 @@ import sierra.tms.entities.ContractEntity;
 public class ContractHoursService {
 
     @EJB
-    private HolidayServiceImpl holidayService;
+    private HolidayService holidayService;
 
     public BigDecimal calculateVacationHours(ContractEntity contract) {
         validateContract(contract);

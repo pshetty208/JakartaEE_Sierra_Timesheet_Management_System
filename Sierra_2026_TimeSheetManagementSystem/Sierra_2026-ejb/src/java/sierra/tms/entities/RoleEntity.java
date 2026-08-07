@@ -12,7 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
-import sierra.tms.utils.RoleType;
+import sierra.tms.utils.enums.RoleType;
 
 @Entity
 @Table(name = "Roles")

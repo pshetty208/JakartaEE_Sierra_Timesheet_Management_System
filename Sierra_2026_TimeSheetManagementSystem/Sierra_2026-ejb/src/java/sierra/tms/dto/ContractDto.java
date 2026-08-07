@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import sierra.tms.utils.ContractStatus;
-import sierra.tms.utils.Frequency;
+import sierra.tms.utils.enums.ContractStatus;
+import sierra.tms.utils.enums.Frequency;
 
 
 public class ContractDto implements Serializable {
@@ -40,6 +40,10 @@ public class ContractDto implements Serializable {
 
     private Double vacationHours;
 
+    private Double totalHoursDue;
+    
+    private Double balance;
+
     private Set<Long> assistantRoleIds;
 
     private Set<Long> secretaryRoleIds;
@@ -51,20 +55,9 @@ public class ContractDto implements Serializable {
     }
 
 
-    public ContractDto(
-            Long id,
-            Long employeeId,
-            Long supervisorId,
-            String name,
-            ContractStatus status,
-            LocalDate startDate,
-            Frequency frequency,
-            LocalDate endDate,
-            Integer hoursPerWeek,
-            Integer workingDaysPerWeek,
-            Integer vacationDaysPerYear,
-            LocalDate terminationDate,
-            Integer archiveDuration) {
+    public ContractDto(Long id, Long employeeId, Long supervisorId, String name, ContractStatus status, LocalDate startDate, 
+            LocalDate endDate, Frequency frequency, Integer hoursPerWeek, Integer workingDaysPerWeek, Integer vacationDaysPerYear, 
+            LocalDate terminationDate, Integer archiveDuration, Set<Long> assistantRoleIds, Set<Long> secretaryRoleIds) {
 
         this.id = id;
         this.employeeId = employeeId;
@@ -72,17 +65,32 @@ public class ContractDto implements Serializable {
         this.name = name;
         this.status = status;
         this.startDate = startDate;
-        this.frequency = frequency;
         this.endDate = endDate;
+        this.frequency = frequency;
         this.hoursPerWeek = hoursPerWeek;
         this.workingDaysPerWeek = workingDaysPerWeek;
         this.vacationDaysPerYear = vacationDaysPerYear;
         this.terminationDate = terminationDate;
         this.archiveDuration = archiveDuration;
-        this.assistantRoleIds = new LinkedHashSet<>();
-        this.secretaryRoleIds = new LinkedHashSet<>();
+        this.assistantRoleIds = assistantRoleIds != null ? assistantRoleIds : new LinkedHashSet<>();
+        this.secretaryRoleIds = secretaryRoleIds != null ? secretaryRoleIds : new LinkedHashSet<>();
+    }
+    
+    public Double getTotalHoursDue() {
+        return totalHoursDue;
     }
 
+    public void setTotalHoursDue(Double totalHoursDue) {
+        this.totalHoursDue = totalHoursDue;
+    }
+
+    public Double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(Double balance) {
+        this.balance = balance;
+    }
 
     public Long getId() {
         return id;

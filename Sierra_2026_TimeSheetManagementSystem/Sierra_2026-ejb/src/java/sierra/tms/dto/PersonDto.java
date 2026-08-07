@@ -3,7 +3,7 @@ package sierra.tms.dto;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
-import sierra.tms.utils.RoleType;
+import sierra.tms.utils.enums.RoleType;
 
 public class PersonDto implements Serializable {
 
