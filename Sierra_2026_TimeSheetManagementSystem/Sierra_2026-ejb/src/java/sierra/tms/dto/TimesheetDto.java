@@ -1,6 +1,6 @@
 package sierra.tms.dto;
 
-import sierra.tms.entities.TimesheetStatus;
+import sierra.tms.utils.enums.TimeSheetStatus;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 public class TimesheetDto implements Serializable {
     public Long id;
     public Long contractId;
-    public TimesheetStatus status;
+    public TimeSheetStatus status;
     public LocalDate startDate;
     public LocalDate endDate;
     public LocalDate signedByEmployee;
@@ -21,7 +21,7 @@ public class TimesheetDto implements Serializable {
 
     public TimesheetDto() {}
 
-    public TimesheetDto(Long id, Long contractId, TimesheetStatus status, LocalDate startDate,
+    public TimesheetDto(Long id, Long contractId, TimeSheetStatus status, LocalDate startDate,
             LocalDate endDate, LocalDate signedByEmployee, LocalDate signedBySupervisor,
             List<TimesheetEntryDto> entries) {
         this.id = id;
@@ -36,7 +36,7 @@ public class TimesheetDto implements Serializable {
 
     public Long getId() { return id; }
     public Long getContractId() { return contractId; }
-    public TimesheetStatus getStatus() { return status; }
+    public TimeSheetStatus getStatus() { return status; }
     public LocalDate getStartDate() { return startDate; }
     public LocalDate getEndDate() { return endDate; }
     public LocalDate getSignedByEmployee() { return signedByEmployee; }
@@ -45,7 +45,7 @@ public class TimesheetDto implements Serializable {
 
     public void setId(Long id) { this.id = id; }
     public void setContractId(Long contractId) { this.contractId = contractId; }
-    public void setStatus(TimesheetStatus status) { this.status = status; }
+    public void setStatus(TimeSheetStatus status) { this.status = status; }
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
     public void setSignedByEmployee(LocalDate signedByEmployee) { this.signedByEmployee = signedByEmployee; }

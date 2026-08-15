@@ -2,8 +2,8 @@ package sierra.tms.web;
 
 import sierra.tms.dto.TimesheetDto;
 import sierra.tms.dto.TimesheetEntryDto;
-import sierra.tms.entities.ReportType;
-import sierra.tms.service.TimesheetService;
+import sierra.tms.services.TimesheetService;
+import sierra.tms.utils.enums.ReportType;
 import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -54,6 +54,11 @@ public class TimesheetBean implements Serializable {
             }
 
             Long id = service.save(dto);
+
+            if (id == null) {
+                error("Contract " + dto.getContractId() + " not found.");
+                return;
+            }
 
             info("Created timesheet " + id + ".");
             contractId = "";

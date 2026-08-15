@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="jakarta.faces.core"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:sidebar="jakarta.faces.composite/sidebar">
+    <h:head>
+        <title>Sidebar Component Example</title>
+    </h:head>
+    <h:body>
+        <h1>Sidebar</h1>
+
+        <sidebar:sidebar widgetVar="exampleMainSidebar">
+            <f:facet name="trigger">
+                <button type="button" onclick="SierraComponents.sidebar.toggle('exampleMainSidebar'); return false;">
+                    Open main sidebar
+                </button>
+            </f:facet>
+
+            <f:facet name="content">
+                <p:menu style="width: 100%;">
+                    <p:menuitem value="Dashboard" outcome="/index" icon="pi pi-home"/>
+                    <p:menuitem value="Timesheets" outcome="/index" icon="pi pi-calendar"/>
+                    <p:menuitem value="Contracts" outcome="/index" icon="pi pi-file"/>
+                </p:menu>
+            </f:facet>
+        </sidebar:sidebar>
+
+        <sidebar:sidebar widgetVar="exampleSettingsSidebar" position="right">
+            <f:facet name="trigger">
+                <button type="button" onclick="SierraComponents.sidebar.toggle('exampleSettingsSidebar'); return false;">
+                    Open settings sidebar
+                </button>
+            </f:facet>
+
+            <f:facet name="content">
+                <p:menu style="width: 100%;">
+                    <p:menuitem value="Profile" outcome="/component-examples/sidebar" icon="pi pi-user"/>
+                    <p:menuitem value="Preferences" outcome="/component-examples/sidebar" icon="pi pi-cog"/>
+                    <p:menuitem value="Help" outcome="/component-examples/sidebar" icon="pi pi-question-circle"/>
+                </p:menu>
+            </f:facet>
+        </sidebar:sidebar>
+    </h:body>
+</html>

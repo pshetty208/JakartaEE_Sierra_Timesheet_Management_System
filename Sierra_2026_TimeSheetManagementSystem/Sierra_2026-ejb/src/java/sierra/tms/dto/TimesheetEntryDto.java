@@ -1,6 +1,6 @@
 package sierra.tms.dto;
 
-import sierra.tms.entities.ReportType;
+import sierra.tms.utils.enums.ReportType;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;

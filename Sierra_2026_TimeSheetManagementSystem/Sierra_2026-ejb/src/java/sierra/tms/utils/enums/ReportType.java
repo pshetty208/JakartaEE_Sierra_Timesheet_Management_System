@@ -1,4 +1,4 @@
-package sierra.tms.entities;
+package sierra.tms.utils.enums;
 
 /**
  * Type of work reported in a single timesheet entry.

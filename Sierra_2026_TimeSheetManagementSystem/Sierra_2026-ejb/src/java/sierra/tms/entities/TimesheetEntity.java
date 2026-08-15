@@ -5,69 +5,61 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import sierra.tms.utils.enums.TimeSheetStatus;
 
 /**
  *
  * @author pranavpanhale
  */
 @Entity
-@Table(name="TIMESHEET")
-public class TimesheetEntity {
+@Table(name = "Timesheet")
+public class TimesheetEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="status", length=20, nullable=false)
-    private TimesheetStatus status = TimesheetStatus.IN_PROGRESS;
+    @Column(name = "status", length = 20, nullable = false)
+    private TimeSheetStatus status = TimeSheetStatus.IN_PROGRESS;
 
-    @Column(name="start_date", nullable=false)
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
-    @Column(name="end_date", nullable=false)
+    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
     /** NULL means the timesheet has not been signed by the employee yet. */
-    @Column(name="signed_by_employee")
+    @Column(name = "signed_by_employee")
     private LocalDate signedByEmployee;
 
     /** NULL means the timesheet has not been signed by the supervisor yet. */
-    @Column(name="signed_by_supervisor")
+    @Column(name = "signed_by_supervisor")
     private LocalDate signedBySupervisor;
 
-    // TODO(#29/#30/#31): replace with @ManyToOne ContractEntity once the contract
-    // slice lands in sierra.tms.entities. Kept as the raw FK column for now so this
-    // slice compiles and is testable on its own.
-    @Column(name="contract_id", nullable=false)
-    private Long contractId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contract_id", nullable = false)
+    private ContractEntity contract;
 
-    @OneToMany(mappedBy="timesheet", cascade=CascadeType.ALL, orphanRemoval=true)
+    @OneToMany(mappedBy = "timesheet", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TimesheetEntryEntity> entries = new ArrayList<>();
 
     public TimesheetEntity() {}
 
-    /**
-     * Derived (CN4c): hoursDue = (workingDaysInPeriod - publicHolidaysInPeriod)
-     * * hoursPerWeek / workingDaysPerWeek.
-     *
-     * Needs the contract (hoursPerWeek, workingDaysPerWeek) and the public
-     * holiday calculator (CN4d), so it stays unimplemented in this slice.
-     * Never persisted - the domain model marks it derived.
-     */
-    @Transient
-    public double getHoursDue() {
-        throw new UnsupportedOperationException("CN4c not implemented yet");
-    }
+    // hoursDue (CN4c) is derived from the contract and the public holiday
+    // calendar, so it lives in VacationCalculationService, not on the entity.
 
     public void addEntry(TimesheetEntryEntity entry) {
         entries.add(entry);
@@ -83,11 +75,15 @@ public class TimesheetEntity {
         return id;
     }
 
-    public TimesheetStatus getStatus() {
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public TimeSheetStatus getStatus() {
         return status;
     }
 
-    public void setStatus(TimesheetStatus status) {
+    public void setStatus(TimeSheetStatus status) {
         this.status = status;
     }
 
@@ -123,12 +119,12 @@ public class TimesheetEntity {
         this.signedBySupervisor = signedBySupervisor;
     }
 
-    public Long getContractId() {
-        return contractId;
+    public ContractEntity getContract() {
+        return contract;
     }
 
-    public void setContractId(Long contractId) {
-        this.contractId = contractId;
+    public void setContract(ContractEntity contract) {
+        this.contract = contract;
     }
 
     public List<TimesheetEntryEntity> getEntries() {

@@ -39,7 +39,7 @@ public class TimesheetDao {
     public List<TimesheetEntity> findByContractId(Long contractId) {
         return em.createQuery(
                 "SELECT timesheet FROM TimesheetEntity timesheet"
-                + " WHERE timesheet.contractId = :contractId"
+                + " WHERE timesheet.contract.id = :contractId"
                 + " ORDER BY timesheet.startDate",
                 TimesheetEntity.class)
                 .setParameter("contractId", contractId)

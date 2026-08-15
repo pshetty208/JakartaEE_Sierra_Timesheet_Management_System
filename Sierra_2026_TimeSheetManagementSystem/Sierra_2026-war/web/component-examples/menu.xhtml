@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:menu="jakarta.faces.composite/menu">
+    <h:head>
+        <title>Menu Component Example</title>
+    </h:head>
+    <h:body>
+        <h1>Menu</h1>
+
+        <h:form>
+            <p:growl id="messages" showDetail="true"/>
+
+            <div class="menu-example-grid">
+                <div class="menu-example-card">
+                    <h5>Inline</h5>
+                    <menu:menu>
+                        <p:submenu label="Options">
+                            <p:menuitem value="Save" icon="pi pi-save" url="#"/>
+                            <p:menuitem value="Update" icon="pi pi-refresh" url="#"/>
+                            <p:menuitem value="Delete" icon="pi pi-times" url="#"/>
+                        </p:submenu>
+                        <p:submenu label="Navigations">
+                            <p:menuitem value="Website" url="https://www.primefaces.org" icon="pi pi-external-link"/>
+                            <p:menuitem value="Internal" outcome="/component-examples/index" icon="pi pi-upload"/>
+                            <p:menuitem value="Logout (disabled)" icon="pi pi-power-off" disabled="true"/>
+                        </p:submenu>
+                    </menu:menu>
+                </div>
+
+                <div class="menu-example-card">
+                    <h5>Overlay</h5>
+                    <menu:menu overlay="true" triggerLabel="Show" triggerIcon="pi pi-bars" my="left top" at="left bottom">
+                        <p:submenu label="Options">
+                            <p:menuitem value="Save" icon="pi pi-save" url="#"/>
+                            <p:menuitem value="Update" icon="pi pi-refresh" url="#"/>
+                            <p:menuitem value="Delete" icon="pi pi-times" url="#"/>
+                        </p:submenu>
+                        <p:submenu label="Navigations">
+                            <p:menuitem value="Website" url="https://www.primefaces.org" icon="pi pi-external-link"/>
+                            <p:menuitem value="Internal" outcome="/component-examples/index" icon="pi pi-upload"/>
+                            <p:menuitem value="Logout (disabled)" icon="pi pi-power-off" disabled="true"/>
+                        </p:submenu>
+                    </menu:menu>
+                </div>
+
+                <div class="menu-example-card">
+                    <h5>Toggleable</h5>
+                    <menu:menu toggleable="true">
+                        <p:submenu label="Options">
+                            <p:menuitem value="Save" icon="pi pi-save" url="#"/>
+                            <p:menuitem value="Update" icon="pi pi-refresh" url="#"/>
+                            <p:menuitem value="Delete" icon="pi pi-times" url="#"/>
+                        </p:submenu>
+                        <p:submenu label="Navigations">
+                            <p:menuitem value="Website" url="https://www.primefaces.org" icon="pi pi-external-link"/>
+                            <p:menuitem value="Internal" outcome="/component-examples/index" icon="pi pi-upload"/>
+                        </p:submenu>
+                    </menu:menu>
+                </div>
+            </div>
+        </h:form>
+    </h:body>
+</html>

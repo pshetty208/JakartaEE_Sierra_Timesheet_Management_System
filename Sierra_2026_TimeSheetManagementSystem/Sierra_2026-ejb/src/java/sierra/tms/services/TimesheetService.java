@@ -1,4 +1,4 @@
-package sierra.tms.service;
+package sierra.tms.services;
 
 import sierra.tms.dto.TimesheetDto;
 import sierra.tms.dto.TimesheetEntryDto;

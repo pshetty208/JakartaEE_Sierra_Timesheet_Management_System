@@ -1,12 +1,15 @@
-package sierra.tms.service.impl;
+package sierra.tms.services.impl;
 
+import sierra.tms.dao.ContractDao;
 import sierra.tms.dao.TimesheetDao;
 import sierra.tms.dao.TimesheetEntryDao;
 import sierra.tms.dto.TimesheetDto;
 import sierra.tms.dto.TimesheetEntryDto;
+import sierra.tms.entities.ContractEntity;
 import sierra.tms.entities.TimesheetEntity;
 import sierra.tms.entities.TimesheetEntryEntity;
-import sierra.tms.service.TimesheetService;
+import sierra.tms.services.TimesheetService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import java.util.List;
@@ -16,6 +19,7 @@ import java.util.List;
  * @author pranavpanhale
  */
 @Stateless
+@RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
 public class TimesheetServiceImpl implements TimesheetService {
 
     @EJB
@@ -24,11 +28,20 @@ public class TimesheetServiceImpl implements TimesheetService {
     @EJB
     private TimesheetEntryDao entryDao;
 
+    @EJB
+    private ContractDao contractDao;
+
     @Override
     public Long save(TimesheetDto timesheet) {
 
+        ContractEntity contract = contractDao.findById(timesheet.getContractId());
+
+        if (contract == null) {
+            return null;
+        }
+
         TimesheetEntity entity = new TimesheetEntity();
-        entity.setContractId(timesheet.getContractId());
+        entity.setContract(contract);
         entity.setStartDate(timesheet.getStartDate());
         entity.setEndDate(timesheet.getEndDate());
 
@@ -146,7 +159,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     private TimesheetDto createDTO(TimesheetEntity entity) {
         return new TimesheetDto(
                 entity.getId(),
-                entity.getContractId(),
+                entity.getContract() == null ? null : entity.getContract().getId(),
                 entity.getStatus(),
                 entity.getStartDate(),
                 entity.getEndDate(),

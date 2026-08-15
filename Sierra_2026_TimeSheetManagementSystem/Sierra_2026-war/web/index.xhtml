@@ -1,27 +1,61 @@
-<?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
+
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html">
+      xmlns:f="jakarta.faces.core"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:sidebar="jakarta.faces.composite/sidebar">
     <h:head>
         <title>Title</title>
     </h:head>
     <h:body>
+
+        <!-- ! Test code delete later -->
+        <sidebar:sidebar widgetVar="mainSidebar">
+            <f:facet name="trigger">
+                <button type="button" onclick="SierraComponents.sidebar.toggle('mainSidebar'); return false;">
+                    Open menu
+                </button>
+            </f:facet>
+        
+            <f:facet name="content">
+                <p:menu style="width: 100%;">
+                    <p:menuitem value="Dashboard" outcome="/index" icon="pi pi-home"/>
+                    <p:menuitem value="Timesheets" outcome="/index" icon="pi pi-calendar"/>
+                </p:menu>
+            </f:facet>
+        </sidebar:sidebar>
         
         <h:form>
-            <h:panelGrid columns="2">
-                <h:outputLabel value="Name"/>
-                <h:inputText value="#{userBean.name}"/>
+            <h:panelGrid columns="2" rendered="#{not empty currentPersonBean.currentPerson}">
+                <h:outputLabel value="Signed in as"/>
+                <h:outputText value="#{currentPersonBean.currentPerson.emailAddress}"/>
+                <h:outputLabel value="University staff"/>
+                <h:outputText value="#{currentPersonBean.currentPerson.universityStaff ? 'Yes' : 'No'}"/>
             </h:panelGrid>
-            
+
+            <h:panelGroup layout="block" rendered="#{empty currentPersonBean.currentPerson}">
+                <h:outputText value="No Person record is linked to this login yet."/>
+            </h:panelGroup>
+
             <br/>
-            
-            <h:commandButton value="Save" action="#{userBean.save}"/> 
-            
-            <br/>
-            
-            <h:dataTable value="#{userBean.people}" var="user">
-                <h:column> #{user.name} </h:column>
-            </h:dataTable>
+
+            <h:panelGroup layout="block" rendered="#{request.isUserInRole('ADMIN')}">
+                <h:panelGrid columns="2">
+                    <h:outputLabel value="Name"/>
+                    <h:inputText value="#{userBean.name}"/>
+                </h:panelGrid>
+
+                <br/>
+
+                <h:commandButton value="Save" action="#{userBean.save}"/>
+
+                <br/>
+
+                <h:dataTable value="#{userBean.people}" var="user">
+                    <h:column> #{user.name} </h:column>
+                </h:dataTable>
+            </h:panelGroup>
             
             
         </h:form>

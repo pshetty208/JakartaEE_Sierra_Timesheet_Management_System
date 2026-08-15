@@ -14,6 +14,7 @@ import jakarta.persistence.Transient;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import sierra.tms.utils.enums.ReportType;
 
 /**
  *
