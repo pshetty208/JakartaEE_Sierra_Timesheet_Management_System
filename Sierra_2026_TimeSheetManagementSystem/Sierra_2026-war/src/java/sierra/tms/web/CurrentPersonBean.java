@@ -1,10 +1,10 @@
-package com.jee.web;
+package sierra.tms.web;
 
-import com.jee.dto.PersonDto;
-import com.jee.services.PersonService;
 import jakarta.ejb.EJB;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Named;
+import sierra.tms.dto.PersonDto;
+import sierra.tms.services.PersonService;
 
 /**
  *

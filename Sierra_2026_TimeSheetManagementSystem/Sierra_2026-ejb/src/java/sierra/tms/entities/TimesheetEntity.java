@@ -9,6 +9,8 @@ import sierra.tms.utils.enums.TimeSheetStatus;
 @Table(name = "Timesheet")
 public class TimesheetEntity implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
