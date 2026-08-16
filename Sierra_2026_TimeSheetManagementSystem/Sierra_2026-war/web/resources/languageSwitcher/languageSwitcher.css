@@ -1,0 +1,29 @@
+.app-language-switcher {
+    display: inline-block;
+}
+
+.app-language-switcher__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.app-language-switcher__select {
+    width: 10rem;
+    min-width: 10rem;
+}
+
+.app-language-switcher--condensed .app-language-switcher__select {
+    width: 4.25rem;
+    min-width: 4.25rem;
+}
+
+.app-language-switcher--condensed .app-language-switcher__select .ui-selectonemenu-label {
+    text-align: center;
+}
