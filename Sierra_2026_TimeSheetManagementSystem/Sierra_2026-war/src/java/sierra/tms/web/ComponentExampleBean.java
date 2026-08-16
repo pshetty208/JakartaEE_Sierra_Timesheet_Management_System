@@ -10,6 +10,8 @@ import sierra.tms.dto.UserDto;
 @ApplicationScoped
 public class ComponentExampleBean implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private final List<UserDto> users = List.of(
             new UserDto(1L, "Prajna Shetty"),
             new UserDto(2L, "Manas Gupta"),

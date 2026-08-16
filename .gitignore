@@ -7,3 +7,6 @@
 /Sierra_2026_TimeSheetManagementSystem/Sierra_2026-war/build/
 /Sierra_2026_TimeSheetManagementSystem/Sierra_2026-ejb/build/
 /Sierra_2026_TimeSheetManagementSystem/Sierra_2026-ejb/dist/
+.vscode/
+/Sierra_2026_TimeSheetManagementSystem/.vscode-build/
+.DS_Store

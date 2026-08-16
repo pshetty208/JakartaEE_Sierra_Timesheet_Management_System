@@ -1,6 +1,5 @@
 package sierra.tms.dao;
 
-import com.jee.entities.ContractEntity;
 import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;

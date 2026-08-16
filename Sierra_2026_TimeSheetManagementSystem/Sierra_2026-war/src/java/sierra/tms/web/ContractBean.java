@@ -8,8 +8,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import sierra.tms.dto.ContractDto;
-import sierra.tms.service.ContractService;
-import sierra.tms.utils.ContractStatus;
+import sierra.tms.services.ContractService;
+import sierra.tms.utils.enums.ContractStatus;
 
 @Named
 @ViewScoped
