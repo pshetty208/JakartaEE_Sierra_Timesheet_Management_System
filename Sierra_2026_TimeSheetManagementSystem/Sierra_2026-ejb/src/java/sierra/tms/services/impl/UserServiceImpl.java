@@ -1,13 +1,13 @@
-package sierra.tms.services.impl;
+package com.jee.services.impl;
 
+import com.jee.dao.UserDao;
+import com.jee.dto.UserDto;
+import com.jee.entities.UserEntity;
+import com.jee.services.UserService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import java.util.List;
-import sierra.tms.dao.UserDao;
-import sierra.tms.dto.UserDto;
-import sierra.tms.entities.UserEntity;
-import sierra.tms.services.UserService;
 
 @Stateless
 @RolesAllowed("ADMIN")

@@ -17,20 +17,18 @@
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>/faces/*</url-pattern>
     </servlet-mapping>
+<<<<<<< HEAD
     <servlet-mapping>
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
+=======
     <security-constraint>
         <display-name>Authenticated application pages</display-name>
         <web-resource-collection>
             <web-resource-name>Sierra application</web-resource-name>
-            <!-- Both Faces Servlet mappings must be listed, otherwise the
-                 extension mapping (*.xhtml) serves the same pages unprotected. -->
             <url-pattern>/faces/index.xhtml</url-pattern>
             <url-pattern>/faces/app/*</url-pattern>
-            <url-pattern>/index.xhtml</url-pattern>
-            <url-pattern>/app/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>EMPLOYEE</role-name>
@@ -63,6 +61,7 @@
     <security-role>
         <role-name>ADMIN</role-name>
     </security-role>
+>>>>>>> origin/feature/authentication
     <welcome-file-list>
         <welcome-file>faces/index.xhtml</welcome-file>
     </welcome-file-list>

@@ -8,8 +8,8 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import sierra.tms.dto.PersonDto;
-import sierra.tms.services.PersonService;
-import sierra.tms.utils.enums.RoleType;
+import sierra.tms.service.PersonService;
+import sierra.tms.utils.RoleType;
 
 @Named
 @ViewScoped

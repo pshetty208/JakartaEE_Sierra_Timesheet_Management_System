@@ -1,4 +1,4 @@
-package sierra.tms.entities;
+package com.jee.entities;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

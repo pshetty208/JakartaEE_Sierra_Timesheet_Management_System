@@ -1,4 +1,4 @@
-package sierra.tms.dto;
+package com.jee.dto;
 
 import java.io.Serializable;
 
