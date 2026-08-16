@@ -1,11 +1,11 @@
  package sierra.tms.services;
 
-import jakarta.ejb.Remote;
+import jakarta.ejb.Local;
 import java.util.List;
 import sierra.tms.dto.PersonDto;
 import sierra.tms.utils.enums.RoleType;
 
-@Remote
+@Local
 public interface PersonService {
     
     void createPerson(PersonDto dto);

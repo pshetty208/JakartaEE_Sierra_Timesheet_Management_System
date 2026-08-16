@@ -13,10 +13,6 @@ public class TimesheetDao {
 
     @PersistenceContext(unitName = "Sierra-tms-pu")
     private EntityManager em;
-    
-    public void save(TimesheetEntity timesheet) {
-        em.persist(timesheet);
-    }
 
     public void save(TimesheetEntity timesheet) {
         em.persist(timesheet);

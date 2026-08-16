@@ -85,7 +85,7 @@ public class ContractHoursCalculationServiceImpl implements ContractHoursCalcula
         if (contract == null) {
             throw new EntityNotFoundException("Contract with id: " + contractId + " not found.");
         }
-        return timesheetDao.findByContract(contractId)
+        return timesheetDao.findByContractId(contractId)
                 .stream()
                 .mapToDouble(timesheet -> calculateHoursDue(contract, timesheet.getStartDate(), timesheet.getEndDate()))
                 .sum();

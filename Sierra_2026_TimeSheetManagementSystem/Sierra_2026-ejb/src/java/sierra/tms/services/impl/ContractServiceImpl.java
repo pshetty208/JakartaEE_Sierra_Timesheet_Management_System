@@ -201,7 +201,7 @@ public class ContractServiceImpl implements ContractService {
                     "Only contracts in STARTED status can be terminated.");
         }
 
-        List<TimesheetEntity> timesheets = timesheetDao.findByContract(id);
+        List<TimesheetEntity> timesheets = timesheetDao.findByContractId(id);
 
         boolean hasBlockingTimesheet = timesheets.stream().anyMatch(t -> t.getStatus() != TimeSheetStatus.IN_PROGRESS
                         && t.getStatus() != TimeSheetStatus.SIGNED_BY_SUPERVISOR
@@ -336,7 +336,7 @@ public class ContractServiceImpl implements ContractService {
     
     public void archiveContractIfComplete(Long contractId) {
         ContractEntity contract = getRequiredContract(contractId);
-        List<TimesheetEntity> timesheets = timesheetDao.findByContract(contractId);
+        List<TimesheetEntity> timesheets = timesheetDao.findByContractId(contractId);
         boolean allArchived = !timesheets.isEmpty()
                 && timesheets.stream()
                         .allMatch(t -> t.getStatus() == TimeSheetStatus.ARCHIVED);
