@@ -4,11 +4,17 @@
       xmlns:f="jakarta.faces.core"
       xmlns:h="jakarta.faces.html"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:sidebar="jakarta.faces.composite/sidebar">
+      xmlns:sidebar="jakarta.faces.composite/sidebar"
+      xmlns:languageSwitcher="jakarta.faces.composite/languageSwitcher">
+    <f:view locale="#{localeBean.locale}">
+    <f:loadBundle basename="sierra.tms.i18n.messages" var="msg"/>
     <h:head>
-        <title>Title</title>
+        <title>#{msg['page.title']}</title>
     </h:head>
     <h:body>
+
+        <h1>#{msg['welcome']}</h1>
+        <languageSwitcher:languageSwitcher/>
 
         <!-- ! Test code delete later -->
         <sidebar:sidebar widgetVar="mainSidebar">
@@ -61,4 +67,5 @@
         </h:form>
         
     </h:body>
+    </f:view>
 </html>
