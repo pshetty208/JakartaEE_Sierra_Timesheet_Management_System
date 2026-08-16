@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="jakarta.faces.composite"
+      xmlns:f="jakarta.faces.core"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui">
+    <cc:interface>
+        <cc:attribute name="styleClass" default="app-language-switcher"/>
+        <cc:attribute name="condensed" type="java.lang.Boolean" default="false"/>
+    </cc:interface>
+
+    <cc:implementation>
+        <h:outputStylesheet library="languageSwitcher" name="languageSwitcher.css"/>
+        <f:loadBundle basename="sierra.tms.i18n.messages" var="languageMsg"/>
+
+        <h:form styleClass="#{cc.attrs.styleClass} #{cc.attrs.condensed ? 'app-language-switcher--condensed' : ''}">
+            <p:outputLabel for="language"
+                           value="#{languageMsg['language.label']}"
+                           styleClass="app-language-switcher__label"/>
+            <p:selectOneMenu id="language"
+                             value="#{localeBean.language}"
+                             title="#{languageMsg['language.label']}"
+                             styleClass="app-language-switcher__select">
+                <p:ajax update="@all"/>
+                <f:selectItem itemLabel="#{cc.attrs.condensed ? '🇬🇧' : '🇬🇧 '.concat(languageMsg['language.english'])}"
+                              itemValue="en"/>
+                <f:selectItem itemLabel="#{cc.attrs.condensed ? '🇩🇪' : '🇩🇪 '.concat(languageMsg['language.german'])}"
+                              itemValue="de"/>
+            </p:selectOneMenu>
+        </h:form>
+    </cc:implementation>
+</html>
