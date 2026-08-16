@@ -13,6 +13,10 @@ public class TimesheetDao {
 
     @PersistenceContext(unitName = "Sierra-tms-pu")
     private EntityManager em;
+    
+    public void save(TimesheetEntity timesheet) {
+        em.persist(timesheet);
+    }
 
     public TimesheetEntity findById(Long id) {
         return em.find(TimesheetEntity.class, id);
@@ -26,6 +30,10 @@ public class TimesheetDao {
                 TimesheetEntity.class)
                 .setParameter("contractId", contractId)
                 .getResultList();
+    }
+    
+    public void delete(TimesheetEntity timesheet) {
+        em.remove(em.contains(timesheet) ? timesheet : em.merge(timesheet));
     }
 
 }

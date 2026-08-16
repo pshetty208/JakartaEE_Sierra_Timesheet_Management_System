@@ -1,10 +1,10 @@
 package sierra.tms.services;
 
-import jakarta.ejb.Remote;
+import jakarta.ejb.Local;
 import java.util.List;
 import sierra.tms.dto.ContractDto;
 
-@Remote
+@Local
 public interface ContractService {
     
     void createContract(ContractDto dto);
@@ -16,7 +16,13 @@ public interface ContractService {
     ContractDto update(ContractDto dto);
 
     void delete(Long id);
-
-    ContractDto getContractById(Long id);
+    
+    void startContract(Long id);
+            
+    void terminateContract(Long id);
+    
+    ContractDto getContractDetails(Long contractId);
+    
+    ContractDto getContractForPrinting(Long id);
     
 }
