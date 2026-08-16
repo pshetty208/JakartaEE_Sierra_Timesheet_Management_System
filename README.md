@@ -59,8 +59,8 @@ vacation_days_per_year  INT NOT NULL DEFAULT 20,
 termination_date        DATE,
 archive_duration INT NOT NULL DEFAULT 24,
 PRIMARY KEY (id),
-FOREIGN KEY (employee_id) REFERENCES role(id),
-FOREIGN KEY (supervisor_id) REFERENCES role(id)
+FOREIGN KEY (employee_id) REFERENCES person(id),
+FOREIGN KEY (supervisor_id) REFERENCES person(id)
 );
 ```
 
@@ -71,7 +71,7 @@ assistant_id  BIGINT NOT NULL,
 contract_id   BIGINT NOT NULL,
 PRIMARY KEY (assistant_id, contract_id),
 FOREIGN KEY (contract_id) REFERENCES contract(id) ON DELETE CASCADE,
-FOREIGN KEY (assistant_id) REFERENCES role(id)
+FOREIGN KEY (assistant_id) REFERENCES person(id)
 );
 ```
 
@@ -82,7 +82,7 @@ secretary_id  BIGINT NOT NULL,
 contract_id   BIGINT NOT NULL,
 PRIMARY KEY (secretary_id, contract_id),
 FOREIGN KEY (contract_id) REFERENCES contract(id) ON DELETE CASCADE,
-FOREIGN KEY (secretary_id) REFERENCES role(id)
+FOREIGN KEY (secretary_id) REFERENCES person(id)
 );
 ```
 

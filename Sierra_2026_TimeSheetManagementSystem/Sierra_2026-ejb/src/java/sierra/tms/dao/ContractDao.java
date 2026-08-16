@@ -1,6 +1,5 @@
 package sierra.tms.dao;
 
-import com.jee.entities.ContractEntity;
 import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
@@ -22,6 +21,14 @@ public class ContractDao {
     public ContractEntity findById(Long id) {
         return em.find(ContractEntity.class, id);
     }
+    
+    public List<ContractEntity> findByEmployee(Long employeeId) {
+        return em.createQuery(
+                "SELECT c FROM ContractEntity c WHERE c.employee.id = :employeeId",
+                ContractEntity.class)
+                .setParameter("employeeId", employeeId)
+                .getResultList();
+    }   
 
     public List<ContractEntity> findAll() {
 
