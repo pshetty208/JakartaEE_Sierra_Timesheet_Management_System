@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core">
+    <h:head>
+        <title>Timesheets</title>
+    </h:head>
+    <h:body>
+
+        <h1>Timesheets</h1>
+
+        <h:messages showDetail="false" globalOnly="true"/>
+
+        <h:form>
+
+            <h2>New timesheet</h2>
+
+            <h:panelGrid columns="2">
+                <h:outputLabel value="Contract id"/>
+                <h:inputText value="#{timesheetBean.contractId}"/>
+
+                <h:outputLabel value="Start date (2026-07-01)"/>
+                <h:inputText value="#{timesheetBean.startDate}"/>
+
+                <h:outputLabel value="End date (2026-07-31)"/>
+                <h:inputText value="#{timesheetBean.endDate}"/>
+            </h:panelGrid>
+
+            <h:commandButton value="Create" action="#{timesheetBean.saveTimesheet}"/>
+
+            <h2>All timesheets</h2>
+
+            <h:dataTable value="#{timesheetBean.timesheets}" var="t" border="1" cellpadding="4">
+                <h:column>
+                    <f:facet name="header">Id</f:facet>
+                    #{t.id}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Contract</f:facet>
+                    #{t.contractId}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Start</f:facet>
+                    #{t.startDate}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">End</f:facet>
+                    #{t.endDate}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Status</f:facet>
+                    #{t.status}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Entries</f:facet>
+                    #{t.entries.size()}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Action</f:facet>
+                    <h:commandButton value="Delete"
+                                     action="#{timesheetBean.deleteTimesheet(t.id)}"/>
+                </h:column>
+            </h:dataTable>
+
+            <h2>New entry</h2>
+
+            <h:panelGrid columns="2">
+                <h:outputLabel value="Timesheet"/>
+                <h:selectOneMenu value="#{timesheetBean.selectedTimesheetId}">
+                    <f:selectItem itemLabel="-- pick one --" itemValue="#{null}"/>
+                    <f:selectItems value="#{timesheetBean.timesheets}"
+                                   var="ts"
+                                   itemValue="#{ts.id}"
+                                   itemLabel="##{ts.id} (#{ts.startDate} to #{ts.endDate})"/>
+                </h:selectOneMenu>
+
+                <h:outputLabel value="Type"/>
+                <h:selectOneMenu value="#{timesheetBean.entryType}">
+                    <f:selectItems value="#{timesheetBean.reportTypes}"/>
+                </h:selectOneMenu>
+
+                <h:outputLabel value="Date (2026-07-06)"/>
+                <h:inputText value="#{timesheetBean.entryDate}"/>
+
+                <h:outputLabel value="Start time (11:00)"/>
+                <h:inputText value="#{timesheetBean.startTime}"/>
+
+                <h:outputLabel value="End time (13:30)"/>
+                <h:inputText value="#{timesheetBean.endTime}"/>
+
+                <h:outputLabel value="Description"/>
+                <h:inputText value="#{timesheetBean.description}" size="40"/>
+            </h:panelGrid>
+
+            <h:commandButton value="Add entry" action="#{timesheetBean.addEntry}"/>
+
+            <h2>All entries</h2>
+
+            <h:dataTable value="#{timesheetBean.allEntries}" var="e" border="1" cellpadding="4">
+                <h:column>
+                    <f:facet name="header">Id</f:facet>
+                    #{e.id}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Timesheet</f:facet>
+                    #{e.timesheetId}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Date</f:facet>
+                    #{e.entryDate}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Begin</f:facet>
+                    #{e.startTime}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">End</f:facet>
+                    #{e.endTime}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Hours</f:facet>
+                    #{e.hours}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Type</f:facet>
+                    #{e.type}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Work</f:facet>
+                    #{e.description}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Action</f:facet>
+                    <h:commandButton value="Delete"
+                                     action="#{timesheetBean.deleteEntry(e.id)}"/>
+                </h:column>
+            </h:dataTable>
+
+        </h:form>
+
+    </h:body>
+</html>
