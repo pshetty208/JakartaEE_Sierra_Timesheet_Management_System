@@ -21,10 +21,12 @@ import sierra.tms.dto.ContractDto;
 import sierra.tms.entities.ContractEntity;
 import sierra.tms.entities.PersonEntity;
 import sierra.tms.entities.TimesheetEntity;
+import sierra.tms.exceptions.TerminationException;
 import sierra.tms.services.ContractService;
 import sierra.tms.utils.enums.ContractStatus;
 import sierra.tms.utils.enums.TimeSheetStatus;
 import sierra.tms.services.ContractHoursCalculationService;
+import sierra.tms.utils.enums.RoleType;
 
 @Stateless
 public class ContractServiceImpl implements ContractService {
@@ -62,6 +64,7 @@ public class ContractServiceImpl implements ContractService {
         validateRequiredFields(dto.getFrequency(), "Frequency is required.");
 
         validateStartAndEndDates(dto.getStartDate(), dto.getEndDate());
+        validateEmployeeHours(dto.getEmployeeId(), dto.getHoursPerWeek());
     
         ContractEntity contract = new ContractEntity();
         contract.setStatus(ContractStatus.PREPARED);
@@ -79,15 +82,20 @@ public class ContractServiceImpl implements ContractService {
         if (employee == null) {
             throw new EntityNotFoundException("Employee not found: " + dto.getEmployeeId());
         }
-        contract.setEmployee(employee);
         
-        boolean existingContract = contractDao.findByEmployee(dto.getEmployeeId())
-                .stream()
-                .anyMatch(c -> c.getStatus() == ContractStatus.PREPARED || c.getStatus() == ContractStatus.STARTED);
-        if (existingContract) {
-            throw new IllegalStateException("Employee already has a contract.");
+//        boolean existingContract = contractDao.findByEmployee(dto.getEmployeeId())
+//                .stream()
+//                .anyMatch(c -> c.getStatus() == ContractStatus.PREPARED || c.getStatus() == ContractStatus.STARTED);
+//        if (existingContract) {
+//            throw new IllegalStateException("Employee already has a contract.");
+//        }
+        
+        boolean isEmployee = employee.getRoles().stream().anyMatch(role -> role.getRole() == RoleType.EMPLOYEE);
+        if (!isEmployee) {
+            throw new IllegalArgumentException("Person must be an EMPLOYEE.");
         }
-        
+        contract.setEmployee(employee);
+
         PersonEntity supervisor = personDao.findById(dto.getSupervisorId());
         if (supervisor == null) {
             throw new EntityNotFoundException("Supervisor not found: " + dto.getSupervisorId());
@@ -180,7 +188,7 @@ public class ContractServiceImpl implements ContractService {
     }
     
     @Override
-    @RolesAllowed({"SUPERVISOR", "ASSISTANT", "SECRETARY"})
+    @RolesAllowed({"SUPERVISOR", "ASSISTANT"})
     public void startContract(Long id) {
         ContractEntity contract = getRequiredContract(id);
         if (contract.getStatus() != ContractStatus.PREPARED) {
@@ -194,11 +202,21 @@ public class ContractServiceImpl implements ContractService {
     
     @Override
     @RolesAllowed({"SUPERVISOR", "ASSISTANT", "SECRETARY"})
-    public void terminateContract(Long id) {
+    public void archiveContract(Long contractId) {
+        ContractEntity contract = getRequiredContract(contractId);
+        List<TimesheetEntity> timesheets = timesheetDao.findByContractId(contractId);
+        boolean allArchived = !timesheets.isEmpty() && timesheets.stream().allMatch(t -> t.getStatus() == TimeSheetStatus.ARCHIVED);
+        if (allArchived) {
+            contract.setStatus(ContractStatus.ARCHIVED);
+        }
+    }
+    
+    @Override
+    @RolesAllowed({"SUPERVISOR", "ASSISTANT", "SECRETARY"})
+    public void terminateContract(Long id, boolean confirmed) {
         ContractEntity contract = getRequiredContract(id);
         if (contract.getStatus() != ContractStatus.STARTED) {
-            throw new IllegalStateException(
-                    "Only contracts in STARTED status can be terminated.");
+            throw new IllegalStateException("Only contracts in STARTED status can be terminated.");
         }
 
         List<TimesheetEntity> timesheets = timesheetDao.findByContractId(id);
@@ -207,7 +225,16 @@ public class ContractServiceImpl implements ContractService {
                         && t.getStatus() != TimeSheetStatus.SIGNED_BY_SUPERVISOR
                         && t.getStatus() != TimeSheetStatus.ARCHIVED);
         if (hasBlockingTimesheet) {
-            throw new IllegalStateException("Cannot terminate: a timesheet is signed by the employee but not yet by the supervisor.");
+            throw new IllegalStateException("Cannot terminate: a timesheet is signed by the employee but not yet by the supervisor!");
+        }
+        
+        if (!confirmed) {
+        boolean hasInProgressWithEntries = timesheets.stream()
+                .anyMatch(t -> t.getStatus() == TimeSheetStatus.IN_PROGRESS && !t.getEntries().isEmpty());
+            if (hasInProgressWithEntries) {
+                throw new TerminationException("This contract has IN_PROGRESS timesheets with entries that will be permanently deleted. "
+                        + "Confirm to Proceed");
+            }
         }
 
         timesheets.stream().filter(t -> t.getStatus() == TimeSheetStatus.IN_PROGRESS).forEach(timesheetDao::delete);// TS4
@@ -252,6 +279,22 @@ public class ContractServiceImpl implements ContractService {
         }
         if (!endDate.equals(endDate.with(TemporalAdjusters.lastDayOfMonth()))) {
             throw new IllegalArgumentException("End date must be the last day of a month.");
+        }
+    }
+    
+    private void validateEmployeeHours(Long employeeId, Integer hours) {
+        if (hours == null || hours < 0) {
+            throw new IllegalArgumentException("Hours per week must not be negative.");
+        }
+
+        int existingHours = contractDao.findByEmployee(employeeId)
+                .stream()
+                .filter(contract -> contract.getStatus() == ContractStatus.PREPARED || contract.getStatus() == ContractStatus.STARTED)
+                .mapToInt(ContractEntity::getHoursPerWeek)
+                .sum();
+
+        if (existingHours + hours > 20) {
+            throw new IllegalArgumentException("Working hours has exceeded 20 hours per week.");
         }
     }
     
@@ -368,19 +411,22 @@ public class ContractServiceImpl implements ContractService {
         dto.setTerminationDate(entity.getTerminationDate());
         dto.setArchiveDuration(entity.getArchiveDuration());
         dto.setVacationHours(calculationService.calculateVacationHours(entity));
-        dto.setTotalHoursDue(calculationService.calculateTotalHoursDueForContract(entity.getId()));
 
         dto.setAssistantRoleIds(entity.getAssistants()
                         .stream()
                         .map(PersonEntity::getId)
-                        .collect(Collectors.toCollection(LinkedHashSet::new))
-        );
+                        .collect(Collectors.toCollection(LinkedHashSet::new)));
 
         dto.setSecretaryRoleIds(entity.getSecretaries()
                         .stream()
                         .map(PersonEntity::getId)
-                        .collect(Collectors.toCollection(LinkedHashSet::new))
-        );
+                        .collect(Collectors.toCollection(LinkedHashSet::new)));
+        
+        double reportedHours = calculationService.calculateTotalHoursDueForContract(entity.getId());
+        double hoursDue = calculationService.calculateTotalHoursDueForContract(entity.getId());
+            
+        dto.setTotalHoursDue(hoursDue);
+        dto.setRemainingHours(calculationService.calculateRemainingHours(hoursDue,reportedHours));
 
         return dto;
     }

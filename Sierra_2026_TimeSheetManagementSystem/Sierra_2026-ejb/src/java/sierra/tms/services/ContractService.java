@@ -18,8 +18,10 @@ public interface ContractService {
     void delete(Long id);
     
     void startContract(Long id);
+    
+    void archiveContract(Long contractId);
             
-    void terminateContract(Long id);
+    void terminateContract(Long id, boolean confirmed);
     
     ContractDto getContractDetails(Long contractId);
     
