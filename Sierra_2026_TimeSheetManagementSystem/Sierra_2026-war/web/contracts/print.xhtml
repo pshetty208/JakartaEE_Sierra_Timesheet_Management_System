@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="jakarta.faces.core"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/templates/app-layout.xhtml">
+    <!-- TODO: Internationalization -->
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam id="contractId"
+                         name="id"
+                         value="#{contractBean.contractDetailId}"
+                         required="true"
+                         requiredMessage="A contract ID is required."
+                         converterMessage="The contract ID must be a number."
+                         validatorMessage="The contract ID must be positive.">
+                <f:validateLongRange minimum="1"/>
+            </f:viewParam>
+            <f:viewAction action="#{contractBean.loadContractForPrinting}"
+                          if="#{not empty contractBean.contractDetailId}"
+                          onPostback="false"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="title">Print contract</ui:define>
+
+    <ui:define name="content">
+        <h:outputStylesheet library="contracts" name="contract-print.css"/>
+
+        <section class="contract-print" aria-labelledby="contract-print-title">
+            <h:form id="contractPrintForm">
+                <div class="contract-print__toolbar">
+                    <h:link outcome="/contracts/detail"
+                            styleClass="contract-print__back">
+                        <span class="pi pi-arrow-left" aria-hidden="true"></span>
+                        <span>Back to details</span>
+                        <f:param name="id" value="#{contractBean.contractDetailId}"/>
+                    </h:link>
+                    <p:commandButton value="Print"
+                                     type="button"
+                                     icon="pi pi-print"
+                                     onclick="window.print(); return false;"
+                                     styleClass="contract-print__button"
+                                     rendered="#{not empty contractBean.contract.id}"/>
+                </div>
+
+                <p:messages id="messages"
+                            showDetail="true"
+                            closable="true"
+                            styleClass="contract-print__messages"/>
+
+                <!-- TODO: Replace person IDs with backend-provided display names. -->
+                <ui:fragment rendered="#{not empty contractBean.contract.id}">
+                    <article class="contract-print__sheet">
+                        <header class="contract-print__header">
+                            <div class="contract-print__brand" aria-label="Time Sheet System">
+                                <span class="contract-print__brand-mark">TSS</span>
+                                <span>Time Sheet System</span>
+                            </div>
+                            <div class="contract-print__document-type">
+                                <span>Archive cover sheet</span>
+                                <strong>Contract</strong>
+                            </div>
+                        </header>
+
+                        <div class="contract-print__title-row">
+                            <div>
+                                <span class="contract-print__eyebrow">Contract name</span>
+                                <h1 id="contract-print-title">
+                                    <h:outputText value="#{contractBean.contract.name}"/>
+                                </h1>
+                            </div>
+                            <div class="contract-print__identity">
+                                <span>Contract ID</span>
+                                <strong><h:outputText value="#{contractBean.contract.id}"/></strong>
+                            </div>
+                        </div>
+
+                        <section class="contract-print__section" aria-labelledby="contract-print-parties">
+                            <h2 id="contract-print-parties">Parties</h2>
+                            <dl class="contract-print__fields contract-print__fields--two">
+                                <div>
+                                    <dt>Employee ID</dt>
+                                    <dd><h:outputText value="#{contractBean.contract.employeeId}"/></dd>
+                                </div>
+                                <div>
+                                    <dt>Supervisor ID</dt>
+                                    <dd><h:outputText value="#{contractBean.contract.supervisorId}"/></dd>
+                                </div>
+                            </dl>
+                        </section>
+
+                        <section class="contract-print__section" aria-labelledby="contract-print-term">
+                            <h2 id="contract-print-term">Contract term</h2>
+                            <dl class="contract-print__fields contract-print__fields--three">
+                                <div>
+                                    <dt>Start date</dt>
+                                    <dd>
+                                        <h:outputText value="#{contractBean.contract.startDate}">
+                                            <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                                        </h:outputText>
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt>End date</dt>
+                                    <dd>
+                                        <h:outputText value="#{contractBean.contract.endDate}">
+                                            <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                                        </h:outputText>
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt>Status</dt>
+                                    <dd class="contract-print__status">
+                                        <h:outputText value="#{contractBean.statusLabel(contractBean.contract.status)}"/>
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt>Termination date</dt>
+                                    <dd>
+                                        <h:outputText value="#{contractBean.contract.terminationDate}"
+                                                      rendered="#{not empty contractBean.contract.terminationDate}">
+                                            <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                                        </h:outputText>
+                                        <h:outputText value="Not terminated"
+                                                      rendered="#{empty contractBean.contract.terminationDate}"/>
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt>Timesheet frequency</dt>
+                                    <dd><h:outputText value="#{contractBean.frequencyLabel(contractBean.contract.frequency)}"/></dd>
+                                </div>
+                                <div>
+                                    <dt>Archive duration</dt>
+                                    <dd>
+                                        <h:outputText value="#{contractBean.contract.archiveDuration}"/>
+                                        <span> months</span>
+                                    </dd>
+                                </div>
+                            </dl>
+                        </section>
+
+                        <section class="contract-print__section" aria-labelledby="contract-print-workload">
+                            <h2 id="contract-print-workload">Workload and leave</h2>
+                            <dl class="contract-print__fields contract-print__fields--three">
+                                <div>
+                                    <dt>Hours per week</dt>
+                                    <dd><h:outputText value="#{contractBean.contract.hoursPerWeek}"/></dd>
+                                </div>
+                                <div>
+                                    <dt>Working days per week</dt>
+                                    <dd><h:outputText value="#{contractBean.contract.workingDaysPerWeek}"/></dd>
+                                </div>
+                                <div>
+                                    <dt>Vacation days per year</dt>
+                                    <dd><h:outputText value="#{contractBean.contract.vacationDaysPerYear}"/></dd>
+                                </div>
+                            </dl>
+                        </section>
+
+                        <section class="contract-print__section contract-print__section--summary"
+                                 aria-labelledby="contract-print-summary">
+                            <h2 id="contract-print-summary">Contract totals</h2>
+                            <dl class="contract-print__totals">
+                                <div>
+                                    <dt>Vacation hours</dt>
+                                    <dd>
+                                        <h:outputText value="#{contractBean.contract.vacationHours}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2"/>
+                                        </h:outputText>
+                                        <span> h</span>
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt>Total hours due</dt>
+                                    <dd>
+                                        <h:outputText value="#{contractBean.contract.totalHoursDue}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2"/>
+                                        </h:outputText>
+                                        <span> h</span>
+                                    </dd>
+                                </div>
+                            </dl>
+                        </section>
+
+                        <footer class="contract-print__footer">
+                            <span>Paper archive cover sheet</span>
+                            <span>Contract <h:outputText value="#{contractBean.contract.id}"/></span>
+                        </footer>
+                    </article>
+                </ui:fragment>
+
+                <h:panelGroup layout="block"
+                              rendered="#{empty contractBean.contract.id and facesContext.validationFailed}"
+                              styleClass="contract-print__state"
+                              role="alert">
+                    <span class="pi pi-link" aria-hidden="true"></span>
+                    <div>
+                        <h2>Check the contract link</h2>
+                        <p>A valid positive contract ID is required to open this print view.</p>
+                    </div>
+                </h:panelGroup>
+
+                <h:panelGroup layout="block"
+                              rendered="#{empty contractBean.contract.id and not facesContext.validationFailed}"
+                              styleClass="contract-print__state"
+                              role="status">
+                    <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
+                    <div>
+                        <h2>Printable contract unavailable</h2>
+                        <p>The contract could not be loaded for printing. Return to its details and try again.</p>
+                    </div>
+                </h:panelGroup>
+            </h:form>
+        </section>
+    </ui:define>
+</ui:composition>

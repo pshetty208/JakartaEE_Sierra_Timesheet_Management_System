@@ -1,12 +1,8 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:cc="jakarta.faces.composite"
-      xmlns:f="jakarta.faces.core"
-      xmlns:h="jakarta.faces.html"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:h="jakarta.faces.html">
     <cc:interface>
-        <cc:attribute name="orientation" default="horizontal"/>
-        <cc:attribute name="autoDisplay" default="false"/>
         <cc:attribute name="styleClass" default="app-headerbar"/>
         <cc:facet name="start"/>
         <cc:facet name="end"/>
@@ -16,21 +12,15 @@
         <h:outputStylesheet library="headerbar" name="headerbar.css"/>
 
         <header class="#{cc.attrs.styleClass}">
-            <h:form styleClass="app-headerbar__form">
-                <p:megaMenu orientation="#{cc.attrs.orientation}"
-                            autoDisplay="#{cc.attrs.autoDisplay}"
-                            styleClass="app-headerbar__menu">
-                    <f:facet name="start">
-                        <cc:renderFacet name="start"/>
-                    </f:facet>
+            <div class="app-headerbar__content">
+                <div class="app-headerbar__start">
+                    <cc:renderFacet name="start"/>
+                </div>
 
-                    <cc:insertChildren/>
-
-                    <f:facet name="end">
-                        <cc:renderFacet name="end"/>
-                    </f:facet>
-                </p:megaMenu>
-            </h:form>
+                <div class="app-headerbar__end">
+                    <cc:renderFacet name="end"/>
+                </div>
+            </div>
         </header>
     </cc:implementation>
 </html>

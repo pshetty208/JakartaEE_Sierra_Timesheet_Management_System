@@ -8,10 +8,19 @@
     margin: 0;
 }
 
-.app-headerbar__menu {
+.app-headerbar__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
     width: 100%;
-    border: 0;
-    border-radius: 0;
+}
+
+.app-headerbar__start,
+.app-headerbar__end {
+    display: flex;
+    align-items: center;
+    min-width: 0;
 }
 
 .app-headerbar__brand {
