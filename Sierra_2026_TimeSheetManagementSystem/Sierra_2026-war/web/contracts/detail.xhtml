@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="jakarta.faces.core"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/templates/app-layout.xhtml">
+    <!-- TODO: Internationalization -->
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam id="contractId"
+                         name="id"
+                         value="#{contractBean.contractDetailId}"
+                         required="true"
+                         requiredMessage="A contract ID is required."
+                         converterMessage="The contract ID must be a number."
+                         validatorMessage="The contract ID must be positive.">
+                <f:validateLongRange minimum="1"/>
+            </f:viewParam>
+            <f:viewAction action="#{contractBean.loadContractDetails}"
+                          if="#{not empty contractBean.contractDetailId}"
+                          onPostback="false"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="title">Contract details</ui:define>
+
+    <ui:define name="content">
+        <h:outputStylesheet library="contracts" name="contracts.css"/>
+
+        <section class="contract-detail" aria-labelledby="contract-detail-title">
+            <header class="contract-detail__heading">
+                <h:link outcome="/contracts/index"
+                        styleClass="contract-detail__back"
+                        aria-label="Back to contracts">
+                    <span class="pi pi-arrow-left" aria-hidden="true"></span>
+                </h:link>
+                <div class="contract-detail__heading-copy">
+                    <h1 id="contract-detail-title">Contract details</h1>
+                    <p>Review the contract terms and current status.</p>
+                </div>
+                <h:link outcome="/contracts/print"
+                        styleClass="contract-detail__print-link"
+                        rendered="#{not empty contractBean.contract.id and (request.isUserInRole('SECRETARY') or request.isUserInRole('ADMIN'))}">
+                    <span class="pi pi-print" aria-hidden="true"></span>
+                    <span>Print contract</span>
+                    <f:param name="id" value="#{contractBean.contract.id}"/>
+                </h:link>
+            </header>
+
+            <h:form id="contractDetailForm">
+                <p:messages id="messages"
+                            showDetail="true"
+                            closable="true"
+                            styleClass="contract-detail__messages"/>
+
+                <!-- TODO: Replace person IDs with backend-provided display names. -->
+                <ui:fragment rendered="#{not empty contractBean.contract.id}">
+                    <article class="contract-detail__card">
+                        <header class="contract-detail__summary">
+                            <div>
+                                <span class="contract-detail__eyebrow">Contract</span>
+                                <h2><h:outputText value="#{contractBean.contract.name}"/></h2>
+                            </div>
+                            <span class="contract-overview__status #{contractBean.statusStyleClass(contractBean.contract.status)}">
+                                <h:outputText value="#{contractBean.statusLabel(contractBean.contract.status)}"/>
+                            </span>
+                        </header>
+
+                        <dl class="contract-detail__grid">
+                            <div class="contract-detail__item">
+                                <dt>Contract ID</dt>
+                                <dd><h:outputText value="#{contractBean.contract.id}"/></dd>
+                            </div>
+                            <div class="contract-detail__item">
+                                <dt>Employee ID</dt>
+                                <dd><h:outputText value="#{contractBean.contract.employeeId}"/></dd>
+                            </div>
+                            <div class="contract-detail__item">
+                                <dt>Supervisor ID</dt>
+                                <dd><h:outputText value="#{contractBean.contract.supervisorId}"/></dd>
+                            </div>
+                            <div class="contract-detail__item">
+                                <dt>Start date</dt>
+                                <dd>
+                                    <h:outputText value="#{contractBean.contract.startDate}">
+                                        <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                                    </h:outputText>
+                                </dd>
+                            </div>
+                            <div class="contract-detail__item">
+                                <dt>End date</dt>
+                                <dd>
+                                    <h:outputText value="#{contractBean.contract.endDate}">
+                                        <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                                    </h:outputText>
+                                </dd>
+                            </div>
+                            <div class="contract-detail__item">
+                                <dt>Frequency</dt>
+                                <dd><h:outputText value="#{contractBean.frequencyLabel(contractBean.contract.frequency)}"/></dd>
+                            </div>
+                            <div class="contract-detail__item">
+                                <dt>Hours per week</dt>
+                                <dd><h:outputText value="#{contractBean.contract.hoursPerWeek}"/></dd>
+                            </div>
+                            <div class="contract-detail__item">
+                                <dt>Working days per week</dt>
+                                <dd><h:outputText value="#{contractBean.contract.workingDaysPerWeek}"/></dd>
+                            </div>
+                            <div class="contract-detail__item">
+                                <dt>Vacation days per year</dt>
+                                <dd><h:outputText value="#{contractBean.contract.vacationDaysPerYear}"/></dd>
+                            </div>
+                            <div class="contract-detail__item">
+                                <dt>Vacation hours</dt>
+                                <dd>
+                                    <h:outputText value="#{contractBean.contract.vacationHours}">
+                                        <f:convertNumber minFractionDigits="0" maxFractionDigits="2"/>
+                                    </h:outputText>
+                                </dd>
+                            </div>
+                            <div class="contract-detail__item">
+                                <dt>Total hours due</dt>
+                                <dd>
+                                    <h:outputText value="#{contractBean.contract.totalHoursDue}">
+                                        <f:convertNumber minFractionDigits="0" maxFractionDigits="2"/>
+                                    </h:outputText>
+                                </dd>
+                            </div>
+                            <div class="contract-detail__item">
+                                <dt>Termination date</dt>
+                                <dd>
+                                    <h:outputText value="#{contractBean.contract.terminationDate}"
+                                                  rendered="#{not empty contractBean.contract.terminationDate}">
+                                        <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                                    </h:outputText>
+                                    <h:outputText value="—"
+                                                  rendered="#{empty contractBean.contract.terminationDate}"/>
+                                </dd>
+                            </div>
+                            <div class="contract-detail__item">
+                                <dt>Archive duration (months)</dt>
+                                <dd><h:outputText value="#{contractBean.contract.archiveDuration}"/></dd>
+                            </div>
+                        </dl>
+                    </article>
+                </ui:fragment>
+
+                <h:panelGroup layout="block"
+                              rendered="#{empty contractBean.contract.id and facesContext.validationFailed}"
+                              styleClass="contract-detail__state"
+                              role="alert">
+                    <span class="pi pi-link" aria-hidden="true"></span>
+                    <div>
+                        <h2>Check the contract link</h2>
+                        <p>A valid positive contract ID is required to open this page.</p>
+                    </div>
+                </h:panelGroup>
+
+                <h:panelGroup layout="block"
+                              rendered="#{empty contractBean.contract.id and not facesContext.validationFailed}"
+                              styleClass="contract-detail__state"
+                              role="status">
+                    <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
+                    <div>
+                        <h2>Contract details are unavailable</h2>
+                        <p>The contract could not be loaded. Return to the overview and try again later.</p>
+                    </div>
+                </h:panelGroup>
+            </h:form>
+        </section>
+    </ui:define>
+</ui:composition>

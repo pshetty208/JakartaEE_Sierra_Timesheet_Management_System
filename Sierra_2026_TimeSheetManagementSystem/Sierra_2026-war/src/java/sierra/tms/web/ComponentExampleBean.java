@@ -4,7 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.List;
-import sierra.tms.dto.UserDto;
+import com.jee.dto.UserDto;
 
 @Named
 @ApplicationScoped
