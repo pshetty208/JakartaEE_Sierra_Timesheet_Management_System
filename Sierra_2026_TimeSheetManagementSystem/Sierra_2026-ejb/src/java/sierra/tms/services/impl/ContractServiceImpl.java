@@ -21,7 +21,7 @@ import sierra.tms.dto.ContractDto;
 import sierra.tms.entities.ContractEntity;
 import sierra.tms.entities.PersonEntity;
 import sierra.tms.entities.TimesheetEntity;
-import sierra.tms.exceptions.TerminationException;
+import sierra.tms.exceptions.TerminationWarning;
 import sierra.tms.services.ContractService;
 import sierra.tms.utils.enums.ContractStatus;
 import sierra.tms.utils.enums.TimeSheetStatus;
@@ -232,8 +232,7 @@ public class ContractServiceImpl implements ContractService {
         boolean hasInProgressWithEntries = timesheets.stream()
                 .anyMatch(t -> t.getStatus() == TimeSheetStatus.IN_PROGRESS && !t.getEntries().isEmpty());
             if (hasInProgressWithEntries) {
-                throw new TerminationException("This contract has IN_PROGRESS timesheets with entries that will be permanently deleted. "
-                        + "Confirm to Proceed");
+                throw new TerminationWarning("This contract has IN_PROGRESS timesheets with entries that will be permanently deleted. Confirm to Proceed");
             }
         }
 
