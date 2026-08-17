@@ -1,7 +1,6 @@
 package sierra.tms.services;
 
 import jakarta.ejb.Local;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import sierra.tms.entities.ContractEntity;
 
@@ -16,6 +15,8 @@ public interface ContractHoursCalculationService {
     
     double calculateTotalHoursDueForContract(Long contractId);
     
-    double calculateRemainingHours(BigDecimal totalHoursDue, BigDecimal totalReportedHours);
+    double calculateTotalReportedHoursForContract(Long contractId);
+    
+    double calculateRemainingHours(double totalHoursDue, double totalReportedHours);
     
 }

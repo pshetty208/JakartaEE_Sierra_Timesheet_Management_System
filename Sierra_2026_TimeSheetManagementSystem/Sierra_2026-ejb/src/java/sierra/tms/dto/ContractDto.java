@@ -42,7 +42,7 @@ public class ContractDto implements Serializable {
 
     private Double totalHoursDue;
     
-    private Double balance;
+    private Double remainingHours;
 
     private Set<Long> assistantRoleIds;
 
@@ -84,12 +84,12 @@ public class ContractDto implements Serializable {
         this.totalHoursDue = totalHoursDue;
     }
 
-    public Double getBalance() {
-        return balance;
+    public Double getRemainingHours() {
+        return remainingHours;
     }
 
-    public void setBalance(Double balance) {
-        this.balance = balance;
+    public void setRemainingHours(Double remainingHours) {
+        this.remainingHours = remainingHours;
     }
 
 
@@ -235,4 +235,5 @@ public class ContractDto implements Serializable {
     public void setSecretaryRoleIds(Set<Long> secretaryRoleIds) {
         this.secretaryRoleIds = secretaryRoleIds;
     }
+
 }

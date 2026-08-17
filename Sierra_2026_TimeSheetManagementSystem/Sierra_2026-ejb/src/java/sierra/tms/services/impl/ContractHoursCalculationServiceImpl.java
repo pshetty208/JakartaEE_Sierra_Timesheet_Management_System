@@ -3,7 +3,6 @@ package sierra.tms.services.impl;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityNotFoundException;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
@@ -11,6 +10,7 @@ import sierra.tms.dao.ContractDao;
 import sierra.tms.dao.TimesheetDao;
 import sierra.tms.entities.ContractEntity;
 import sierra.tms.entities.TimesheetEntity;
+import sierra.tms.entities.TimesheetEntryEntity;
 import sierra.tms.services.HolidayService;
 import sierra.tms.services.ContractHoursCalculationService;
 
@@ -92,22 +92,35 @@ public class ContractHoursCalculationServiceImpl implements ContractHoursCalcula
     }
     
     @Override
-    public double calculateRemainingHours(BigDecimal totalHoursDue, BigDecimal totalReportedHours) {
-        if (totalHoursDue == null || totalReportedHours == null) {
-            throw new IllegalArgumentException("Hours must not be null.");
+    public double calculateTotalReportedHoursForContract(Long contractId) {
+        ContractEntity contract = contractDao.findById(contractId);
+
+        if (contract == null) {
+            throw new EntityNotFoundException("Contract with id: " + contractId + " not found.");
         }
 
-        return totalHoursDue.subtract(totalReportedHours).doubleValue();
+        return timesheetDao.findByContractId(contractId)
+                .stream()
+                .flatMap(timesheet -> timesheet.getEntries().stream())
+                .mapToDouble(TimesheetEntryEntity::getHours)
+                .sum();
+    }
+    
+    @Override
+    public double calculateRemainingHours(double totalHoursDue, double totalReportedHours) {
+        return totalHoursDue - totalReportedHours;
     }
             
     private void validateContract(ContractEntity contract) {
         if (contract == null || contract.getStartDate() == null
                 || contract.getEndDate() == null
                 || contract.getHoursPerWeek() == null
-                || contract.getWorkingDaysPerWeek() == null
-                || contract.getWorkingDaysPerWeek() < 1
-                || contract.getWorkingDaysPerWeek() > 7) {
+                || contract.getWorkingDaysPerWeek() == null) {
             throw new IllegalArgumentException("Contract data is incomplete.");
+        }
+        
+        if (contract.getWorkingDaysPerWeek() < 1 || contract.getWorkingDaysPerWeek() > 5) {
+            throw new IllegalArgumentException("Working days per week must be between 1 and 5.");
         }
     }
 

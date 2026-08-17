@@ -13,6 +13,8 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import java.util.List;
+import sierra.tms.services.ContractService;
+import sierra.tms.utils.enums.TimeSheetStatus;
 
 @Stateless
 @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
@@ -26,6 +28,9 @@ public class TimesheetServiceImpl implements TimesheetService {
 
     @EJB
     private ContractDao contractDao;
+    
+    @EJB
+    private ContractService contractService;
 
     @Override
     public Long save(TimesheetDto timesheet) {
@@ -90,6 +95,10 @@ public class TimesheetServiceImpl implements TimesheetService {
         entity.setSignedBySupervisor(timesheet.getSignedBySupervisor());
 
         dao.update(entity);
+        
+        if (entity.getStatus() == TimeSheetStatus.ARCHIVED && entity.getContract() != null) {
+            contractService.archiveContract(entity.getContract().getId());
+        }
     }
 
     @Override
