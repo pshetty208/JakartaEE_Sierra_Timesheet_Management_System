@@ -1,7 +1,7 @@
 package sierra.tms.exceptions;
 
-public class TerminationException extends RuntimeException {
-    public TerminationException(String message) {
+public class TerminationWarning extends RuntimeException {
+    public TerminationWarning(String message) {
         super(message);
     }
 }

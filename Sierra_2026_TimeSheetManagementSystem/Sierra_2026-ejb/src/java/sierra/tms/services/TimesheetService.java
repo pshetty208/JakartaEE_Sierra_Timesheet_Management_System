@@ -10,11 +10,11 @@ public interface TimesheetService {
 
     public Long save(TimesheetDto timesheet);
 
-    public TimesheetDto getById(Long id);
+    public TimesheetDto findById(Long id);
 
-    public List<TimesheetDto> getAll();
+    public List<TimesheetDto> findAll();
 
-    public List<TimesheetDto> getByContract(Long contractId);
+    public List<TimesheetDto> findByContractId(Long contractId);
 
     public void update(TimesheetDto timesheet);
 
@@ -25,4 +25,8 @@ public interface TimesheetService {
     public void updateEntry(TimesheetEntryDto entry);
 
     public void deleteEntry(Long entryId);
+    
+    TimesheetDto getForPrinting(Long id);
+    
+    void archiveTimesheet(Long id);
 }
