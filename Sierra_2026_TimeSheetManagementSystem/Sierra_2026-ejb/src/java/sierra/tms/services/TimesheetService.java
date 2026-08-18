@@ -27,4 +27,6 @@ public interface TimesheetService {
     public void deleteEntry(Long entryId);
     
     TimesheetDto getForPrinting(Long id);
+    
+    void archiveTimesheet(Long id);
 }

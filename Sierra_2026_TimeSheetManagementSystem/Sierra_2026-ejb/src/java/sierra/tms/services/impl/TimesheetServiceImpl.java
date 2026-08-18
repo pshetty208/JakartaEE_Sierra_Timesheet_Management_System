@@ -13,8 +13,12 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.List;
+import sierra.tms.services.ContractHoursCalculationService;
 import sierra.tms.services.ContractService;
+import sierra.tms.utils.enums.ReportType;
 import sierra.tms.utils.enums.TimeSheetStatus;
 
 @Stateless
@@ -32,6 +36,9 @@ public class TimesheetServiceImpl implements TimesheetService {
     
     @EJB
     private ContractService contractService;
+    
+    @EJB
+    private ContractHoursCalculationService calculationService;
 
     @Override
     public Long save(TimesheetDto timesheet) {
@@ -86,42 +93,49 @@ public class TimesheetServiceImpl implements TimesheetService {
         TimesheetEntity entity = dao.findById(timesheet.getId());
 
         if (entity == null) {
-            return;
+            throw new EntityNotFoundException("Timesheet not found: " + timesheet.getId());
+        }
+        
+        if (entity.getStatus() == TimeSheetStatus.ARCHIVED) {
+            throw new IllegalStateException("Archived timesheets cannot be changed.");
         }
 
         entity.setStartDate(timesheet.getStartDate());
         entity.setEndDate(timesheet.getEndDate());
         entity.setStatus(timesheet.getStatus());
-        entity.setSignedByEmployee(timesheet.getSignedByEmployee());
-        entity.setSignedBySupervisor(timesheet.getSignedBySupervisor());
+//        entity.setSignedByEmployee(timesheet.getSignedByEmployee());
+//        entity.setSignedBySupervisor(timesheet.getSignedBySupervisor());
 
         dao.update(entity);
         
-        if (entity.getStatus() == TimeSheetStatus.ARCHIVED && entity.getContract() != null) {
-            contractService.archiveContract(entity.getContract().getId());
-        }
+//        if (entity.getStatus() == TimeSheetStatus.ARCHIVED && entity.getContract() != null) {
+//            contractService.archiveContract(entity.getContract().getId());
+//        }
     }
 
     @Override
     public void delete(Long id) {
-        // TODO(TS5/TS6): refuse deletion when the timesheet is SIGNED_BY_EMPLOYEE
-        // or SIGNED_BY_SUPERVISOR.
+        TimesheetEntity entity = dao.findById(id);
+
+        if (entity == null) {
+            throw new EntityNotFoundException("Timesheet not found: " + id);
+        }
+        
+        if (entity.getStatus() == TimeSheetStatus.SIGNED_BY_EMPLOYEE || entity.getStatus() == TimeSheetStatus.SIGNED_BY_SUPERVISOR) {
+            throw new IllegalStateException("Cannot delete a timesheet that has been signed by the employee or supervisor.");
+        }
         dao.delete(id);
     }
 
     @Override
     public Long addEntry(Long timesheetId, TimesheetEntryDto entry) {
-
         TimesheetEntity timesheet = dao.findById(timesheetId);
-
-        if (timesheet == null) {
-            return null;
+        validateTimesheet(timesheet);
+        
+        double hours = computeHours(entry.getStartTime(), entry.getEndTime());
+        if (entry.getType() == ReportType.VACATION) {
+            validateVacationHours(null, timesheet, hours);
         }
-
-        // TODO(TS2): only allow this when timesheet is IN_PROGRESS and its
-        // contract is STARTED. Needs the contract slice.
-        // TODO(TS3): reject if total VACATION hours would exceed the contract's
-        // vacation hours (CN4a).
 
         TimesheetEntryEntity entity = new TimesheetEntryEntity();
         entity.setType(entry.getType());
@@ -138,15 +152,20 @@ public class TimesheetServiceImpl implements TimesheetService {
 
     @Override
     public void updateEntry(TimesheetEntryDto entry) {
-
         TimesheetEntryEntity entity = entryDao.findById(entry.getId());
 
         if (entity == null) {
-            return;
+             throw new EntityNotFoundException("Timesheet Entry with id:" + entry.getId() + " not found");
         }
 
-        // TODO(TS2): same status gate as addEntry.
-
+        TimesheetEntity timesheet = entity.getTimesheet();
+        validateTimesheet(timesheet);
+        
+        double hours = computeHours(entry.getStartTime(), entry.getEndTime());
+        if (entry.getType() == ReportType.VACATION) {
+            validateVacationHours(entity.getId(), timesheet, hours);
+        }
+        
         entity.setType(entry.getType());
         entity.setDescription(entry.getDescription());
         entity.setEntryDate(entry.getEntryDate());
@@ -158,7 +177,13 @@ public class TimesheetServiceImpl implements TimesheetService {
 
     @Override
     public void deleteEntry(Long entryId) {
-        // TODO(TS2): same status gate as addEntry.
+        TimesheetEntryEntity entity = entryDao.findById(entryId);
+        if (entity == null) {
+            throw new EntityNotFoundException("Timesheet Entry with id:" + entryId + " not found");
+        }
+
+        validateTimesheet(entity.getTimesheet());
+        
         entryDao.delete(entryId);
     }
     
@@ -172,6 +197,63 @@ public class TimesheetServiceImpl implements TimesheetService {
         }
 
         return createDTO(entity);
+    }
+    
+    @Override
+    @RolesAllowed({"SECRETARY"})
+    public void archiveTimesheet(Long id) {
+        TimesheetEntity entity = dao.findById(id);
+
+        if (entity == null) {
+            throw new EntityNotFoundException("Timesheet not found: " + id);
+        }
+
+        if (entity.getStatus() != TimeSheetStatus.SIGNED_BY_SUPERVISOR) {
+            throw new IllegalStateException("Only timesheets in SIGNED_BY_SUPERVISOR status can be archived.");
+        }
+
+        entity.setStatus(TimeSheetStatus.ARCHIVED);
+        dao.update(entity);
+
+        if (entity.getContract() != null) {
+            contractService.archiveContract(entity.getContract().getId());
+        }
+    }
+    
+    private double computeHours(LocalTime startTime, LocalTime endTime) {
+        if (startTime == null || endTime == null) {
+            return 0.0;
+        }
+        return Duration.between(startTime, endTime).toMinutes() / 60.0;
+    }
+    
+    private void validateVacationHours(Long entryId, TimesheetEntity timesheet, double hours) {
+        ContractEntity contract = timesheet.getContract();
+        double reportedVacationHours = dao.findByContractId(contract.getId())
+                                        .stream()
+                                        .flatMap(t -> t.getEntries().stream())
+                                        .filter(e -> e.getType() == ReportType.VACATION && (entryId == null || !entryId.equals(e.getId())))
+                                        .mapToDouble(TimesheetEntryEntity::getHours)
+                                        .sum();
+        double vacationLimit = calculationService.calculateVacationHours(contract);
+
+        if (reportedVacationHours + hours > vacationLimit) {
+            throw new IllegalStateException("The reported vacation hours: " + (reportedVacationHours + hours)
+                                + " exceeds the contract's vacation hours: " + vacationLimit);
+        }
+    }
+    
+    private void validateTimesheet(TimesheetEntity timesheet){
+        
+        if (timesheet == null) {
+            throw new EntityNotFoundException("Timesheet not found.");
+        }
+        
+        ContractEntity contract = timesheet.getContract();
+        
+        if (timesheet.getStatus() != TimeSheetStatus.IN_PROGRESS || contract == null || contract.getStatus() != sierra.tms.utils.enums.ContractStatus.STARTED) {
+            throw new IllegalStateException("Timesheet entries can only be changed while the timesheet is IN_PROGRESS state and contract is STARTED state");
+        }
     }
 
     private TimesheetDto createDTO(TimesheetEntity entity) {

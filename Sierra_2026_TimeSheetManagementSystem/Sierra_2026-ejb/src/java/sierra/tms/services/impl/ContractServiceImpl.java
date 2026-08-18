@@ -421,7 +421,7 @@ public class ContractServiceImpl implements ContractService {
                         .map(PersonEntity::getId)
                         .collect(Collectors.toCollection(LinkedHashSet::new)));
         
-        double reportedHours = calculationService.calculateTotalHoursDueForContract(entity.getId());
+        double reportedHours = calculationService.calculateTotalReportedHoursForContract(entity.getId());
         double hoursDue = calculationService.calculateTotalHoursDueForContract(entity.getId());
             
         dto.setTotalHoursDue(hoursDue);
