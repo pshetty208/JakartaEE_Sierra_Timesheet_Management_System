@@ -13,10 +13,12 @@ import sierra.tms.services.TimesheetService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBAccessException;
+import jakarta.ejb.Schedule;
 import jakarta.ejb.SessionContext;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +33,7 @@ import sierra.tms.utils.enums.TimeSheetStatus;
 public class TimesheetServiceImpl implements TimesheetService {
 
     @EJB
-    private TimesheetDao dao;
+    private TimesheetDao timesheetDao;
 
     @EJB
     private TimesheetEntryDao entryDao;
@@ -50,6 +52,8 @@ public class TimesheetServiceImpl implements TimesheetService {
     
     @Resource
     private SessionContext sessionContext;
+    
+    private static final int DEFAULT_ARCHIVE_DURATION_MONTHS = 24;
 
     @Override
     @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
@@ -70,7 +74,7 @@ public class TimesheetServiceImpl implements TimesheetService {
             entity.setStatus(timesheet.getStatus());
         }
 
-        dao.save(entity);
+        timesheetDao.save(entity);
 
         return entity.getId();
     }
@@ -78,7 +82,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     @Override
     @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public TimesheetDto findById(Long id) {
-        TimesheetEntity entity = dao.findById(id);
+        TimesheetEntity entity = timesheetDao.findById(id);
         if (entity == null) {
             throw new EntityNotFoundException("Timesheet not found: " + id);
         }
@@ -95,7 +99,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public List<TimesheetDto> findAll() {
         PersonEntity currentPerson = getCurrentPerson();
-        return dao.findAll()
+        return timesheetDao.findAll()
                 .stream()
                 .filter(t -> isAuthorizedToViewTimesheet(currentPerson, t))
                 .map(this::createDTO)
@@ -106,7 +110,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public List<TimesheetDto> findByContractId(Long contractId) {
         PersonEntity currentPerson = getCurrentPerson();
-        return dao.findByContractId(contractId)
+        return timesheetDao.findByContractId(contractId)
                 .stream()
                 .filter(t -> isAuthorizedToViewTimesheet(currentPerson, t))
                 .map(this::createDTO)
@@ -117,7 +121,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public void update(TimesheetDto timesheet) {
 
-        TimesheetEntity entity = dao.findById(timesheet.getId());
+        TimesheetEntity entity = timesheetDao.findById(timesheet.getId());
 
         if (entity == null) {
             throw new EntityNotFoundException("Timesheet not found: " + timesheet.getId());
@@ -133,7 +137,7 @@ public class TimesheetServiceImpl implements TimesheetService {
 //        entity.setSignedByEmployee(timesheet.getSignedByEmployee());
 //        entity.setSignedBySupervisor(timesheet.getSignedBySupervisor());
 
-        dao.update(entity);
+        timesheetDao.update(entity);
         
 //        if (entity.getStatus() == TimeSheetStatus.ARCHIVED && entity.getContract() != null) {
 //            contractService.archiveContract(entity.getContract().getId());
@@ -143,22 +147,23 @@ public class TimesheetServiceImpl implements TimesheetService {
     @Override
     @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public void delete(Long id) {
-        TimesheetEntity entity = dao.findById(id);
+        TimesheetEntity entity = timesheetDao.findById(id);
 
         if (entity == null) {
             throw new EntityNotFoundException("Timesheet not found: " + id);
         }
         
-        if (entity.getStatus() == TimeSheetStatus.SIGNED_BY_EMPLOYEE || entity.getStatus() == TimeSheetStatus.SIGNED_BY_SUPERVISOR) {
+        if (entity.getStatus() == TimeSheetStatus.SIGNED_BY_EMPLOYEE || entity.getStatus() == TimeSheetStatus.SIGNED_BY_SUPERVISOR
+                || entity.getStatus() == TimeSheetStatus.ARCHIVED) {
             throw new IllegalStateException("Cannot delete a timesheet that has been signed by the employee or supervisor.");
         }
-        dao.delete(id);
+        timesheetDao.delete(id);
     }
 
     @Override
     @RolesAllowed({"EMPLOYEE"})
     public Long addEntry(Long timesheetId, TimesheetEntryDto entry) {
-        TimesheetEntity timesheet = dao.findById(timesheetId);
+        TimesheetEntity timesheet = timesheetDao.findById(timesheetId);
         validateTimesheet(timesheet);
         
         double hours = computeHours(entry.getStartTime(), entry.getEndTime());
@@ -221,7 +226,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     @Override
     @RolesAllowed({"SECRETARY"})
     public TimesheetDto getForPrinting(Long id) {
-        TimesheetEntity entity = dao.findById(id);
+        TimesheetEntity entity = timesheetDao.findById(id);
 
         if (entity == null) {
             throw new EntityNotFoundException("Timesheet with id:" + id + " not found");
@@ -233,7 +238,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     @Override
     @RolesAllowed({"SECRETARY"})
     public void archiveTimesheet(Long id) {
-        TimesheetEntity entity = dao.findById(id);
+        TimesheetEntity entity = timesheetDao.findById(id);
 
         if (entity == null) {
             throw new EntityNotFoundException("Timesheet not found: " + id);
@@ -244,10 +249,44 @@ public class TimesheetServiceImpl implements TimesheetService {
         }
 
         entity.setStatus(TimeSheetStatus.ARCHIVED);
-        dao.update(entity);
+        timesheetDao.update(entity);
 
         if (entity.getContract() != null) {
             contractService.archiveContract(entity.getContract().getId());
+        }
+    }
+    
+    @Schedule(hour = "2", minute = "0", second = "0", persistent = true)
+    public void deleteExpiredTimesheets() {
+        List<TimesheetEntity> archived = timesheetDao.findByStatus(TimeSheetStatus.ARCHIVED);
+        LocalDate today = LocalDate.now();
+
+        for (TimesheetEntity timesheet : archived) {
+            if (timesheet.getSignedBySupervisor() == null) {
+                continue;
+            }
+
+            ContractEntity contract = timesheet.getContract();
+            int archiveDurationMonths = (contract != null && contract.getArchiveDuration() != null) 
+                    ? contract.getArchiveDuration() : DEFAULT_ARCHIVE_DURATION_MONTHS;
+
+            LocalDate expiryDate = timesheet.getSignedBySupervisor().plusMonths(archiveDurationMonths);
+            if (today.isBefore(expiryDate)) {
+                continue;
+            }
+
+            Long timesheetId = timesheet.getId();
+            timesheetDao.delete(timesheet);
+
+            if (contract == null) {
+                continue;
+            }
+            boolean anyTimesheetsRemain = timesheetDao.findByContractId(contract.getId())
+                    .stream()
+                    .anyMatch(t -> !t.getId().equals(timesheetId));
+            if (!anyTimesheetsRemain) {
+                contractDao.delete(contract);
+            }
         }
     }
     
@@ -260,7 +299,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     
     private void validateVacationHours(Long entryId, TimesheetEntity timesheet, double hours) {
         ContractEntity contract = timesheet.getContract();
-        double reportedVacationHours = dao.findByContractId(contract.getId())
+        double reportedVacationHours = timesheetDao.findByContractId(contract.getId())
                                         .stream()
                                         .flatMap(t -> t.getEntries().stream())
                                         .filter(e -> e.getType() == ReportType.VACATION && (entryId == null || !entryId.equals(e.getId())))

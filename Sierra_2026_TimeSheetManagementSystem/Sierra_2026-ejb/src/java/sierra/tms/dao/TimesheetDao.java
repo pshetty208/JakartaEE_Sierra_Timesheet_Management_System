@@ -6,6 +6,7 @@ import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.List;
+import sierra.tms.utils.enums.TimeSheetStatus;
 
 @LocalBean
 @Stateless
@@ -39,6 +40,14 @@ public class TimesheetDao {
                 + " ORDER BY timesheet.startDate",
                 TimesheetEntity.class)
                 .setParameter("contractId", contractId)
+                .getResultList();
+    }
+    
+    public List<TimesheetEntity> findByStatus(TimeSheetStatus status) {
+        return em.createQuery(
+                "SELECT t FROM TimesheetEntity t WHERE t.status = :status",
+                TimesheetEntity.class)
+                .setParameter("status", status)
                 .getResultList();
     }
     
