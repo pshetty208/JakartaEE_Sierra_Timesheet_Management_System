@@ -2,20 +2,27 @@ package sierra.tms.web;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
+import jakarta.ejb.EJBException;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import sierra.tms.dto.ContractDto;
-import sierra.tms.service.ContractService;
-import sierra.tms.utils.ContractStatus;
+import sierra.tms.services.ContractService;
+import sierra.tms.utils.enums.ContractStatus;
+import sierra.tms.utils.enums.Frequency;
 
 @Named
 @ViewScoped
 public class ContractBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    private static final int DEFAULT_WORKING_DAYS_PER_WEEK = 5;
+    private static final int DEFAULT_VACATION_DAYS_PER_YEAR = 20;
 
     @EJB
     private ContractService contractService;
@@ -24,15 +31,16 @@ public class ContractBean implements Serializable {
 
     private List<ContractDto> contracts;
 
+    private Long contractDetailId;
+
     @PostConstruct
     public void init() {
-        contract = new ContractDto();
-        loadContracts();
+        contract = newContractWithDefaults();
     }
 
     public void create() {
         contractService.createContract(contract);
-        contract = new ContractDto();
+        contract = newContractWithDefaults();
         loadContracts();
     }
 
@@ -40,9 +48,34 @@ public class ContractBean implements Serializable {
         contract = contractService.findById(id);
     }
 
+    public void loadContractDetails() {
+        try {
+            contract = contractService.findById(contractDetailId);
+        } catch (EJBException exception) {
+            contract = null;
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Contract details are temporarily unavailable.",
+                            null));
+        }
+    }
+
+    public void loadContractForPrinting() {
+        try {
+            contractService.findById(contractDetailId);
+            contract = contractService.getContractForPrinting(contractDetailId);
+        } catch (EJBException exception) {
+            contract = null;
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "The printable contract is temporarily unavailable.",
+                            null));
+        }
+    }
+
     public void update() {
         contractService.update(contract);
-        contract = new ContractDto();
+        contract = newContractWithDefaults();
         loadContracts();
     }
 
@@ -52,15 +85,50 @@ public class ContractBean implements Serializable {
     }
 
     public void loadContracts() {
-        contracts = contractService.findAll();
+        try {
+            contracts = contractService.findAll();
+        } catch (EJBException exception) {
+            contracts = null;
+        }
     }
 
     public void clear() {
-        contract = new ContractDto();
+        contract = newContractWithDefaults();
+    }
+
+    private ContractDto newContractWithDefaults() {
+        ContractDto newContract = new ContractDto();
+        newContract.setWorkingDaysPerWeek(DEFAULT_WORKING_DAYS_PER_WEEK);
+        newContract.setVacationDaysPerYear(DEFAULT_VACATION_DAYS_PER_YEAR);
+        return newContract;
     }
 
     public ContractStatus[] getStatuses() {
         return ContractStatus.values();
+    }
+
+    public Frequency[] getFrequencies() {
+        return Frequency.values();
+    }
+
+    public String frequencyLabel(Frequency frequency) {
+        return switch (frequency) {
+            case WEEKLY -> "Weekly";
+            case MONTHLY -> "Monthly";
+        };
+    }
+
+    public String statusLabel(ContractStatus status) {
+        return switch (status) {
+            case PREPARED -> "Prepared";
+            case STARTED -> "Started";
+            case TERMINATED -> "Terminated";
+            case ARCHIVED -> "Archived";
+        };
+    }
+
+    public String statusStyleClass(ContractStatus status) {
+        return "contract-overview__status--" + status.name().toLowerCase();
     }
 
     public ContractDto getContract() {
@@ -77,5 +145,13 @@ public class ContractBean implements Serializable {
 
     public void setContracts(List<ContractDto> contracts) {
         this.contracts = contracts;
+    }
+
+    public Long getContractDetailId() {
+        return contractDetailId;
+    }
+
+    public void setContractDetailId(Long contractDetailId) {
+        this.contractDetailId = contractDetailId;
     }
 }

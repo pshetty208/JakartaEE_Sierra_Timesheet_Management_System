@@ -7,6 +7,8 @@
         <cc:attribute name="value" required="true"/>
         <cc:attribute name="rowKey"/>
         <cc:attribute name="paginator" default="true"/>
+        <cc:attribute name="paginatorPosition" default="bottom"/>
+        <cc:attribute name="paginatorTemplate" default="{PreviousPageLink} {PageLinks} {NextPageLink}"/>
         <cc:attribute name="rows" default="10"/>
         <cc:attribute name="emptyMessage" default="No records found"/>
         <cc:attribute name="style"/>
@@ -22,6 +24,8 @@
                      var="row"
                      rowKey="#{cc.attrs.rowKey}"
                      paginator="#{cc.attrs.paginator}"
+                     paginatorPosition="#{cc.attrs.paginatorPosition}"
+                     paginatorTemplate="#{cc.attrs.paginatorTemplate}"
                      rows="#{cc.attrs.rows}"
                      emptyMessage="#{cc.attrs.emptyMessage}"
                      style="#{cc.attrs.style}"

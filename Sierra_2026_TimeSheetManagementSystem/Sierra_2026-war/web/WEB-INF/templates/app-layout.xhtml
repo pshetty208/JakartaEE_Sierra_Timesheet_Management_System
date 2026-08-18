@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="jakarta.faces.core"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:headerbar="jakarta.faces.composite/headerbar"
+      xmlns:menu="jakarta.faces.composite/menu"
+      xmlns:userProfileMenu="jakarta.faces.composite/userProfileMenu">
+    <ui:insert name="metadata"/>
+
+    <h:head>
+        <title><ui:insert name="title">Sierra TMS</ui:insert></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <h:outputStylesheet library="appLayout" name="appLayout.css"/>
+    </h:head>
+
+    <h:body styleClass="app-shell">
+        <h:form id="headerForm" styleClass="app-headerbar__form app-shell__header">
+            <headerbar:headerbar styleClass="app-headerbar">
+                <f:facet name="start">
+                    <ui:insert name="headerStart">
+                        <h:link outcome="/index" styleClass="app-shell__brand">
+                            <span class="pi pi-clock app-shell__brand-icon" aria-hidden="true"></span>
+                            <span>TSS</span>
+                        </h:link>
+                    </ui:insert>
+                </f:facet>
+
+                <f:facet name="end">
+                    <ui:insert name="headerEnd">
+                        <!-- TODO: Replace the placeholder with the authenticated data. -->
+                        <div class="app-headerbar__actions">
+                            <userProfileMenu:userProfileMenu name="User" label="U"/>
+                        </div>
+                    </ui:insert>
+                </f:facet>
+            </headerbar:headerbar>
+        </h:form>
+
+        <div class="app-shell__body">
+            <aside class="app-shell__navigation" aria-label="Primary navigation">
+                <ui:insert name="navigation">
+                    <!-- TODO: Make this navigation role aware. -->
+                    <h:form id="navigationForm">
+                        <menu:menu styleClass="app-menu app-shell__navigation-menu">
+                            <p:menuitem value="Dashboard"
+                                        outcome="/index"
+                                        icon="pi pi-th-large"
+                                        styleClass="#{facesContext.viewRoot.viewId eq '/index.xhtml' ? 'app-shell__navigation-item--active' : ''}"/>
+                            <p:menuitem value="Contracts"
+                                        outcome="/contracts/index"
+                                        icon="pi pi-file"
+                                        styleClass="#{facesContext.viewRoot.viewId.startsWith('/contracts/') ? 'app-shell__navigation-item--active' : ''}"/>
+                            <p:menuitem value="Timesheets"
+                                        icon="pi pi-clock"
+                                        disabled="true"/>
+                            <p:menuitem value="Statistics"
+                                        icon="pi pi-chart-bar"
+                                        disabled="true"/>
+                        </menu:menu>
+                    </h:form>
+                </ui:insert>
+            </aside>
+
+            <main class="app-shell__content" id="main-content">
+                <ui:insert name="content"/>
+            </main>
+        </div>
+    </h:body>
+</html>

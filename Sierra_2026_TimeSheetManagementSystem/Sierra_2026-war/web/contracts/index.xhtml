@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="jakarta.faces.core"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:dataTable="jakarta.faces.composite/dataTable"
+                template="/WEB-INF/templates/app-layout.xhtml">
+    <!-- TODO: Internationalization -->
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewAction action="#{contractBean.loadContracts}"
+                          onPostback="false"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="title">Contracts</ui:define>
+
+    <ui:define name="content">
+        <h:outputStylesheet library="contracts" name="contracts.css"/>
+
+        <section class="contract-overview" aria-labelledby="contract-overview-title">
+            <header class="contract-overview__heading">
+                <div>
+                    <h1 id="contract-overview-title">Contracts</h1>
+                    <p>View the contracts assigned to you and their current status.</p>
+                </div>
+            </header>
+
+            <h:panelGroup layout="block"
+                          rendered="#{contractBean.contracts eq null}"
+                          styleClass="contract-overview__unavailable">
+                <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
+                <div>
+                    <h2>Contracts are temporarily unavailable</h2>
+                    <p>The contract list could not be loaded. Please try again later.</p>
+                </div>
+            </h:panelGroup>
+
+            <ui:fragment rendered="#{contractBean.contracts ne null}">
+                <h:form id="contractsForm" styleClass="contract-overview__card">
+                    <dataTable:dataTable value="#{contractBean.contracts}"
+                                         rowKey="#{row.id}"
+                                         rows="10"
+                                         emptyMessage="No contracts found."
+                                         styleClass="app-data-table contract-overview__table">
+                        <p:column headerText="Contract"
+                                  styleClass="contract-overview__column--contract">
+                            <h:outputText value="#{row.name}" styleClass="contract-overview__name"/>
+                        </p:column>
+
+                        <p:column headerText="Status"
+                                  styleClass="contract-overview__column--status">
+                            <span class="contract-overview__status #{contractBean.statusStyleClass(row.status)}">
+                                <h:outputText value="#{contractBean.statusLabel(row.status)}"/>
+                            </span>
+                        </p:column>
+
+                        <!-- TODO: Replace person IDs with backend-provided display names. -->
+                        <p:column headerText="Employee"
+                                  styleClass="contract-overview__column--person">
+                            <h:outputText value="#{row.employeeId}"/>
+                        </p:column>
+
+                        <p:column headerText="Supervisor"
+                                  styleClass="contract-overview__column--person">
+                            <h:outputText value="#{row.supervisorId}"/>
+                        </p:column>
+
+                        <p:column headerText="Period"
+                                  styleClass="contract-overview__column--period">
+                            <span class="contract-overview__period">
+                                <h:outputText value="#{row.startDate}">
+                                    <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                                </h:outputText>
+                                <span aria-hidden="true">–</span>
+                                <h:outputText value="#{row.endDate}">
+                                    <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                                </h:outputText>
+                            </span>
+                        </p:column>
+
+                        <p:column headerText="Frequency">
+                            <h:outputText value="#{contractBean.frequencyLabel(row.frequency)}"/>
+                        </p:column>
+
+                        <p:column headerText="Hours/week">
+                            <h:outputText value="#{row.hoursPerWeek}"/>
+                        </p:column>
+
+                        <p:column headerText="Actions">
+                            <h:link value="View details" outcome="/contracts/detail">
+                                <f:param name="id" value="#{row.id}"/>
+                            </h:link>
+                        </p:column>
+
+                    </dataTable:dataTable>
+                </h:form>
+            </ui:fragment>
+        </section>
+    </ui:define>
+</ui:composition>
