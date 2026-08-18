@@ -1,5 +1,6 @@
 package sierra.tms.services.impl;
 
+import jakarta.annotation.Resource;
 import sierra.tms.dao.ContractDao;
 import sierra.tms.dao.TimesheetDao;
 import sierra.tms.dao.TimesheetEntryDao;
@@ -11,18 +12,22 @@ import sierra.tms.entities.TimesheetEntryEntity;
 import sierra.tms.services.TimesheetService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
+import jakarta.ejb.EJBAccessException;
+import jakarta.ejb.SessionContext;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
+import sierra.tms.dao.PersonDao;
+import sierra.tms.entities.PersonEntity;
 import sierra.tms.services.ContractHoursCalculationService;
 import sierra.tms.services.ContractService;
 import sierra.tms.utils.enums.ReportType;
 import sierra.tms.utils.enums.TimeSheetStatus;
 
 @Stateless
-@RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
 public class TimesheetServiceImpl implements TimesheetService {
 
     @EJB
@@ -40,7 +45,14 @@ public class TimesheetServiceImpl implements TimesheetService {
     @EJB
     private ContractHoursCalculationService calculationService;
 
+    @EJB
+    private PersonDao personDao;
+    
+    @Resource
+    private SessionContext sessionContext;
+
     @Override
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public Long save(TimesheetDto timesheet) {
 
         ContractEntity contract = contractDao.findById(timesheet.getContractId());
@@ -64,30 +76,45 @@ public class TimesheetServiceImpl implements TimesheetService {
     }
 
     @Override
-    public TimesheetDto getById(Long id) {
-
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
+    public TimesheetDto findById(Long id) {
         TimesheetEntity entity = dao.findById(id);
+        if (entity == null) {
+            throw new EntityNotFoundException("Timesheet not found: " + id);
+        }
+        
+        PersonEntity currentPerson = getCurrentPerson();
+        if (!isAuthorizedToViewTimesheet(currentPerson, entity)) {
+            throw new EJBAccessException(currentPerson + " is not authorized to view this timesheet.");
+        }
 
-        return entity == null ? null : createDTO(entity);
+        return createDTO(entity);
     }
 
     @Override
-    public List<TimesheetDto> getAll() {
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
+    public List<TimesheetDto> findAll() {
+        PersonEntity currentPerson = getCurrentPerson();
         return dao.findAll()
                 .stream()
+                .filter(t -> isAuthorizedToViewTimesheet(currentPerson, t))
                 .map(this::createDTO)
                 .toList();
     }
 
     @Override
-    public List<TimesheetDto> getByContract(Long contractId) {
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
+    public List<TimesheetDto> findByContractId(Long contractId) {
+        PersonEntity currentPerson = getCurrentPerson();
         return dao.findByContractId(contractId)
                 .stream()
+                .filter(t -> isAuthorizedToViewTimesheet(currentPerson, t))
                 .map(this::createDTO)
                 .toList();
     }
 
     @Override
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public void update(TimesheetDto timesheet) {
 
         TimesheetEntity entity = dao.findById(timesheet.getId());
@@ -114,6 +141,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     }
 
     @Override
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public void delete(Long id) {
         TimesheetEntity entity = dao.findById(id);
 
@@ -128,6 +156,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     }
 
     @Override
+    @RolesAllowed({"EMPLOYEE"})
     public Long addEntry(Long timesheetId, TimesheetEntryDto entry) {
         TimesheetEntity timesheet = dao.findById(timesheetId);
         validateTimesheet(timesheet);
@@ -151,6 +180,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     }
 
     @Override
+    @RolesAllowed({"EMPLOYEE"})
     public void updateEntry(TimesheetEntryDto entry) {
         TimesheetEntryEntity entity = entryDao.findById(entry.getId());
 
@@ -176,6 +206,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     }
 
     @Override
+    @RolesAllowed({"EMPLOYEE"})
     public void deleteEntry(Long entryId) {
         TimesheetEntryEntity entity = entryDao.findById(entryId);
         if (entity == null) {
@@ -253,6 +284,41 @@ public class TimesheetServiceImpl implements TimesheetService {
         
         if (timesheet.getStatus() != TimeSheetStatus.IN_PROGRESS || contract == null || contract.getStatus() != sierra.tms.utils.enums.ContractStatus.STARTED) {
             throw new IllegalStateException("Timesheet entries can only be changed while the timesheet is IN_PROGRESS state and contract is STARTED state");
+        }
+    }
+    
+    private PersonEntity getCurrentPerson() {
+        String emailAddress = sessionContext.getCallerPrincipal().getName();
+        return personDao.findByEmailAddress(emailAddress);
+    }
+
+    private boolean isAuthorizedToViewTimesheet(PersonEntity person, TimesheetEntity timesheet) {
+        ContractEntity contract = timesheet.getContract();
+        if (contract == null || person == null) {
+            return false;
+        }
+        Long personId = person.getId();
+        return personId.equals(contract.getEmployee().getId())
+                || personId.equals(contract.getSupervisor().getId())
+                || containsPerson(contract.getAssistants(), personId)
+                || containsPerson(contract.getSecretaries(), personId);
+    }
+
+    private boolean isEmployeeOnTimesheet(PersonEntity person, TimesheetEntity timesheet) {
+        ContractEntity contract = timesheet.getContract();
+        return contract != null && contract.getEmployee() != null
+                && person != null && person.getId().equals(contract.getEmployee().getId());
+    }
+
+    private boolean containsPerson(Set<PersonEntity> persons, Long personId) {
+        return persons != null && persons.stream()
+                .anyMatch(p -> p != null && personId.equals(p.getId()));
+    }
+
+    private void validateEmployeeOwnsTimesheet(TimesheetEntity timesheet) {
+        PersonEntity currentPerson = getCurrentPerson();
+        if (!isEmployeeOnTimesheet(currentPerson, timesheet)) {
+            throw new EJBAccessException("Only the employee on this contract may manage its timesheet entries.");
         }
     }
 
