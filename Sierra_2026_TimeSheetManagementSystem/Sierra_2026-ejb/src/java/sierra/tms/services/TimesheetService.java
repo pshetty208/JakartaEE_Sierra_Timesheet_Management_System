@@ -25,4 +25,6 @@ public interface TimesheetService {
     public void updateEntry(TimesheetEntryDto entry);
 
     public void deleteEntry(Long entryId);
+    
+    TimesheetDto getForPrinting(Long id);
 }

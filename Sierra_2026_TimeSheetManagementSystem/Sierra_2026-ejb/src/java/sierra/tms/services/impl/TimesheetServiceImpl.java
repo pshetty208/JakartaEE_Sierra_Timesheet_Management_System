@@ -12,6 +12,7 @@ import sierra.tms.services.TimesheetService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import sierra.tms.services.ContractService;
 import sierra.tms.utils.enums.TimeSheetStatus;
@@ -160,6 +161,18 @@ public class TimesheetServiceImpl implements TimesheetService {
         // TODO(TS2): same status gate as addEntry.
         entryDao.delete(entryId);
     }
+    
+    @Override
+    @RolesAllowed({"SECRETARY"})
+    public TimesheetDto getForPrinting(Long id) {
+        TimesheetEntity entity = dao.findById(id);
+
+        if (entity == null) {
+            throw new EntityNotFoundException("Timesheet with id:" + id + " not found");
+        }
+
+        return createDTO(entity);
+    }
 
     private TimesheetDto createDTO(TimesheetEntity entity) {
         return new TimesheetDto(
@@ -189,4 +202,5 @@ public class TimesheetServiceImpl implements TimesheetService {
                 entity.getHours()
         );
     }
+
 }
