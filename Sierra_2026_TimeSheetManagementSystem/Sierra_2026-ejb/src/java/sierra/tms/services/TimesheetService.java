@@ -30,4 +30,12 @@ public interface TimesheetService {
     
     void archiveTimesheet(Long id);
     
+    void signTimesheet(Long timesheetId);
+        
+    void signAsSupervisor(Long timesheetId);
+    
+    void revokeSignature(Long timesheetId);
+    
+    void requestChanges(Long timesheetId);
+    
 }

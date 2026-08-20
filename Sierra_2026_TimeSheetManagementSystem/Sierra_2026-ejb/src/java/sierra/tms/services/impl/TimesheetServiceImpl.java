@@ -290,6 +290,87 @@ public class TimesheetServiceImpl implements TimesheetService {
         }
     }
     
+    @Override
+    @RolesAllowed({"EMPLOYEE"})
+    public void signTimesheet(Long timesheetId) {
+        TimesheetEntity timesheet = timesheetDao.findById(timesheetId);
+        if (timesheet == null) {
+            throw new EntityNotFoundException("Timesheet not found: " + timesheetId);
+        }
+        validateEmployeeOwnsTimesheet(timesheet);
+
+        if (timesheet.getStatus() != TimeSheetStatus.IN_PROGRESS) {
+            throw new IllegalStateException(" ");
+        }
+
+        timesheet.setStatus(TimeSheetStatus.SIGNED_BY_EMPLOYEE);
+        timesheet.setSignedByEmployee(LocalDate.now());
+        timesheetDao.update(timesheet);
+    }
+    
+    @Override
+    @RolesAllowed({"SUPERVISOR"})
+    public void signAsSupervisor(Long timesheetId) {
+        TimesheetEntity timesheet = timesheetDao.findById(timesheetId);
+        if (timesheet == null) {
+            throw new EntityNotFoundException("Timesheet not found: " + timesheetId);
+        }
+
+        PersonEntity currentPerson = getCurrentPerson();
+        if (!isSupervisorOnTimesheet(currentPerson, timesheet)) {
+            throw new EJBAccessException(" ");
+        }
+
+        if (timesheet.getStatus() != TimeSheetStatus.SIGNED_BY_EMPLOYEE) {
+            throw new IllegalStateException(" ");
+        }
+
+        timesheet.setStatus(TimeSheetStatus.SIGNED_BY_SUPERVISOR);
+        timesheet.setSignedBySupervisor(LocalDate.now());
+        timesheetDao.update(timesheet);
+    }
+    
+    @Override
+    @RolesAllowed({"SUPERVISOR", "ASSISTANT"})
+    public void requestChanges(Long timesheetId) {
+        TimesheetEntity timesheet = timesheetDao.findById(timesheetId);
+        if (timesheet == null) {
+            throw new EntityNotFoundException("Timesheet not found: " + timesheetId);
+        }
+
+        PersonEntity currentPerson = getCurrentPerson();
+        if (!isSupervisorOrAssistantOnTimesheet(currentPerson, timesheet)) {
+            throw new EJBAccessException(" ");
+        }
+
+        if (timesheet.getStatus() != TimeSheetStatus.SIGNED_BY_EMPLOYEE) {
+            throw new IllegalStateException(" ");
+        }
+
+        timesheet.setStatus(TimeSheetStatus.IN_PROGRESS);
+        timesheet.setSignedByEmployee(null);
+        timesheetDao.update(timesheet);
+    }
+    
+        
+    @Override
+    @RolesAllowed({"EMPLOYEE"})
+    public void revokeSignature(Long timesheetId) {
+        TimesheetEntity timesheet = timesheetDao.findById(timesheetId);
+        if (timesheet == null) {
+            throw new EntityNotFoundException("Timesheet not found: " + timesheetId);
+        }
+        validateEmployeeOwnsTimesheet(timesheet);
+
+        if (timesheet.getStatus() != TimeSheetStatus.SIGNED_BY_EMPLOYEE) {
+            throw new IllegalStateException("Only Employee signature can be revoked.");
+        }
+
+        timesheet.setStatus(TimeSheetStatus.IN_PROGRESS);
+        timesheet.setSignedByEmployee(null);
+        timesheetDao.update(timesheet);
+    }
+
     private double computeHours(LocalTime startTime, LocalTime endTime) {
         if (startTime == null || endTime == null) {
             return 0.0;
@@ -347,6 +428,21 @@ public class TimesheetServiceImpl implements TimesheetService {
         ContractEntity contract = timesheet.getContract();
         return contract != null && contract.getEmployee() != null
                 && person != null && person.getId().equals(contract.getEmployee().getId());
+    }
+    
+    private boolean isSupervisorOnTimesheet(PersonEntity person, TimesheetEntity timesheet) {
+        ContractEntity contract = timesheet.getContract();
+        return contract != null && contract.getSupervisor() != null
+                && person != null && person.getId().equals(contract.getSupervisor().getId());
+    }
+
+    private boolean isSupervisorOrAssistantOnTimesheet(PersonEntity person, TimesheetEntity timesheet) {
+        ContractEntity contract = timesheet.getContract();
+        if (contract == null || person == null) {
+            return false;
+        }
+        return isSupervisorOnTimesheet(person, timesheet)
+                || containsPerson(contract.getAssistants(), person.getId());
     }
 
     private boolean containsPerson(Set<PersonEntity> persons, Long personId) {
