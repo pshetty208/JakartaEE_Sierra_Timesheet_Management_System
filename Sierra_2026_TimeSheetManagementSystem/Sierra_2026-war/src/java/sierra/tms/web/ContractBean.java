@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sierra.tms.dto.ContractDto;
+import sierra.tms.exceptions.TerminationWarning;
 import sierra.tms.services.ContractService;
 import sierra.tms.utils.enums.ContractStatus;
 import sierra.tms.utils.enums.Frequency;
@@ -32,6 +33,8 @@ public class ContractBean implements Serializable {
     private List<ContractDto> contracts;
 
     private Long contractDetailId;
+
+    private boolean terminationWarningActive;
 
     @PostConstruct
     public void init() {
@@ -84,6 +87,52 @@ public class ContractBean implements Serializable {
         loadContracts();
     }
 
+    public void startContract() {
+        try {
+            contractService.startContract(contractDetailId);
+            loadContractDetails();
+        } catch (EJBException e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "The contract could not be started.", null));
+        }
+    }
+
+    public void terminateContract() {
+        try {
+            contractService.terminateContract(contractDetailId, false);
+            loadContractDetails();
+        } catch (EJBException e) {
+            if (e.getCause() instanceof TerminationWarning tw) {
+                terminationWarningActive = true;
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_WARN,
+                                tw.getMessage(), null));
+            } else {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                "The contract could not be terminated.", null));
+            }
+        }
+    }
+
+    public void confirmTerminate() {
+        try {
+            contractService.terminateContract(contractDetailId, true);
+            terminationWarningActive = false;
+            loadContractDetails();
+        } catch (EJBException e) {
+            terminationWarningActive = false;
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "The contract could not be terminated.", null));
+        }
+    }
+
+    public void cancelTerminate() {
+        terminationWarningActive = false;
+    }
+
     public void loadContracts() {
         try {
             contracts = contractService.findAll();
@@ -129,6 +178,18 @@ public class ContractBean implements Serializable {
 
     public String statusStyleClass(ContractStatus status) {
         return "contract-overview__status--" + status.name().toLowerCase();
+    }
+
+    public boolean isPrepared() {
+      return ContractStatus.PREPARED == contract.getStatus();
+    }
+
+    public boolean isStarted() {
+       return ContractStatus.STARTED == contract.getStatus();
+    }
+
+    public boolean isTerminationWarningActive() {
+        return terminationWarningActive;
     }
 
     public ContractDto getContract() {

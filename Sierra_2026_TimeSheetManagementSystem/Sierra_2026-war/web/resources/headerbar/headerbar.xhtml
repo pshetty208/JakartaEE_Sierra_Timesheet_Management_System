@@ -3,7 +3,7 @@
       xmlns:cc="jakarta.faces.composite"
       xmlns:h="jakarta.faces.html">
     <cc:interface>
-        <cc:attribute name="styleClass" default="app-headerbar"/>
+        <cc:attribute name="styleClass" default="sierra-headerbar"/>
         <cc:facet name="start"/>
         <cc:facet name="end"/>
     </cc:interface>
@@ -12,12 +12,12 @@
         <h:outputStylesheet library="headerbar" name="headerbar.css"/>
 
         <header class="#{cc.attrs.styleClass}">
-            <div class="app-headerbar__content">
-                <div class="app-headerbar__start">
+            <div class="sierra-headerbar__content">
+                <div class="sierra-headerbar__start">
                     <cc:renderFacet name="start"/>
                 </div>
 
-                <div class="app-headerbar__end">
+                <div class="sierra-headerbar__end">
                     <cc:renderFacet name="end"/>
                 </div>
             </div>

@@ -19,7 +19,7 @@
                 <f:validateLongRange minimum="1"/>
             </f:viewParam>
             <f:viewAction action="#{contractBean.loadContractDetails}"
-                          if="#{not empty contractBean.contractDetailId}"
+                          if="#{not empty param.id}"
                           onPostback="false"/>
         </f:metadata>
     </ui:define>
@@ -42,7 +42,7 @@
                 </div>
                 <h:link outcome="/contracts/print"
                         styleClass="contract-detail__print-link"
-                        rendered="#{not empty contractBean.contract.id and (request.isUserInRole('SECRETARY') or request.isUserInRole('ADMIN'))}">
+                        rendered="#{not empty contractBean.contract.id and (request.isUserInRole('SECRETARY') or request.isUserInRole('ASSISTANT'))}">
                     <span class="pi pi-print" aria-hidden="true"></span>
                     <span>Print contract</span>
                     <f:param name="id" value="#{contractBean.contract.id}"/>
@@ -130,6 +130,14 @@
                                 </dd>
                             </div>
                             <div class="contract-detail__item">
+                                <dt>Remaining hours</dt>
+                                <dd>
+                                    <h:outputText value="#{contractBean.contract.remainingHours}">
+                                        <f:convertNumber minFractionDigits="0" maxFractionDigits="2"/>
+                                    </h:outputText>
+                                </dd>
+                            </div>
+                            <div class="contract-detail__item">
                                 <dt>Termination date</dt>
                                 <dd>
                                     <h:outputText value="#{contractBean.contract.terminationDate}"
@@ -146,6 +154,65 @@
                             </div>
                         </dl>
                     </article>
+                    <div class="contract-detail__actions">
+                        <p:commandButton value="Start contract"
+                                         action="#{contractBean.startContract}"
+                                         icon="pi pi-play"
+                                         styleClass="contract-detail__action-button"
+                                         update="contractDetailForm"
+                                         rendered="#{contractBean.isPrepared()
+                                                     and (request.isUserInRole('SUPERVISOR')
+                                                          or request.isUserInRole('ASSISTANT'))}">
+                            <f:param name="id" value="#{contractBean.contractDetailId}"/>
+                        </p:commandButton>
+                        <p:commandButton value="Terminate contract"
+                                         action="#{contractBean.terminateContract}"
+                                         icon="pi pi-stop"
+                                         styleClass="contract-detail__action-button"
+                                         update="contractDetailForm"
+                                         rendered="#{contractBean.isStarted()
+                                                     and (request.isUserInRole('SUPERVISOR')
+                                                          or request.isUserInRole('ASSISTANT'))}">
+                            <p:confirm header="Terminate contract"
+                                       message="Are you sure you want to terminate this contract? This action cannot be undone."
+                                       icon="pi pi-exclamation-triangle"/>
+                            <f:param name="id" value="#{contractBean.contractDetailId}"/>
+                        </p:commandButton>
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                            <p:commandButton value="Cancel"
+                                             type="button"
+                                             icon="pi pi-times"
+                                             styleClass="ui-confirmdialog-no p-button-outlined"/>
+                            <p:commandButton value="Terminate"
+                                             icon="pi pi-stop"
+                                             styleClass="ui-confirmdialog-yes"/>
+                        </p:confirmDialog>
+                    </div>
+
+                    <h:panelGroup layout="block"
+                                  rendered="#{contractBean.terminationWarningActive}"
+                                  styleClass="contract-detail__state contract-detail__state--warn"
+                                  role="alert">
+                        <span class="pi pi-exclamation-triangle" aria-hidden="true"></span>
+                        <div>
+                            <h2>Confirm termination</h2>
+                            <p>This contract has IN_PROGRESS timesheets with entries. Terminating will permanently delete them.</p>
+                        </div>
+                        <div class="contract-detail__warning-actions">
+                            <p:commandButton value="Confirm"
+                                             action="#{contractBean.confirmTerminate}"
+                                             icon="pi pi-check"
+                                             update="contractDetailForm">
+                                <f:param name="id" value="#{contractBean.contractDetailId}"/>
+                            </p:commandButton>
+                            <p:commandButton value="Cancel"
+                                             action="#{contractBean.cancelTerminate}"
+                                             icon="pi pi-times"
+                                             update="contractDetailForm">
+                                <f:param name="id" value="#{contractBean.contractDetailId}"/>
+                            </p:commandButton>
+                        </div>
+                    </h:panelGroup>
                 </ui:fragment>
 
                 <h:panelGroup layout="block"

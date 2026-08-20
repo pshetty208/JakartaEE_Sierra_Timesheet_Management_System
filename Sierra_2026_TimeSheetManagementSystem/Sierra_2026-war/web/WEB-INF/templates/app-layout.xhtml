@@ -16,13 +16,13 @@
         <h:outputStylesheet library="appLayout" name="appLayout.css"/>
     </h:head>
 
-    <h:body styleClass="app-shell">
-        <h:form id="headerForm" styleClass="app-headerbar__form app-shell__header">
-            <headerbar:headerbar styleClass="app-headerbar">
+    <h:body styleClass="sierra-shell">
+        <h:form id="headerForm" styleClass="sierra-headerbar__form sierra-shell__header">
+            <headerbar:headerbar styleClass="sierra-headerbar">
                 <f:facet name="start">
                     <ui:insert name="headerStart">
-                        <h:link outcome="/index" styleClass="app-shell__brand">
-                            <span class="pi pi-clock app-shell__brand-icon" aria-hidden="true"></span>
+                        <h:link outcome="/index" styleClass="sierra-shell__brand">
+                            <span class="pi pi-clock sierra-shell__brand-icon" aria-hidden="true"></span>
                             <span>TSS</span>
                         </h:link>
                     </ui:insert>
@@ -31,7 +31,7 @@
                 <f:facet name="end">
                     <ui:insert name="headerEnd">
                         <!-- TODO: Replace the placeholder with the authenticated data. -->
-                        <div class="app-headerbar__actions">
+                        <div class="sierra-headerbar__actions">
                             <userProfileMenu:userProfileMenu name="User" label="U"/>
                         </div>
                     </ui:insert>
@@ -39,20 +39,20 @@
             </headerbar:headerbar>
         </h:form>
 
-        <div class="app-shell__body">
-            <aside class="app-shell__navigation" aria-label="Primary navigation">
+        <div class="sierra-shell__body">
+            <aside class="sierra-shell__navigation" aria-label="Primary navigation">
                 <ui:insert name="navigation">
                     <!-- TODO: Make this navigation role aware. -->
                     <h:form id="navigationForm">
-                        <menu:menu styleClass="app-menu app-shell__navigation-menu">
+                        <menu:menu styleClass="sierra-menu sierra-shell__navigation-menu">
                             <p:menuitem value="Dashboard"
                                         outcome="/index"
                                         icon="pi pi-th-large"
-                                        styleClass="#{facesContext.viewRoot.viewId eq '/index.xhtml' ? 'app-shell__navigation-item--active' : ''}"/>
+                                        styleClass="#{facesContext.viewRoot.viewId eq '/index.xhtml' ? 'sierra-shell__navigation-item--active' : ''}"/>
                             <p:menuitem value="Contracts"
                                         outcome="/contracts/index"
                                         icon="pi pi-file"
-                                        styleClass="#{facesContext.viewRoot.viewId.startsWith('/contracts/') ? 'app-shell__navigation-item--active' : ''}"/>
+                                        styleClass="#{facesContext.viewRoot.viewId.startsWith('/contracts/') ? 'sierra-shell__navigation-item--active' : ''}"/>
                             <p:menuitem value="Timesheets"
                                         icon="pi pi-clock"
                                         disabled="true"/>
@@ -64,7 +64,7 @@
                 </ui:insert>
             </aside>
 
-            <main class="app-shell__content" id="main-content">
+            <main class="sierra-shell__content" id="main-content">
                 <ui:insert name="content"/>
             </main>
         </div>
