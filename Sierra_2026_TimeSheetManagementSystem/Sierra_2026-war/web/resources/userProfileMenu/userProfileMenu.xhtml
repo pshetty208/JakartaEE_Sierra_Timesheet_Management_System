@@ -14,8 +14,8 @@
         <cc:attribute name="size"/>
         <cc:attribute name="showSubtitle" default="false"/>
         <cc:attribute name="style"/>
-        <cc:attribute name="styleClass" default="app-user-profile-menu"/>
-        <cc:attribute name="menuStyleClass" default="app-user-profile-menu__overlay"/>
+        <cc:attribute name="styleClass" default="sierra-user-profile-menu"/>
+        <cc:attribute name="menuStyleClass" default="sierra-user-profile-menu__overlay"/>
         <cc:attribute name="my" default="right top"/>
         <cc:attribute name="at" default="right bottom"/>
     </cc:interface>
@@ -35,14 +35,14 @@
                                    icon="#{cc.attrs.icon}"
                                    shape="#{cc.attrs.shape}"
                                    size="#{cc.attrs.size}"
-                                   styleClass="app-user-profile-menu__avatar"/>
-                    <span class="app-user-profile-menu__text">
-                        <span class="app-user-profile-menu__name">#{cc.attrs.name}</span>
-                        <span class="app-user-profile-menu__subtitle #{cc.attrs.showSubtitle ? '' : 'app-user-profile-menu__subtitle--hidden'}">
+                                   styleClass="sierra-user-profile-menu__avatar"/>
+                    <span class="sierra-user-profile-menu__text">
+                        <span class="sierra-user-profile-menu__name">#{cc.attrs.name}</span>
+                        <span class="sierra-user-profile-menu__subtitle #{cc.attrs.showSubtitle ? '' : 'sierra-user-profile-menu__subtitle--hidden'}">
                             #{cc.attrs.subtitle}
                         </span>
                     </span>
-                    <span class="pi pi-angle-down app-user-profile-menu__chevron" aria-hidden="true"></span>
+                    <span class="pi pi-angle-down sierra-user-profile-menu__chevron" aria-hidden="true"></span>
                 </h:panelGroup>
             </f:facet>
             <cc:insertChildren/>

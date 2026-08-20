@@ -1,88 +1,124 @@
 :root {
     color-scheme: dark;
-    --app-background: #10110f;
-    --app-surface: #1a1b19;
-    --app-surface-raised: #292a27;
-    --app-border: #3d3e3a;
-    --app-text: #f5f5f3;
-    --app-text-muted: #a7a8a3;
-    --app-accent: #68b56b;
-    --app-header-height: 3.75rem;
-    --app-navigation-width: 14rem;
+    --sierra-background: #10110f;
+    --sierra-surface: #1a1b19;
+    --sierra-surface-raised: #292a27;
+    --sierra-border: #3d3e3a;
+    --sierra-text: #f5f5f3;
+    --sierra-text-muted: #a7a8a3;
+    --sierra-accent: #68b56b;
+    --sierra-header-height: 3.75rem;
+    --sierra-navigation-width: 14rem;
+    --sierra-status-prepared-text: #f3d98b;
+    --sierra-status-prepared-bg: #413717;
+    --sierra-status-prepared-border: #665623;
+    --sierra-status-started-text: #b8e0b9;
+    --sierra-status-started-bg: #0f421b;
+    --sierra-status-started-border: #286637;
+    --sierra-status-terminated-text: #f2b8b5;
+    --sierra-status-terminated-bg: #481c1c;
+    --sierra-status-terminated-border: #713232;
+    --sierra-status-archived-text: #c9cac5;
+    --sierra-status-archived-bg: #333430;
+    --sierra-status-archived-border: #555650;
 }
 
 * {
     box-sizing: border-box;
 }
 
-body.app-shell {
+body.sierra-shell {
     min-height: 100vh;
     margin: 0;
-    color: var(--app-text);
-    background: var(--app-background);
+    color: var(--sierra-text);
+    background: var(--sierra-background);
     font-family: Arial, Helvetica, sans-serif;
 }
 
-.app-shell__header {
+.sierra-shell__header {
     position: sticky;
     z-index: 100;
     top: 0;
 }
 
-.app-shell .app-headerbar {
-    min-height: var(--app-header-height);
-    color: var(--app-text);
-    background: var(--app-surface-raised);
-    border-color: var(--app-border);
+.sierra-shell .sierra-headerbar {
+    min-height: var(--sierra-header-height);
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border-color: var(--sierra-border);
 }
 
-.app-shell .app-headerbar__content {
-    min-height: var(--app-header-height);
+.sierra-shell .sierra-headerbar__content {
+    min-height: var(--sierra-header-height);
     padding: 0 1rem;
-    color: var(--app-text);
+    color: var(--sierra-text);
 }
 
-.app-shell__brand {
+.sierra-shell .sierra-headerbar__actions .sierra-user-profile-menu {
+    max-width: none;
+    padding: 0;
+    color: var(--sierra-text);
+    background: transparent;
+    border: 0;
+}
+
+.sierra-shell .sierra-headerbar__actions .sierra-user-profile-menu:hover,
+.sierra-shell .sierra-headerbar__actions .sierra-user-profile-menu:focus {
+    color: var(--sierra-text);
+    background: transparent;
+    border-color: transparent;
+}
+
+.sierra-shell .sierra-headerbar__actions .sierra-user-profile-menu__avatar {
+    color: var(--sierra-status-started-text);
+    background: var(--sierra-status-started-bg);
+}
+
+.sierra-shell .sierra-headerbar__actions .sierra-user-profile-menu__chevron {
+    display: none;
+}
+
+.sierra-shell__brand {
     display: inline-flex;
     align-items: center;
     gap: 0.55rem;
-    color: var(--app-text);
+    color: var(--sierra-text);
     font-weight: 700;
     text-decoration: none;
 }
 
-.app-shell__brand:hover,
-.app-shell__brand:focus {
-    color: var(--app-text);
+.sierra-shell__brand:hover,
+.sierra-shell__brand:focus {
+    color: var(--sierra-text);
 }
 
-.app-shell__brand-icon {
+.sierra-shell__brand-icon {
     font-size: 0.85rem;
 }
 
-.app-shell__body {
+.sierra-shell__body {
     display: grid;
-    grid-template-columns: var(--app-navigation-width) minmax(0, 1fr);
-    min-height: calc(100vh - var(--app-header-height));
+    grid-template-columns: var(--sierra-navigation-width) minmax(0, 1fr);
+    min-height: calc(100vh - var(--sierra-header-height));
 }
 
-.app-shell__navigation {
+.sierra-shell__navigation {
     padding: 1.25rem 0;
-    background: var(--app-surface);
-    border-right: 1px solid var(--app-border);
+    background: var(--sierra-surface);
+    border-right: 1px solid var(--sierra-border);
 }
 
-.app-shell__navigation-label {
+.sierra-shell__navigation-label {
     display: block;
     padding: 0 1rem 0.55rem;
-    color: var(--app-text-muted);
+    color: var(--sierra-text-muted);
     font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
-.app-shell .app-shell__navigation-menu.ui-menu {
+.sierra-shell .sierra-shell__navigation-menu.ui-menu {
     width: 100%;
     padding: 0;
     background: transparent;
@@ -90,35 +126,35 @@ body.app-shell {
     border-radius: 0;
 }
 
-.app-shell .app-shell__navigation-menu .ui-menu-list {
+.sierra-shell .sierra-shell__navigation-menu .ui-menu-list {
     padding: 0;
 }
 
-.app-shell .app-shell__navigation-menu .ui-menuitem-link {
+.sierra-shell .sierra-shell__navigation-menu .ui-menuitem-link {
     display: flex;
     align-items: center;
     gap: 0.7rem;
     padding: 0.72rem 1rem;
-    color: var(--app-text-muted);
+    color: var(--sierra-text-muted);
     border-left: 3px solid transparent;
     border-radius: 0;
 }
 
-.app-shell .app-shell__navigation-menu .ui-menuitem-link:hover,
-.app-shell .app-shell__navigation-menu .ui-menuitem-link:focus {
-    color: var(--app-text);
+.sierra-shell .sierra-shell__navigation-menu .ui-menuitem-link:hover,
+.sierra-shell .sierra-shell__navigation-menu .ui-menuitem-link:focus {
+    color: var(--sierra-text);
     background: rgba(255, 255, 255, 0.05);
 }
 
-.app-shell .app-shell__navigation-menu .ui-menuitem-link.app-shell__navigation-item--active {
-    color: var(--app-text);
+.sierra-shell .sierra-shell__navigation-menu .ui-menuitem-link.sierra-shell__navigation-item--active {
+    color: var(--sierra-text);
     background: #0d0e0c;
-    border-left-color: var(--app-accent);
+    border-left-color: var(--sierra-accent);
     font-weight: 700;
     opacity: 1;
 }
 
-.app-shell__content {
+.sierra-shell__content {
     width: 100%;
     max-width: 78rem;
     margin: 0 auto;
@@ -126,22 +162,22 @@ body.app-shell {
 }
 
 @media (max-width: 48rem) {
-    body.app-shell {
-        --app-header-height: 3rem;
-        --app-navigation-width: 9.5rem;
+    body.sierra-shell {
+        --sierra-header-height: 3rem;
+        --sierra-navigation-width: 9.5rem;
     }
 
-    .app-shell__content {
+    .sierra-shell__content {
         padding: 1rem;
     }
 }
 
 @media (max-width: 34rem) {
-    .app-shell__body {
+    .sierra-shell__body {
         grid-template-columns: 1fr;
     }
 
-    .app-shell__navigation {
+    .sierra-shell__navigation {
         display: none;
     }
 }

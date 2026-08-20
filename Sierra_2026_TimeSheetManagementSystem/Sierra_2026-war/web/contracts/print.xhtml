@@ -19,7 +19,7 @@
                 <f:validateLongRange minimum="1"/>
             </f:viewParam>
             <f:viewAction action="#{contractBean.loadContractForPrinting}"
-                          if="#{not empty contractBean.contractDetailId}"
+                          if="#{not empty param.id}"
                           onPostback="false"/>
         </f:metadata>
     </ui:define>
@@ -56,8 +56,8 @@
                     <article class="contract-print__sheet">
                         <header class="contract-print__header">
                             <div class="contract-print__brand" aria-label="Time Sheet System">
-                                <span class="contract-print__brand-mark">TSS</span>
-                                <span>Time Sheet System</span>
+                                <span class="contract-print__brand-mark">Sierra TSS</span>
+                                <span>Sierra Time Sheet System</span>
                             </div>
                             <div class="contract-print__document-type">
                                 <span>Archive cover sheet</span>
@@ -177,6 +177,15 @@
                                     <dt>Total hours due</dt>
                                     <dd>
                                         <h:outputText value="#{contractBean.contract.totalHoursDue}">
+                                            <f:convertNumber minFractionDigits="0" maxFractionDigits="2"/>
+                                        </h:outputText>
+                                        <span> h</span>
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt>Remaining hours</dt>
+                                    <dd>
+                                        <h:outputText value="#{contractBean.contract.remainingHours}">
                                             <f:convertNumber minFractionDigits="0" maxFractionDigits="2"/>
                                         </h:outputText>
                                         <span> h</span>
