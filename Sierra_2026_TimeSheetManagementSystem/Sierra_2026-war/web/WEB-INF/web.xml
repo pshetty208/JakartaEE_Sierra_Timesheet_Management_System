@@ -31,6 +31,8 @@
             <url-pattern>/faces/app/*</url-pattern>
             <url-pattern>/index.xhtml</url-pattern>
             <url-pattern>/app/*</url-pattern>
+            <url-pattern>/faces/contracts/*</url-pattern>
+            <url-pattern>/contracts/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>EMPLOYEE</role-name>

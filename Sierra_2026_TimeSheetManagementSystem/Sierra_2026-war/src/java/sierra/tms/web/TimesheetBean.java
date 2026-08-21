@@ -4,7 +4,9 @@ import sierra.tms.dto.TimesheetDto;
 import sierra.tms.dto.TimesheetEntryDto;
 import sierra.tms.services.TimesheetService;
 import sierra.tms.utils.enums.ReportType;
+import sierra.tms.utils.enums.TimeSheetStatus;
 import jakarta.ejb.EJB;
+import jakarta.ejb.EJBException;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
@@ -37,6 +39,8 @@ public class TimesheetBean implements Serializable {
     private String startTime;
     private String endTime;
     private String description;
+
+    private TimesheetDto printableTimesheet;
 
     public void saveTimesheet() {
 
@@ -109,17 +113,15 @@ public class TimesheetBean implements Serializable {
     }
 
     public void deleteTimesheet(Long id) {
-        service.delete(id);
-        info("Deleted timesheet " + id + " and its entries.");
+        run(() -> service.delete(id), "Deleted timesheet " + id + " and its entries.");
     }
 
     public void deleteEntry(Long id) {
-        service.deleteEntry(id);
-        info("Deleted entry " + id + ".");
+        run(() -> service.deleteEntry(id), "Deleted entry " + id + ".");
     }
 
     public List<TimesheetDto> getTimesheets() {
-        return service.getAll();
+        return service.findAll();
     }
 
     /** Flattened view of every entry, so the page can show them in one table. */
@@ -127,7 +129,7 @@ public class TimesheetBean implements Serializable {
 
         List<TimesheetEntryDto> all = new ArrayList<>();
 
-        for (TimesheetDto timesheet : service.getAll()) {
+        for (TimesheetDto timesheet : service.findAll()) {
             if (timesheet.getEntries() != null) {
                 all.addAll(timesheet.getEntries());
             }
@@ -138,6 +140,69 @@ public class TimesheetBean implements Serializable {
 
     public ReportType[] getReportTypes() {
         return ReportType.values();
+    }
+
+    public void signTimesheet(Long id) {
+        run(() -> service.signTimesheet(id), "Signed timesheet " + id + ".");
+    }
+
+    public void revokeSignature(Long id) {
+        run(() -> service.revokeSignature(id), "Revoked the signature on timesheet " + id + ".");
+    }
+
+    public void signAsSupervisor(Long id) {
+        run(() -> service.signAsSupervisor(id), "Countersigned timesheet " + id + ".");
+    }
+
+    public void requestChanges(Long id) {
+        run(() -> service.requestChanges(id), "Requested changes on timesheet " + id + ".");
+    }
+
+    public void archiveTimesheet(Long id) {
+        run(() -> service.archiveTimesheet(id), "Archived timesheet " + id + ".");
+    }
+
+    public void printTimesheet(Long id) {
+        try {
+            printableTimesheet = service.getForPrinting(id);
+        } catch (EJBException exception) {
+            printableTimesheet = null;
+            error(reasonOf(exception));
+        }
+    }
+
+    public TimesheetDto getPrintableTimesheet() {
+        return printableTimesheet;
+    }
+
+    public String statusLabel(TimeSheetStatus status) {
+        return switch (status) {
+            case IN_PROGRESS -> "In progress";
+            case SIGNED_BY_EMPLOYEE -> "Signed by employee";
+            case SIGNED_BY_SUPERVISOR -> "Signed by supervisor";
+            case ARCHIVED -> "Archived";
+        };
+    }
+
+    public String statusStyleClass(TimeSheetStatus status) {
+        return "timesheet-overview__status--" + status.name().toLowerCase().replace('_', '-');
+    }
+
+    private void run(Runnable action, String successMessage) {
+        try {
+            action.run();
+            info(successMessage);
+        } catch (EJBException exception) {
+            error(reasonOf(exception));
+        }
+    }
+
+    /** The container wraps the service exception, so the reason sits on the cause. */
+    private String reasonOf(EJBException exception) {
+        Throwable cause = exception.getCause();
+        return cause == null || cause.getMessage() == null
+                ? "The action could not be completed."
+                : cause.getMessage();
     }
 
     private void info(String message) {

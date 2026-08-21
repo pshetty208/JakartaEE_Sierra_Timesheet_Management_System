@@ -1,143 +1,212 @@
-<?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html"
-      xmlns:f="jakarta.faces.core">
-    <h:head>
-        <title>Timesheets</title>
-    </h:head>
-    <h:body>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="jakarta.faces.core"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:dataTable="jakarta.faces.composite/dataTable"
+                template="/WEB-INF/templates/app-layout.xhtml">
+    <!-- TODO: Internationalization -->
+    <ui:define name="title">Timesheets</ui:define>
 
-        <h1>Timesheets</h1>
+    <ui:define name="content">
+        <h:outputStylesheet library="timesheets" name="timesheets.css"/>
 
-        <h:messages showDetail="false" globalOnly="true"/>
+        <section class="timesheet-overview" aria-labelledby="timesheet-overview-title">
+            <header class="timesheet-overview__heading">
+                <div>
+                    <h1 id="timesheet-overview-title">Timesheets</h1>
+                    <p>Report your working hours and take the timesheet through signing and archiving.</p>
+                </div>
+            </header>
 
-        <h:form>
+            <h:form id="timesheetForm" styleClass="timesheet-overview__card">
+                <h:messages showDetail="false" globalOnly="true"
+                            styleClass="timesheet-overview__messages"/>
 
-            <h2>New timesheet</h2>
+                <h2>New timesheet</h2>
 
-            <h:panelGrid columns="2">
-                <h:outputLabel value="Contract id"/>
-                <h:inputText value="#{timesheetBean.contractId}"/>
+                <div class="timesheet-overview__fields">
+                    <div class="timesheet-overview__field">
+                        <h:outputLabel for="contractId" value="Contract id"/>
+                        <h:inputText id="contractId" value="#{timesheetBean.contractId}"/>
+                    </div>
+                    <div class="timesheet-overview__field">
+                        <h:outputLabel for="startDate" value="Start date (2026-07-01)"/>
+                        <h:inputText id="startDate" value="#{timesheetBean.startDate}"/>
+                    </div>
+                    <div class="timesheet-overview__field">
+                        <h:outputLabel for="endDate" value="End date (2026-07-31)"/>
+                        <h:inputText id="endDate" value="#{timesheetBean.endDate}"/>
+                    </div>
+                    <h:commandButton value="Create"
+                                     styleClass="timesheet-overview__submit"
+                                     action="#{timesheetBean.saveTimesheet}"/>
+                </div>
 
-                <h:outputLabel value="Start date (2026-07-01)"/>
-                <h:inputText value="#{timesheetBean.startDate}"/>
+                <h2>All timesheets</h2>
 
-                <h:outputLabel value="End date (2026-07-31)"/>
-                <h:inputText value="#{timesheetBean.endDate}"/>
-            </h:panelGrid>
+                <dataTable:dataTable value="#{timesheetBean.timesheets}"
+                                     rowKey="#{row.id}"
+                                     rows="10"
+                                     emptyMessage="No timesheets found."
+                                     styleClass="app-data-table timesheet-overview__table">
+                    <p:column headerText="Id">
+                        <h:outputText value="#{row.id}" styleClass="timesheet-overview__name"/>
+                    </p:column>
 
-            <h:commandButton value="Create" action="#{timesheetBean.saveTimesheet}"/>
+                    <p:column headerText="Contract">
+                        <h:outputText value="#{row.contractId}"/>
+                    </p:column>
 
-            <h2>All timesheets</h2>
+                    <p:column headerText="Period">
+                        <span class="timesheet-overview__period">
+                            <h:outputText value="#{row.startDate}">
+                                <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                            </h:outputText>
+                            <span aria-hidden="true">–</span>
+                            <h:outputText value="#{row.endDate}">
+                                <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                            </h:outputText>
+                        </span>
+                    </p:column>
 
-            <h:dataTable value="#{timesheetBean.timesheets}" var="t" border="1" cellpadding="4">
-                <h:column>
-                    <f:facet name="header">Id</f:facet>
-                    #{t.id}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Contract</f:facet>
-                    #{t.contractId}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Start</f:facet>
-                    #{t.startDate}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">End</f:facet>
-                    #{t.endDate}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Status</f:facet>
-                    #{t.status}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Entries</f:facet>
-                    #{t.entries.size()}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Action</f:facet>
-                    <h:commandButton value="Delete"
-                                     action="#{timesheetBean.deleteTimesheet(t.id)}"/>
-                </h:column>
-            </h:dataTable>
+                    <p:column headerText="Status">
+                        <span class="timesheet-overview__status #{timesheetBean.statusStyleClass(row.status)}">
+                            <h:outputText value="#{timesheetBean.statusLabel(row.status)}"/>
+                        </span>
+                    </p:column>
 
-            <h2>New entry</h2>
+                    <p:column headerText="Entries">
+                        <h:outputText value="#{row.entries.size()}"/>
+                    </p:column>
 
-            <h:panelGrid columns="2">
-                <h:outputLabel value="Timesheet"/>
-                <h:selectOneMenu value="#{timesheetBean.selectedTimesheetId}">
-                    <f:selectItem itemLabel="-- pick one --" itemValue="#{null}"/>
-                    <f:selectItems value="#{timesheetBean.timesheets}"
-                                   var="ts"
-                                   itemValue="#{ts.id}"
-                                   itemLabel="##{ts.id} (#{ts.startDate} to #{ts.endDate})"/>
-                </h:selectOneMenu>
+                    <p:column headerText="Actions">
+                        <span class="timesheet-overview__actions">
+                            <h:commandButton value="Sign"
+                                             rendered="#{row.status eq 'IN_PROGRESS'}"
+                                             action="#{timesheetBean.signTimesheet(row.id)}"/>
+                            <h:commandButton value="Revoke"
+                                             rendered="#{row.status eq 'SIGNED_BY_EMPLOYEE'}"
+                                             action="#{timesheetBean.revokeSignature(row.id)}"/>
+                            <h:commandButton value="Countersign"
+                                             rendered="#{row.status eq 'SIGNED_BY_EMPLOYEE'}"
+                                             action="#{timesheetBean.signAsSupervisor(row.id)}"/>
+                            <h:commandButton value="Request changes"
+                                             rendered="#{row.status eq 'SIGNED_BY_EMPLOYEE'}"
+                                             action="#{timesheetBean.requestChanges(row.id)}"/>
+                            <h:commandButton value="Archive"
+                                             rendered="#{row.status eq 'SIGNED_BY_SUPERVISOR'}"
+                                             action="#{timesheetBean.archiveTimesheet(row.id)}"/>
+                            <h:commandButton value="Print"
+                                             rendered="#{row.status ne 'IN_PROGRESS'}"
+                                             action="#{timesheetBean.printTimesheet(row.id)}"/>
+                            <h:commandButton value="Delete"
+                                             action="#{timesheetBean.deleteTimesheet(row.id)}"/>
+                        </span>
+                    </p:column>
+                </dataTable:dataTable>
 
-                <h:outputLabel value="Type"/>
-                <h:selectOneMenu value="#{timesheetBean.entryType}">
-                    <f:selectItems value="#{timesheetBean.reportTypes}"/>
-                </h:selectOneMenu>
+                <h2>New entry</h2>
 
-                <h:outputLabel value="Date (2026-07-06)"/>
-                <h:inputText value="#{timesheetBean.entryDate}"/>
+                <div class="timesheet-overview__fields">
+                    <div class="timesheet-overview__field">
+                        <h:outputLabel for="timesheet" value="Timesheet"/>
+                        <h:selectOneMenu id="timesheet" value="#{timesheetBean.selectedTimesheetId}">
+                            <f:selectItem itemLabel="-- pick one --" itemValue="#{null}"/>
+                            <f:selectItems value="#{timesheetBean.timesheets}"
+                                           var="ts"
+                                           itemValue="#{ts.id}"
+                                           itemLabel="##{ts.id} (#{ts.startDate} to #{ts.endDate})"/>
+                        </h:selectOneMenu>
+                    </div>
+                    <div class="timesheet-overview__field">
+                        <h:outputLabel for="entryType" value="Type"/>
+                        <h:selectOneMenu id="entryType" value="#{timesheetBean.entryType}">
+                            <f:selectItems value="#{timesheetBean.reportTypes}"/>
+                        </h:selectOneMenu>
+                    </div>
+                    <div class="timesheet-overview__field">
+                        <h:outputLabel for="entryDate" value="Date (2026-07-06)"/>
+                        <h:inputText id="entryDate" value="#{timesheetBean.entryDate}"/>
+                    </div>
+                    <div class="timesheet-overview__field">
+                        <h:outputLabel for="startTime" value="Start time (11:00)"/>
+                        <h:inputText id="startTime" value="#{timesheetBean.startTime}"/>
+                    </div>
+                    <div class="timesheet-overview__field">
+                        <h:outputLabel for="endTime" value="End time (13:30)"/>
+                        <h:inputText id="endTime" value="#{timesheetBean.endTime}"/>
+                    </div>
+                    <div class="timesheet-overview__field">
+                        <h:outputLabel for="description" value="Description"/>
+                        <h:inputText id="description" value="#{timesheetBean.description}" size="40"/>
+                    </div>
+                    <h:commandButton value="Add entry"
+                                     styleClass="timesheet-overview__submit"
+                                     action="#{timesheetBean.addEntry}"/>
+                </div>
 
-                <h:outputLabel value="Start time (11:00)"/>
-                <h:inputText value="#{timesheetBean.startTime}"/>
+                <h2>All entries</h2>
 
-                <h:outputLabel value="End time (13:30)"/>
-                <h:inputText value="#{timesheetBean.endTime}"/>
+                <dataTable:dataTable value="#{timesheetBean.allEntries}"
+                                     rowKey="#{row.id}"
+                                     rows="10"
+                                     emptyMessage="No entries found."
+                                     styleClass="app-data-table timesheet-overview__table">
+                    <p:column headerText="Id">
+                        <h:outputText value="#{row.id}"/>
+                    </p:column>
+                    <p:column headerText="Timesheet">
+                        <h:outputText value="#{row.timesheetId}"/>
+                    </p:column>
+                    <p:column headerText="Date">
+                        <h:outputText value="#{row.entryDate}">
+                            <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Begin">
+                        <h:outputText value="#{row.startTime}"/>
+                    </p:column>
+                    <p:column headerText="End">
+                        <h:outputText value="#{row.endTime}"/>
+                    </p:column>
+                    <p:column headerText="Hours">
+                        <h:outputText value="#{row.hours}"/>
+                    </p:column>
+                    <p:column headerText="Type">
+                        <h:outputText value="#{row.type}"/>
+                    </p:column>
+                    <p:column headerText="Work">
+                        <h:outputText value="#{row.description}"/>
+                    </p:column>
+                    <p:column headerText="Actions">
+                        <span class="timesheet-overview__actions">
+                            <h:commandButton value="Delete"
+                                             action="#{timesheetBean.deleteEntry(row.id)}"/>
+                        </span>
+                    </p:column>
+                </dataTable:dataTable>
+            </h:form>
 
-                <h:outputLabel value="Description"/>
-                <h:inputText value="#{timesheetBean.description}" size="40"/>
-            </h:panelGrid>
-
-            <h:commandButton value="Add entry" action="#{timesheetBean.addEntry}"/>
-
-            <h2>All entries</h2>
-
-            <h:dataTable value="#{timesheetBean.allEntries}" var="e" border="1" cellpadding="4">
-                <h:column>
-                    <f:facet name="header">Id</f:facet>
-                    #{e.id}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Timesheet</f:facet>
-                    #{e.timesheetId}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Date</f:facet>
-                    #{e.entryDate}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Begin</f:facet>
-                    #{e.startTime}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">End</f:facet>
-                    #{e.endTime}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Hours</f:facet>
-                    #{e.hours}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Type</f:facet>
-                    #{e.type}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Work</f:facet>
-                    #{e.description}
-                </h:column>
-                <h:column>
-                    <f:facet name="header">Action</f:facet>
-                    <h:commandButton value="Delete"
-                                     action="#{timesheetBean.deleteEntry(e.id)}"/>
-                </h:column>
-            </h:dataTable>
-
-        </h:form>
-
-    </h:body>
-</html>
+            <h:panelGroup layout="block"
+                          rendered="#{not empty timesheetBean.printableTimesheet}"
+                          styleClass="timesheet-overview__card">
+                <h2>Print preview</h2>
+                <h:panelGrid columns="2">
+                    <h:outputLabel value="Timesheet"/>
+                    <h:outputText value="#{timesheetBean.printableTimesheet.id}"/>
+                    <h:outputLabel value="Period"/>
+                    <h:outputText value="#{timesheetBean.printableTimesheet.startDate} to #{timesheetBean.printableTimesheet.endDate}"/>
+                    <h:outputLabel value="Status"/>
+                    <h:outputText value="#{timesheetBean.printableTimesheet.status}"/>
+                    <h:outputLabel value="Signed by employee"/>
+                    <h:outputText value="#{timesheetBean.printableTimesheet.signedByEmployee}"/>
+                    <h:outputLabel value="Signed by supervisor"/>
+                    <h:outputText value="#{timesheetBean.printableTimesheet.signedBySupervisor}"/>
+                </h:panelGrid>
+            </h:panelGroup>
+        </section>
+    </ui:define>
+</ui:composition>

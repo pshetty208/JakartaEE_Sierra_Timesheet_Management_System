@@ -165,6 +165,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     public Long addEntry(Long timesheetId, TimesheetEntryDto entry) {
         TimesheetEntity timesheet = timesheetDao.findById(timesheetId);
         validateTimesheet(timesheet);
+        validateEmployeeOwnsTimesheet(timesheet);
         
         double hours = computeHours(entry.getStartTime(), entry.getEndTime());
         if (entry.getType() == ReportType.VACATION) {
@@ -195,6 +196,7 @@ public class TimesheetServiceImpl implements TimesheetService {
 
         TimesheetEntity timesheet = entity.getTimesheet();
         validateTimesheet(timesheet);
+        validateEmployeeOwnsTimesheet(timesheet);
         
         double hours = computeHours(entry.getStartTime(), entry.getEndTime());
         if (entry.getType() == ReportType.VACATION) {
@@ -219,6 +221,7 @@ public class TimesheetServiceImpl implements TimesheetService {
         }
 
         validateTimesheet(entity.getTimesheet());
+        validateEmployeeOwnsTimesheet(entity.getTimesheet());
         
         entryDao.delete(entryId);
     }
