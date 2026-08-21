@@ -12,16 +12,27 @@
 
         <h:form>
             <div class="data-table-example-card">
-                <h5>Users</h5>
-                <dataTable:dataTable value="#{componentExampleBean.users}"
+                <h5>Timesheets</h5>
+                <dataTable:dataTable value="#{dataTableExampleBean.timesheets}"
                                      rowKey="#{row.id}"
                                      rows="5"
-                                     emptyMessage="No users found">
+                                     emptyMessage="No timesheets found">
                     <p:column headerText="ID" sortBy="#{row.id}">
                         <h:outputText value="#{row.id}"/>
                     </p:column>
-                    <p:column headerText="Name" sortBy="#{row.name}" filterBy="#{row.name}">
-                        <h:outputText value="#{row.name}"/>
+                    <p:column headerText="Contract" sortBy="#{row.contractId}">
+                        <h:outputText value="#{row.contractId}"/>
+                    </p:column>
+                    <p:column headerText="Start date" sortBy="#{row.startDate}">
+                        <h:outputText value="#{row.startDate}"/>
+                    </p:column>
+                    <p:column headerText="End date" sortBy="#{row.endDate}">
+                        <h:outputText value="#{row.endDate}"/>
+                    </p:column>
+                    <p:column headerText="Status"
+                              sortBy="#{row.status}"
+                              filterBy="#{row.status}">
+                        <h:outputText value="#{row.status}"/>
                     </p:column>
                     <p:column headerText="Actions">
                         <p:button value="View"
