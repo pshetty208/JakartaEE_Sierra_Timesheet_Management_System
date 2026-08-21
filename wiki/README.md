@@ -5,3 +5,4 @@ This wiki documents project conventions that should stay stable as the applicati
 ## Pages
 
 - [Component Architecture](components.md)
+- [Reminder Service E2E Test Guide](reminder-service-e2e-test-guide.md)
