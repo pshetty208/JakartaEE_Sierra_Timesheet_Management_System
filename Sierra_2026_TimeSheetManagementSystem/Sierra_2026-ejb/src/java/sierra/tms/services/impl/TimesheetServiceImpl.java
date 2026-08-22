@@ -22,15 +22,20 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import sierra.tms.dao.PersonDao;
 import sierra.tms.entities.PersonEntity;
 import sierra.tms.services.ContractHoursCalculationService;
 import sierra.tms.services.ContractService;
+import sierra.tms.utils.ConfigService;
 import sierra.tms.utils.enums.ReportType;
 import sierra.tms.utils.enums.TimeSheetStatus;
 
 @Stateless
 public class TimesheetServiceImpl implements TimesheetService {
+    
+    private static final Logger LOGGER = Logger.getLogger(TimesheetServiceImpl.class.getName());
 
     @EJB
     private TimesheetDao timesheetDao;
@@ -50,34 +55,36 @@ public class TimesheetServiceImpl implements TimesheetService {
     @EJB
     private PersonDao personDao;
     
+    @EJB
+    private ConfigService configService;
+    
     @Resource
     private SessionContext sessionContext;
     
-    private static final int DEFAULT_ARCHIVE_DURATION_MONTHS = 24;
-
-    @Override
-    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
-    public Long save(TimesheetDto timesheet) {
-
-        ContractEntity contract = contractDao.findById(timesheet.getContractId());
-
-        if (contract == null) {
-            return null;
-        }
-
-        TimesheetEntity entity = new TimesheetEntity();
-        entity.setContract(contract);
-        entity.setStartDate(timesheet.getStartDate());
-        entity.setEndDate(timesheet.getEndDate());
-
-        if (timesheet.getStatus() != null) {
-            entity.setStatus(timesheet.getStatus());
-        }
-
-        timesheetDao.save(entity);
-
-        return entity.getId();
-    }
+// Check Usage - before deletion
+//    @Override
+//    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
+//    public Long save(TimesheetDto timesheet) {
+//
+//        ContractEntity contract = contractDao.findById(timesheet.getContractId());
+//
+//        if (contract == null) {
+//            return null;
+//        }
+//
+//        TimesheetEntity entity = new TimesheetEntity();
+//        entity.setContract(contract);
+//        entity.setStartDate(timesheet.getStartDate());
+//        entity.setEndDate(timesheet.getEndDate());
+//
+//        if (timesheet.getStatus() != null) {
+//            entity.setStatus(timesheet.getStatus());
+//        }
+//
+//        timesheetDao.save(entity);
+//
+//        return entity.getId();
+//    }
 
     @Override
     @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
@@ -133,11 +140,12 @@ public class TimesheetServiceImpl implements TimesheetService {
 
         entity.setStartDate(timesheet.getStartDate());
         entity.setEndDate(timesheet.getEndDate());
-        entity.setStatus(timesheet.getStatus());
+//        entity.setStatus(timesheet.getStatus());
 //        entity.setSignedByEmployee(timesheet.getSignedByEmployee());
 //        entity.setSignedBySupervisor(timesheet.getSignedBySupervisor());
 
         timesheetDao.update(entity);
+        LOGGER.log(Level.INFO, "Updated timesheet: timesheet_id={0}", timesheet.getId());
         
 //        if (entity.getStatus() == TimeSheetStatus.ARCHIVED && entity.getContract() != null) {
 //            contractService.archiveContract(entity.getContract().getId());
@@ -158,6 +166,8 @@ public class TimesheetServiceImpl implements TimesheetService {
             throw new IllegalStateException("Cannot delete a timesheet that has been signed by the employee or supervisor.");
         }
         timesheetDao.delete(id);
+        LOGGER.log(Level.WARNING, "Timesheet deleted: timesheet_id={0}", id);
+
     }
 
     @Override
@@ -181,7 +191,7 @@ public class TimesheetServiceImpl implements TimesheetService {
 
         timesheet.addEntry(entity);
         entryDao.save(entity);
-
+        LOGGER.log(Level.INFO, "Added new timesheet Entry: timesheet_id={0}", timesheetId);
         return entity.getId();
     }
 
@@ -210,6 +220,7 @@ public class TimesheetServiceImpl implements TimesheetService {
         entity.setEndTime(entry.getEndTime());
 
         entryDao.update(entity);
+        LOGGER.log(Level.INFO, "Timesheet entry updated: entry_id={0}, timesheet_id={1}", new Object[]{entry.getId(), timesheet.getId()});
     }
 
     @Override
@@ -223,7 +234,9 @@ public class TimesheetServiceImpl implements TimesheetService {
         validateTimesheet(entity.getTimesheet());
         validateEmployeeOwnsTimesheet(entity.getTimesheet());
         
+        Long timesheetId = entity.getTimesheet().getId();
         entryDao.delete(entryId);
+        LOGGER.log(Level.WARNING, "Timesheet entry deleted: entry_id={0}, timesheet_id={1}", new Object[]{entryId, timesheetId});
     }
     
     @Override
@@ -263,34 +276,56 @@ public class TimesheetServiceImpl implements TimesheetService {
     public void deleteExpiredTimesheets() {
         List<TimesheetEntity> archived = timesheetDao.findByStatus(TimeSheetStatus.ARCHIVED);
         LocalDate today = LocalDate.now();
+        int contractsDeleted = 0;
+        int timesheetsDeleted = 0;
 
         for (TimesheetEntity timesheet : archived) {
-            if (timesheet.getSignedBySupervisor() == null) {
-                continue;
-            }
+            try {
+                if (timesheet.getSignedBySupervisor() == null) {
+                    continue;
+                }
 
-            ContractEntity contract = timesheet.getContract();
-            int archiveDurationMonths = (contract != null && contract.getArchiveDuration() != null) 
-                    ? contract.getArchiveDuration() : DEFAULT_ARCHIVE_DURATION_MONTHS;
+                ContractEntity contract = timesheet.getContract();
+                int archiveDurationMonths;
+                
+                if (contract != null && contract.getArchiveDuration() != null) {
+                    archiveDurationMonths = contract.getArchiveDuration();
+                } else {
+                    archiveDurationMonths = configService.getDefaultArchiveDurationMonths();
+                }
 
-            LocalDate expiryDate = timesheet.getSignedBySupervisor().plusMonths(archiveDurationMonths);
-            if (today.isBefore(expiryDate)) {
-                continue;
-            }
+                LocalDate expiryDate = timesheet.getSignedBySupervisor().plusMonths(archiveDurationMonths);
+                if (today.isBefore(expiryDate)) {
+                    continue;
+                }
 
-            Long timesheetId = timesheet.getId();
-            timesheetDao.delete(timesheet);
+                Long timesheetId = timesheet.getId();
+                timesheetDao.delete(timesheet);
+                timesheetsDeleted++;
+                LOGGER.log(Level.INFO, "Deleted expired timesheet : timesheet_id={0}, signed by supervisor_id={1}, archive duration={2} months", 
+                        new Object[]{timesheetId, timesheet.getSignedBySupervisor(), archiveDurationMonths});
 
-            if (contract == null) {
-                continue;
-            }
-            boolean anyTimesheetsRemain = timesheetDao.findByContractId(contract.getId())
-                    .stream()
-                    .anyMatch(t -> !t.getId().equals(timesheetId));
-            if (!anyTimesheetsRemain) {
-                contractDao.delete(contract);
+                if (contract == null) {
+                    continue;
+                }
+                
+                boolean anyTimesheetsRemain = timesheetDao.findByContractId(contract.getId())
+                        .stream()
+                        .anyMatch(t -> !t.getId().equals(timesheetId));
+                
+                if (!anyTimesheetsRemain) {
+                    Long contractId = contract.getId();
+                    contractDao.delete(contract);
+                    contractsDeleted++;
+                    
+                    LOGGER.log(Level.INFO, "Deleted contract: contract_id={0}, because no timesheets are remaining", contractId);
+                }
+            } catch (RuntimeException e) {
+                LOGGER.log(Level.SEVERE, "Failed to process expired timesheet: timesheet_id={0}", timesheet.getId());
             }
         }
+        LOGGER.log(Level.INFO, "Total timesheets processed={0}, timesheets_deleted={1}, contracts_deleted={2}",
+            new Object[]{archived.size(), timesheetsDeleted, contractsDeleted});
     }
     
     @Override

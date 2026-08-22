@@ -1,25 +1,24 @@
 package sierra.tms.services.impl;
 
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import sierra.tms.services.HolidayService;
+import sierra.tms.utils.ConfigService;
 import sierra.tms.utils.enums.States;
 import static sierra.tms.utils.enums.States.RHINELAND_PALATINATE;
 
 @Stateless
 public class HolidayServiceImpl implements HolidayService {
-        
-    private static final States DEFAULT_STATE = States.RHINELAND_PALATINATE;   
-
-    private static final int MIN_YEAR = 2025;
-    private static final int MAX_YEAR = 2030;
-
+    
+    @EJB
+    private ConfigService configService;
 
     @Override
     public boolean isPublicHoliday(LocalDate date) {
-        return isPublicHoliday(date, DEFAULT_STATE);
+        return isPublicHoliday(date, configService.getDefaultHolidayState());
     }        
 
     @Override
@@ -33,8 +32,8 @@ public class HolidayServiceImpl implements HolidayService {
         }
 
         int year = date.getYear();
-        if (year < MIN_YEAR || year > MAX_YEAR) {
-            throw new IllegalArgumentException("Public holidays are supported from " + MIN_YEAR + " to " + MAX_YEAR + ".");
+        if (year < configService.getHolidayMinYear() || year > configService.getHolidayMaxYear() ) {
+            throw new IllegalArgumentException("Public holidays are supported from " + configService.getHolidayMinYear() + " to " + configService.getHolidayMaxYear() + ".");
         }
 
         return holidaysFor(date.getYear(), state).contains(date);

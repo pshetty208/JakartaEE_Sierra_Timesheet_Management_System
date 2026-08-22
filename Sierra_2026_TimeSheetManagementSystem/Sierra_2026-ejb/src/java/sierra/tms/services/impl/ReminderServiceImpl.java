@@ -26,28 +26,24 @@ import sierra.tms.entities.PersonEntity;
 import sierra.tms.entities.TimesheetEntity;
 import sierra.tms.services.ReminderService;
 import sierra.tms.utils.enums.TimeSheetStatus;
-
-import static sierra.tms.config.ApplicationConfig.TIME_ZONE;
 import static sierra.tms.config.ApplicationConfig.TIME_ZONE_ID;
+import sierra.tms.utils.ConfigService;
 
 @Stateless
 public class ReminderServiceImpl implements ReminderService {
 
-    private static final String SENDER_EMAIL =
-            "noreply@sierra-tss.example";
-    private static final String EMAIL_SUBJECT =
-            "TSS: You have pending timesheet reminders";
-
-    private static final Logger LOGGER =
-            Logger.getLogger(ReminderServiceImpl.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ReminderServiceImpl.class.getName());
 
     @EJB
     private TimesheetDao timesheetDao;
 
+    @EJB
+    private ConfigService configService;
+    
     @Resource(lookup = "mail/tssMailSession")
     private Session mailSession;
 
-    /** RE4: GlassFish runs this job daily until a timesheet changes state. */
+    // GlassFish runs this job daily until a timesheet changes state.
     @Override
     @Schedule(
             hour = "7",
@@ -56,23 +52,16 @@ public class ReminderServiceImpl implements ReminderService {
             timezone = TIME_ZONE_ID,
             persistent = false)
     public void sendDailyReminders() {
-        LocalDate today = LocalDate.now(TIME_ZONE);
-        Map<String, Set<String>> remindersByRecipient =
-                collectDailyReminders(today);
+        Map<String, Set<String>> remindersByEmail = new LinkedHashMap<>();
+        LocalDate today = LocalDate.now();
 
-        remindersByRecipient.forEach(this::sendEmail);
-    }
+        collectInProgressTimesheetReminders(remindersByEmail, today);          
+        collectReviewerReminders(remindersByEmail);   
+        collectSecretaryReminders(remindersByEmail);                
 
-    /** RE5: collect every reminder before sending one email per address. */
-    private Map<String, Set<String>> collectDailyReminders(LocalDate today) {
-        Map<String, Set<String>> remindersByRecipient =
-                new LinkedHashMap<>();
-
-        collectInProgressTimesheetReminders(remindersByRecipient, today);
-        collectReviewerReminders(remindersByRecipient);
-        collectSecretaryReminders(remindersByRecipient);
-
-        return remindersByRecipient;
+        for (Map.Entry<String, Set<String>> entry : remindersByEmail.entrySet()) {
+            sendEmail(entry.getKey(), entry.getValue());
+        }
     }
 
     /**
@@ -202,11 +191,11 @@ public class ReminderServiceImpl implements ReminderService {
     private void sendEmail(String recipient, Set<String> reminders) {
         try {
             MimeMessage email = new MimeMessage(mailSession);
-            email.setFrom(new InternetAddress(SENDER_EMAIL));
+            email.setFrom(new InternetAddress(configService.getReminderSenderEmail()));
             email.setRecipient(
                     Message.RecipientType.TO,
                     new InternetAddress(recipient));
-            email.setSubject(EMAIL_SUBJECT, "UTF-8");
+            email.setSubject(configService.getReminderEmailSubject(), "UTF-8");
             email.setText(String.join("\n\n", reminders), "UTF-8");
             Transport.send(email);
         } catch (MessagingException exception) {

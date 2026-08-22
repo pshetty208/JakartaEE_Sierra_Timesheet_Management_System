@@ -16,7 +16,7 @@ import sierra.tms.services.ContractHoursCalculationService;
 
 @Stateless
 public class ContractHoursCalculationServiceImpl implements ContractHoursCalculationService {
-
+    
     @EJB
     private ContractDao contractDao;
     

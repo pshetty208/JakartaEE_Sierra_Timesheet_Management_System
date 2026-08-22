@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import sierra.tms.dao.ContractDao;
 import sierra.tms.dao.PersonDao;
@@ -30,6 +32,8 @@ import sierra.tms.utils.enums.RoleType;
 
 @Stateless
 public class ContractServiceImpl implements ContractService {
+    
+    private static final Logger LOGGER = Logger.getLogger(ContractServiceImpl.class.getName());
 
     @EJB
     private ContractDao contractDao;
@@ -47,7 +51,7 @@ public class ContractServiceImpl implements ContractService {
     private ContractHoursCalculationService calculationService;
 
     @Override
-    @RolesAllowed({"SUPERVISOR", "ASSISTANT", "SECRETARY"})
+    @RolesAllowed({"SUPERVISOR", "ASSISTANT"})
     public void createContract(ContractDto dto) {
         if (dto == null) {
             throw new IllegalArgumentException("Contract must not be null.");
@@ -105,6 +109,7 @@ public class ContractServiceImpl implements ContractService {
         contract.setSecretaries(findPerson(dto.getSecretaryRoleIds()));
         
         contractDao.save(contract);
+        LOGGER.log(Level.INFO, "Contract created: contract_id={0}, employee={1}, supervisor={2}", new Object[]{contract.getId(), employee.getId(), supervisor.getId()});
     }
 
     @Override
@@ -176,6 +181,8 @@ public class ContractServiceImpl implements ContractService {
         }
 
         ContractEntity updated = contractDao.update(contract);
+        LOGGER.log(Level.INFO, "Contract updated: contract_id={0}", contract.getId());
+
         return createDto(updated);
     }
 
@@ -185,6 +192,8 @@ public class ContractServiceImpl implements ContractService {
         ContractEntity contract = getRequiredContract(id);
         validateState(contract);
         contractDao.delete(getRequiredContract(id));
+        LOGGER.log(Level.INFO, "Contract deleted: contract_id={0}", contract.getId());
+
     }
     
     @Override
@@ -195,9 +204,11 @@ public class ContractServiceImpl implements ContractService {
             throw new IllegalStateException("Only contracts in PREPARED status can be started.");
         }
         contract.setStatus(ContractStatus.STARTED);
-        for (TimesheetEntity timesheet : generateTimesheets(contract)) {
+        List<TimesheetEntity> generateTimesheets = generateTimesheets(contract);
+        for (TimesheetEntity timesheet : generateTimesheets) {
             timesheetDao.save(timesheet);
         }
+        LOGGER.log(Level.INFO, "Contract started: contract_id={0} and {1} timesheets created", new Object[]{contract.getId(), generateTimesheets.size()});
     }
     
     @Override
@@ -208,11 +219,12 @@ public class ContractServiceImpl implements ContractService {
         boolean allArchived = !timesheets.isEmpty() && timesheets.stream().allMatch(t -> t.getStatus() == TimeSheetStatus.ARCHIVED);
         if (allArchived) {
             contract.setStatus(ContractStatus.ARCHIVED);
+            LOGGER.log(Level.INFO, "Contract archived: contract_id={0}", contract.getId());
         }
     }
     
     @Override
-    @RolesAllowed({"SUPERVISOR", "ASSISTANT", "SECRETARY"})
+    @RolesAllowed({"SUPERVISOR", "ASSISTANT"})
     public void terminateContract(Long id, boolean confirmed) {
         ContractEntity contract = getRequiredContract(id);
         if (contract.getStatus() != ContractStatus.STARTED) {
@@ -239,7 +251,9 @@ public class ContractServiceImpl implements ContractService {
         timesheets.stream().filter(t -> t.getStatus() == TimeSheetStatus.IN_PROGRESS).forEach(timesheetDao::delete);// TS4
 
         contract.setStatus(ContractStatus.TERMINATED);
-        contract.setTerminationDate(LocalDate.now());
+        LocalDate date = LocalDate.now();
+        contract.setTerminationDate(date);
+        LOGGER.log(Level.INFO, "Contract terminated: contract_id={0}, at {1}", new Object[]{contract.getId(), date});
     }
     
     @Override
@@ -281,20 +295,22 @@ public class ContractServiceImpl implements ContractService {
         }
     }
     
-    private void validateEmployeeHours(Long employeeId, Integer hours) {
+    private void validateEmployeeHours(Long employeeId, Double hours) {
         if (hours == null || hours < 0) {
             throw new IllegalArgumentException("Hours per week must not be negative.");
         }
 
-        int existingHours = contractDao.findByEmployee(employeeId)
+        double existingHours = contractDao.findByEmployee(employeeId)
                 .stream()
                 .filter(contract -> contract.getStatus() == ContractStatus.PREPARED || contract.getStatus() == ContractStatus.STARTED)
-                .mapToInt(ContractEntity::getHoursPerWeek)
+                .mapToDouble(ContractEntity::getHoursPerWeek)
                 .sum();
 
         if (existingHours + hours > 20) {
+            LOGGER.log(Level.WARNING, "Rejected contract for employee: employee_id={0} as working hours has exceeded 20 hours per week.", employeeId);
             throw new IllegalArgumentException("Working hours has exceeded 20 hours per week.");
         }
+
     }
     
     private boolean isAuthorizedToViewContract(PersonEntity person, ContractEntity contract) {

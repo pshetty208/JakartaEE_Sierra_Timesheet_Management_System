@@ -3,9 +3,12 @@ package sierra.tms.services.impl;
 import jakarta.annotation.Resource;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
+import jakarta.ejb.EJBAccessException;
 import jakarta.ejb.SessionContext;
 import jakarta.ejb.Stateless;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import sierra.tms.dao.PersonDao;
 import sierra.tms.dto.PersonDto;
@@ -16,6 +19,8 @@ import sierra.tms.utils.enums.RoleType;
 
 @Stateless
 public class PersonServiceImpl implements PersonService {
+    
+    private static final Logger LOGGER = Logger.getLogger(PersonServiceImpl.class.getName());
 
     @EJB
     private PersonDao personDao;
@@ -24,6 +29,7 @@ public class PersonServiceImpl implements PersonService {
     private SessionContext sessionContext;
 
     @Override
+    @RolesAllowed({"ADMIN"})
     public void createPerson(PersonDto dto) {
         PersonEntity person = new PersonEntity();
 
@@ -54,15 +60,18 @@ public class PersonServiceImpl implements PersonService {
         }
 
         personDao.save(person);
+        LOGGER.log(Level.INFO, "New user created: person_id={0}", person.getId());
     }
 
     @Override
+    @RolesAllowed({"SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
     public PersonDto findById(Long id) {
         PersonEntity person = personDao.findById(id);
         return person == null ? null : convertToDto(person);
     }
 
     @Override
+    @RolesAllowed({"SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
     public List<PersonDto> findAll() {
         return personDao.findAll()
                 .stream()
@@ -71,8 +80,9 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
+    @RolesAllowed({"ADMIN"})
     public PersonDto update(PersonDto dto) {
-
+        checkAccessLevel(dto.getId());
         PersonEntity person = personDao.findById(dto.getId());
 
         if (person == null) {
@@ -95,22 +105,25 @@ public class PersonServiceImpl implements PersonService {
         person.setUniversityStaff(dto.isUniversityStaff());
 
         PersonEntity updated = personDao.update(person);
-
+        LOGGER.log(Level.INFO, "Upated user details: user_id={0}", dto.getId());
         return convertToDto(updated);
     }
 
     @Override
+    @RolesAllowed({"ADMIN"})
     public void delete(Long id) {
         PersonEntity person = personDao.findById(id);
 
         if (person != null) {
             personDao.delete(person);
+            LOGGER.log(Level.WARNING, "Deleted user: user_id={0}", id);
         }
     }
 
     @Override
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
     public void giveConsent(Long personId) {
-
+        checkAccessLevel(personId);
         PersonEntity person = personDao.findById(personId);
 
         if (person != null) {
@@ -120,8 +133,9 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
     public void changePreferredLanguage(Long personId, String language) {
-
+        checkAccessLevel(personId);
         PersonEntity person = personDao.findById(personId);
 
         if (person != null) {
@@ -131,6 +145,7 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
+    @RolesAllowed({"ADMIN"})
     public void assignRole(Long personId, RoleType roleType) {
 
         PersonEntity person = personDao.findById(personId);
@@ -148,10 +163,12 @@ public class PersonServiceImpl implements PersonService {
             role.setRole(roleType);
             person.addRole(role);
             personDao.update(person);
+            LOGGER.log(Level.INFO, "Roles assigned to user: user_id={0}", personId);
         }
     }
 
     @Override
+    @RolesAllowed({"ADMIN"})
     public void removeRole(Long personId, RoleType roleType) {
 
         PersonEntity person = personDao.findById(personId);
@@ -163,16 +180,11 @@ public class PersonServiceImpl implements PersonService {
         person.getRoles().removeIf(role -> role.getRole() == roleType);
 
         personDao.update(person);
+        LOGGER.log(Level.WARNING, "Roles removed from user: user_id={0}", personId);
     }
 
     @Override
-    @RolesAllowed({
-        "EMPLOYEE",
-        "SUPERVISOR",
-        "ASSISTANT",
-        "SECRETARY",
-        "ADMIN"
-    })
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN" })
     public PersonDto getCurrentPerson() {
 
         String emailAddress = sessionContext
@@ -181,11 +193,20 @@ public class PersonServiceImpl implements PersonService {
 
         return findByEmailAddress(emailAddress);
     }
+    
+    private void checkAccessLevel(Long personId) {
+        if (sessionContext.isCallerInRole("ADMIN")) {
+            return;
+        }
+        String emailAddress = sessionContext.getCallerPrincipal().getName();
+        PersonEntity currentPerson = personDao.findByEmailAddress(emailAddress);
+        if (currentPerson == null || !currentPerson.getId().equals(personId)) {
+            throw new EJBAccessException("You may only manage your own person record.");
+        }
+    }
 
     private PersonDto findByEmailAddress(String emailAddress) {
-
         PersonEntity entity = personDao.findByEmailAddress(emailAddress);
-
         return entity == null ? null : createDTO(entity);
     }
 
@@ -194,9 +215,7 @@ public class PersonServiceImpl implements PersonService {
     }
 
     private PersonDto createDTO(PersonEntity entity) {
-
         PersonDto dto = new PersonDto();
-
         dto.setId(entity.getId());
         dto.setFirstName(entity.getFirstName());
         dto.setLastName(entity.getLastName());

@@ -8,7 +8,7 @@ import java.util.List;
 @Remote
 public interface TimesheetService {
 
-    public Long save(TimesheetDto timesheet);
+//    public Long save(TimesheetDto timesheet);
 
     public TimesheetDto findById(Long id);
 

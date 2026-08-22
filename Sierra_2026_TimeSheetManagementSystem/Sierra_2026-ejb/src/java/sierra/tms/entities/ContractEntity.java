@@ -65,7 +65,7 @@ public class ContractEntity implements Serializable {
 
 
     @Column(name = "hours_per_week", nullable = false)
-    private Integer hoursPerWeek;
+    private Double hoursPerWeek;
 
 
     @Column(name = "working_days_per_week", nullable = false)
@@ -186,12 +186,12 @@ public class ContractEntity implements Serializable {
     }
 
 
-    public Integer getHoursPerWeek() {
+    public Double getHoursPerWeek() {
         return hoursPerWeek;
     }
 
 
-    public void setHoursPerWeek(Integer hoursPerWeek) {
+    public void setHoursPerWeek(Double hoursPerWeek) {
         this.hoursPerWeek = hoursPerWeek;
     }
 
