@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="jakarta.faces.core"
+                xmlns:h="jakarta.faces.html"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/templates/app-layout.xhtml">
+    <!-- TODO: Internationalization -->
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewAction action="#{statisticsBean.load}" onPostback="false"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="title">Statistics</ui:define>
+
+    <ui:define name="content">
+        <h:outputStylesheet library="statistics" name="statistics.css"/>
+
+        <section class="contract-statistics" aria-labelledby="contract-statistics-title">
+            <header class="contract-statistics__heading">
+                <h1 id="contract-statistics-title">Statistics</h1>
+                <p>Where your reported hours stand across every contract assigned to you.</p>
+            </header>
+
+            <h:panelGroup layout="block"
+                          rendered="#{statisticsBean.summaries eq null}"
+                          styleClass="contract-statistics__unavailable">
+                <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
+                <div>
+                    <h2>Statistics are temporarily unavailable</h2>
+                    <p>The figures could not be loaded. Please try again later.</p>
+                </div>
+            </h:panelGroup>
+
+            <ui:fragment rendered="#{not empty statisticsBean.summaries}">
+
+                <div class="contract-statistics__totals">
+                    <div class="contract-statistics__total">
+                        <span>Hours due</span>
+                        <strong><h:outputText value="#{statisticsBean.hoursDue}">
+                            <f:convertNumber maxFractionDigits="1"/>
+                        </h:outputText></strong>
+                    </div>
+                    <div class="contract-statistics__total">
+                        <span>Reported</span>
+                        <strong><h:outputText value="#{statisticsBean.hoursReported}">
+                            <f:convertNumber maxFractionDigits="1"/>
+                        </h:outputText></strong>
+                    </div>
+                    <div class="contract-statistics__total">
+                        <span>Balance</span>
+                        <strong><h:outputText value="#{statisticsBean.balance}">
+                            <f:convertNumber maxFractionDigits="1"/>
+                        </h:outputText></strong>
+                    </div>
+                    <div class="contract-statistics__total">
+                        <span>Vacation used</span>
+                        <strong>
+                            <h:outputText value="#{statisticsBean.vacationUsed}">
+                                <f:convertNumber maxFractionDigits="1"/>
+                            </h:outputText>
+                            <small>of <h:outputText value="#{statisticsBean.vacationAllowed}">
+                                <f:convertNumber maxFractionDigits="1"/>
+                            </h:outputText> h</small>
+                        </strong>
+                    </div>
+                </div>
+
+                <h:panelGroup layout="block"
+                              rendered="#{statisticsBean.overdueCount gt 0 or statisticsBean.awaitingSignatureCount gt 0}"
+                              styleClass="contract-statistics__attention">
+                    <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
+                    <div>
+                        <h2>Needs your attention</h2>
+                        <ul>
+                            <li rendered="true">
+                                <h:panelGroup rendered="#{statisticsBean.employee and statisticsBean.overdueCount gt 0}">
+                                    <strong>#{statisticsBean.overdueCount}</strong>
+                                    timesheets are past their period and still in progress.
+                                    <h:link value="Report the hours" outcome="/app/timesheets"/>
+                                </h:panelGroup>
+                            </li>
+                            <li>
+                                <h:panelGroup rendered="#{statisticsBean.supervisor and statisticsBean.awaitingSignatureCount gt 0}">
+                                    <strong>#{statisticsBean.awaitingSignatureCount}</strong>
+                                    timesheets are waiting for your countersignature.
+                                    <h:link value="Review them" outcome="/app/timesheets"/>
+                                </h:panelGroup>
+                            </li>
+                        </ul>
+                    </div>
+                </h:panelGroup>
+
+                <ui:repeat value="#{statisticsBean.summaries}" var="summary">
+                    <article class="contract-statistics__card">
+
+                        <header class="contract-statistics__card-head">
+                            <h2>#{summary.contract.name}</h2>
+                            <span class="contract-statistics__status #{statisticsBean.statusStyleClass(summary.contract.status)}">
+                                <h:outputText value="#{statisticsBean.statusLabel(summary.contract.status)}"/>
+                            </span>
+                            <span class="contract-statistics__period">
+                                <h:outputText value="#{summary.contract.startDate}">
+                                    <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                                </h:outputText>
+                                <span aria-hidden="true">–</span>
+                                <h:outputText value="#{summary.contract.endDate}">
+                                    <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                                </h:outputText>
+                            </span>
+                            <h:link value="View contract" outcome="/contracts/detail"
+                                    styleClass="contract-statistics__link">
+                                <f:param name="id" value="#{summary.contract.id}"/>
+                            </h:link>
+                        </header>
+
+                        <div class="contract-statistics__bars">
+                            <div>
+                                <div class="contract-statistics__bar-label">
+                                    <span>Hours reported</span>
+                                    <span>
+                                        <strong><h:outputText value="#{summary.hoursReported}">
+                                            <f:convertNumber maxFractionDigits="1"/>
+                                        </h:outputText></strong>
+                                        of <h:outputText value="#{summary.hoursDue}">
+                                            <f:convertNumber maxFractionDigits="1"/>
+                                        </h:outputText> h
+                                    </span>
+                                </div>
+                                <div class="contract-statistics__bar">
+                                    <span class="contract-statistics__bar-fill"
+                                          style="width: #{summary.hoursPercent}%"></span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="contract-statistics__bar-label">
+                                    <span>Vacation used</span>
+                                    <span>
+                                        <strong><h:outputText value="#{summary.vacationUsed}">
+                                            <f:convertNumber maxFractionDigits="1"/>
+                                        </h:outputText></strong>
+                                        of <h:outputText value="#{summary.vacationAllowed}">
+                                            <f:convertNumber maxFractionDigits="1"/>
+                                        </h:outputText> h
+                                    </span>
+                                </div>
+                                <div class="contract-statistics__bar">
+                                    <span class="contract-statistics__bar-fill contract-statistics__bar-fill--vacation"
+                                          style="width: #{summary.vacationPercent}%"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="contract-statistics__pipeline-label">
+                            <span>Timesheets</span>
+                            <span>#{summary.timesheetCount} in total</span>
+                        </div>
+                        <div class="contract-statistics__pipeline">
+                            <span class="contract-statistics__segment contract-statistics__segment--progress"
+                                  style="width: #{summary.inProgressPercent}%">#{summary.inProgress}</span>
+                            <span class="contract-statistics__segment contract-statistics__segment--employee"
+                                  style="width: #{summary.signedByEmployeePercent}%">#{summary.signedByEmployee}</span>
+                            <span class="contract-statistics__segment contract-statistics__segment--supervisor"
+                                  style="width: #{summary.signedBySupervisorPercent}%">#{summary.signedBySupervisor}</span>
+                            <span class="contract-statistics__segment contract-statistics__segment--archived"
+                                  style="width: #{summary.archivedPercent}%">#{summary.archived}</span>
+                        </div>
+                        <div class="contract-statistics__legend">
+                            <span><i class="contract-statistics__key contract-statistics__key--progress"></i>In progress</span>
+                            <span><i class="contract-statistics__key contract-statistics__key--employee"></i>Signed by employee</span>
+                            <span><i class="contract-statistics__key contract-statistics__key--supervisor"></i>Countersigned</span>
+                            <span><i class="contract-statistics__key contract-statistics__key--archived"></i>Archived</span>
+                        </div>
+
+                    </article>
+                </ui:repeat>
+            </ui:fragment>
+        </section>
+    </ui:define>
+</ui:composition>
