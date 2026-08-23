@@ -59,9 +59,18 @@ public class ReminderServiceImpl implements ReminderService {
         collectReviewerReminders(remindersByEmail);   
         collectSecretaryReminders(remindersByEmail);                
 
+        int emailsSent = 0;
+        int emailsFailed = 0;
         for (Map.Entry<String, Set<String>> entry : remindersByEmail.entrySet()) {
-            sendEmail(entry.getKey(), entry.getValue());
+            if (sendEmail(entry.getKey(), entry.getValue())) {
+                emailsSent++;
+            } else {
+                emailsFailed++;
+            }
         }
+
+        LOGGER.log(Level.INFO, "Daily reminder email summary: recipients={0}, sent={1}, failed={2}",
+                new Object[]{remindersByEmail.size(), emailsSent, emailsFailed});
     }
 
     /**
@@ -73,15 +82,18 @@ public class ReminderServiceImpl implements ReminderService {
             LocalDate today) {
         for (TimesheetEntity timesheet
                 : timesheetDao.findByStatus(TimeSheetStatus.IN_PROGRESS)) {
-            if (!isReminderDue(timesheet, today)) {
-                continue;
-            }
+            try {
+                if (!isReminderDue(timesheet, today)) {
+                    continue;
+                }
 
-            PersonEntity employee = timesheet.getContract().getEmployee();
-            addReminder(
-                    remindersByRecipient,
-                    employee,
-                    createEmployeeMessage(timesheet));
+                PersonEntity employee = timesheet.getContract().getEmployee();
+                addReminder(
+                        remindersByRecipient,
+                        employee,
+                        createEmployeeMessage(timesheet));
+            } catch (RuntimeException e) {
+                LOGGER.log(Level.SEVERE, "Failed to build employee reminder for timesheet_id=" + timesheet.getId() + " ,exception:" + e);          }
         }
     }
 
@@ -93,13 +105,17 @@ public class ReminderServiceImpl implements ReminderService {
             Map<String, Set<String>> remindersByRecipient) {
         for (TimesheetEntity timesheet : timesheetDao.findByStatus(
                 TimeSheetStatus.SIGNED_BY_EMPLOYEE)) {
-            ContractEntity contract = timesheet.getContract();
-            String message = createApprovalMessage(timesheet);
+            try{
+                ContractEntity contract = timesheet.getContract();
+                String message = createApprovalMessage(timesheet);
 
-            addContractReviewers(
-                    remindersByRecipient,
-                    contract,
-                    message);
+                addContractReviewers(
+                        remindersByRecipient,
+                        contract,
+                        message);
+            } catch (RuntimeException e) {
+                LOGGER.log(Level.SEVERE, "Failed to build reviewer reminder for timesheet_id=" + timesheet.getId() + " ,exception:" + e);
+            }
         }
     }
 
@@ -111,11 +127,15 @@ public class ReminderServiceImpl implements ReminderService {
             Map<String, Set<String>> remindersByRecipient) {
         for (TimesheetEntity timesheet : timesheetDao.findByStatus(
                 TimeSheetStatus.SIGNED_BY_SUPERVISOR)) {
-            String message = createSecretaryMessage(timesheet);
+            try{
+                String message = createSecretaryMessage(timesheet);
 
-            for (PersonEntity secretary
-                    : timesheet.getContract().getSecretaries()) {
-                addReminder(remindersByRecipient, secretary, message);
+                for (PersonEntity secretary
+                        : timesheet.getContract().getSecretaries()) {
+                    addReminder(remindersByRecipient, secretary, message);
+                }
+            } catch (RuntimeException e) {
+                LOGGER.log(Level.SEVERE, "Failed to build secretary reminder for timesheet_id=" + timesheet.getId() + " ,exception:" + e);
             }
         }
     }
@@ -188,7 +208,7 @@ public class ReminderServiceImpl implements ReminderService {
                 + " Please process it.";
     }
 
-    private void sendEmail(String recipient, Set<String> reminders) {
+    private boolean sendEmail(String recipient, Set<String> reminders) {
         try {
             MimeMessage email = new MimeMessage(mailSession);
             email.setFrom(new InternetAddress(configService.getReminderSenderEmail()));
@@ -198,11 +218,10 @@ public class ReminderServiceImpl implements ReminderService {
             email.setSubject(configService.getReminderEmailSubject(), "UTF-8");
             email.setText(String.join("\n\n", reminders), "UTF-8");
             Transport.send(email);
+            return true;
         } catch (MessagingException exception) {
-            LOGGER.log(
-                    Level.SEVERE,
-                    "Could not send timesheet reminder to " + recipient,
-                    exception);
+            LOGGER.log(Level.SEVERE, "Could not send timesheet reminder to " + recipient + " ,exception:" + exception);
+            return false;
         }
     }
 }

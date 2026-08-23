@@ -5,6 +5,7 @@ import jakarta.ejb.Stateless;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
+import sierra.tms.exceptions.ValidationException;
 import sierra.tms.services.HolidayService;
 import sierra.tms.utils.ConfigService;
 import sierra.tms.utils.enums.States;
@@ -24,16 +25,16 @@ public class HolidayServiceImpl implements HolidayService {
     @Override
     public boolean isPublicHoliday(LocalDate date, States state) {
         if (date == null) {
-            throw new IllegalArgumentException("Date must not be null.");
+            throw new ValidationException("MISSING_DATE", "error.requiredField", "Date");
         }
 
         if (state == null) {
-            throw new IllegalArgumentException("Federal state must not be null.");
+            throw new ValidationException("MISSING_STATE", "error.requiredField", "Federal state");
         }
 
         int year = date.getYear();
         if (year < configService.getHolidayMinYear() || year > configService.getHolidayMaxYear() ) {
-            throw new IllegalArgumentException("Public holidays are supported from " + configService.getHolidayMinYear() + " to " + configService.getHolidayMaxYear() + ".");
+            throw new ValidationException("YEAR_OUT_OF_RANGE", "error.holidayYearOutOfRange", year, configService.getHolidayMinYear(), configService.getHolidayMaxYear());
         }
 
         return holidaysFor(date.getYear(), state).contains(date);

@@ -3,7 +3,6 @@ package sierra.tms.services.impl;
 import jakarta.annotation.Resource;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
-import jakarta.ejb.EJBAccessException;
 import jakarta.ejb.SessionContext;
 import jakarta.ejb.Stateless;
 import java.util.List;
@@ -14,6 +13,9 @@ import sierra.tms.dao.PersonDao;
 import sierra.tms.dto.PersonDto;
 import sierra.tms.entities.PersonEntity;
 import sierra.tms.entities.RoleEntity;
+import sierra.tms.exceptions.AccessDeniedException;
+import sierra.tms.exceptions.ResourceNotFoundException;
+import sierra.tms.exceptions.ValidationException;
 import sierra.tms.services.PersonService;
 import sierra.tms.utils.enums.RoleType;
 
@@ -49,8 +51,7 @@ public class PersonServiceImpl implements PersonService {
         person.setUniversityStaff(dto.isUniversityStaff());
 
         if (dto.getRoles() == null || dto.getRoles().isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Select at least one role for the user.");
+            throw new ValidationException("MISSING_ROLES", "error.requiredField", "Roles");
         }
 
         for (RoleType roleType : dto.getRoles()) {
@@ -60,7 +61,7 @@ public class PersonServiceImpl implements PersonService {
         }
 
         personDao.save(person);
-        LOGGER.log(Level.INFO, "New user created: person_id={0}", person.getId());
+        LOGGER.log(Level.INFO, "New user created: person_id=" + person.getId());
     }
 
     @Override
@@ -86,7 +87,7 @@ public class PersonServiceImpl implements PersonService {
         PersonEntity person = personDao.findById(dto.getId());
 
         if (person == null) {
-            return null;
+            throw new ResourceNotFoundException("Person", dto.getId());
         }
 
         person.setFirstName(dto.getFirstName());
@@ -105,7 +106,7 @@ public class PersonServiceImpl implements PersonService {
         person.setUniversityStaff(dto.isUniversityStaff());
 
         PersonEntity updated = personDao.update(person);
-        LOGGER.log(Level.INFO, "Upated user details: user_id={0}", dto.getId());
+        LOGGER.log(Level.INFO, "Updated user details: user_id=" + dto.getId());
         return convertToDto(updated);
     }
 
@@ -116,7 +117,9 @@ public class PersonServiceImpl implements PersonService {
 
         if (person != null) {
             personDao.delete(person);
-            LOGGER.log(Level.WARNING, "Deleted user: user_id={0}", id);
+            LOGGER.log(Level.WARNING, "Deleted user: user_id=" + id);
+        } else {
+            throw new ResourceNotFoundException("Person", id);
         }
     }
 
@@ -129,6 +132,8 @@ public class PersonServiceImpl implements PersonService {
         if (person != null) {
             person.setConsent(true);
             personDao.update(person);
+        } else {
+            throw new ResourceNotFoundException("Person", personId);
         }
     }
 
@@ -141,6 +146,8 @@ public class PersonServiceImpl implements PersonService {
         if (person != null) {
             person.setPreferredLanguage(language);
             personDao.update(person);
+        } else {
+            throw new ResourceNotFoundException("Person", personId);
         }
     }
 
@@ -151,7 +158,7 @@ public class PersonServiceImpl implements PersonService {
         PersonEntity person = personDao.findById(personId);
 
         if (person == null) {
-            return;
+            throw new ResourceNotFoundException("Person", personId);
         }
 
         boolean exists = person.getRoles()
@@ -163,7 +170,7 @@ public class PersonServiceImpl implements PersonService {
             role.setRole(roleType);
             person.addRole(role);
             personDao.update(person);
-            LOGGER.log(Level.INFO, "Roles assigned to user: user_id={0}", personId);
+            LOGGER.log(Level.INFO, "Role assigned to user: user_id=" + personId + ", role=" + roleType);
         }
     }
 
@@ -174,13 +181,13 @@ public class PersonServiceImpl implements PersonService {
         PersonEntity person = personDao.findById(personId);
 
         if (person == null) {
-            return;
+            throw new ResourceNotFoundException("Person", personId);
         }
 
         person.getRoles().removeIf(role -> role.getRole() == roleType);
 
         personDao.update(person);
-        LOGGER.log(Level.WARNING, "Roles removed from user: user_id={0}", personId);
+        LOGGER.log(Level.WARNING, "Role removed from user: user_id=" + personId + ", role=" + roleType);
     }
 
     @Override
@@ -201,7 +208,7 @@ public class PersonServiceImpl implements PersonService {
         String emailAddress = sessionContext.getCallerPrincipal().getName();
         PersonEntity currentPerson = personDao.findByEmailAddress(emailAddress);
         if (currentPerson == null || !currentPerson.getId().equals(personId)) {
-            throw new EJBAccessException("You may only manage your own person record.");
+            throw new AccessDeniedException();
         }
     }
 

@@ -12,11 +12,9 @@ import sierra.tms.entities.TimesheetEntryEntity;
 import sierra.tms.services.TimesheetService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
-import jakarta.ejb.EJBAccessException;
 import jakarta.ejb.Schedule;
 import jakarta.ejb.SessionContext;
 import jakarta.ejb.Stateless;
-import jakarta.persistence.EntityNotFoundException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -26,6 +24,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import sierra.tms.dao.PersonDao;
 import sierra.tms.entities.PersonEntity;
+import sierra.tms.exceptions.AccessDeniedException;
+import sierra.tms.exceptions.BusinessRuleViolationException;
+import sierra.tms.exceptions.InvalidStateTransitionException;
+import sierra.tms.exceptions.ResourceNotFoundException;
 import sierra.tms.services.ContractHoursCalculationService;
 import sierra.tms.services.ContractService;
 import sierra.tms.utils.ConfigService;
@@ -91,12 +93,12 @@ public class TimesheetServiceImpl implements TimesheetService {
     public TimesheetDto findById(Long id) {
         TimesheetEntity entity = timesheetDao.findById(id);
         if (entity == null) {
-            throw new EntityNotFoundException("Timesheet not found: " + id);
+            throw new ResourceNotFoundException("Timesheet", id);
         }
         
         PersonEntity currentPerson = getCurrentPerson();
         if (!isAuthorizedToViewTimesheet(currentPerson, entity)) {
-            throw new EJBAccessException(currentPerson + " is not authorized to view this timesheet.");
+            throw new AccessDeniedException();
         }
 
         return createDTO(entity);
@@ -127,15 +129,14 @@ public class TimesheetServiceImpl implements TimesheetService {
     @Override
     @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public void update(TimesheetDto timesheet) {
-
         TimesheetEntity entity = timesheetDao.findById(timesheet.getId());
 
         if (entity == null) {
-            throw new EntityNotFoundException("Timesheet not found: " + timesheet.getId());
+            throw new ResourceNotFoundException("Timesheet", timesheet.getId());
         }
         
         if (entity.getStatus() == TimeSheetStatus.ARCHIVED) {
-            throw new IllegalStateException("Archived timesheets cannot be changed.");
+            throw new InvalidStateTransitionException("error.timesheetNotEditable");
         }
 
         entity.setStartDate(timesheet.getStartDate());
@@ -145,7 +146,7 @@ public class TimesheetServiceImpl implements TimesheetService {
 //        entity.setSignedBySupervisor(timesheet.getSignedBySupervisor());
 
         timesheetDao.update(entity);
-        LOGGER.log(Level.INFO, "Updated timesheet: timesheet_id={0}", timesheet.getId());
+        LOGGER.log(Level.INFO, "Updated timesheet: timesheet_id=" + timesheet.getId());
         
 //        if (entity.getStatus() == TimeSheetStatus.ARCHIVED && entity.getContract() != null) {
 //            contractService.archiveContract(entity.getContract().getId());
@@ -158,15 +159,15 @@ public class TimesheetServiceImpl implements TimesheetService {
         TimesheetEntity entity = timesheetDao.findById(id);
 
         if (entity == null) {
-            throw new EntityNotFoundException("Timesheet not found: " + id);
+            throw new ResourceNotFoundException("Timesheet", id);
         }
         
         if (entity.getStatus() == TimeSheetStatus.SIGNED_BY_EMPLOYEE || entity.getStatus() == TimeSheetStatus.SIGNED_BY_SUPERVISOR
                 || entity.getStatus() == TimeSheetStatus.ARCHIVED) {
-            throw new IllegalStateException("Cannot delete a timesheet that has been signed by the employee or supervisor.");
+            throw new InvalidStateTransitionException("error.timesheetNotEditable");
         }
         timesheetDao.delete(id);
-        LOGGER.log(Level.WARNING, "Timesheet deleted: timesheet_id={0}", id);
+        LOGGER.log(Level.WARNING, "Timesheet deleted: timesheet_id=" + id);
 
     }
 
@@ -191,7 +192,7 @@ public class TimesheetServiceImpl implements TimesheetService {
 
         timesheet.addEntry(entity);
         entryDao.save(entity);
-        LOGGER.log(Level.INFO, "Added new timesheet Entry: timesheet_id={0}", timesheetId);
+        LOGGER.log(Level.INFO, "Added new timesheet Entry: timesheet_id=" + timesheetId);
         return entity.getId();
     }
 
@@ -201,7 +202,7 @@ public class TimesheetServiceImpl implements TimesheetService {
         TimesheetEntryEntity entity = entryDao.findById(entry.getId());
 
         if (entity == null) {
-             throw new EntityNotFoundException("Timesheet Entry with id:" + entry.getId() + " not found");
+            throw new ResourceNotFoundException("TimesheetEntry", entry.getId());
         }
 
         TimesheetEntity timesheet = entity.getTimesheet();
@@ -220,7 +221,7 @@ public class TimesheetServiceImpl implements TimesheetService {
         entity.setEndTime(entry.getEndTime());
 
         entryDao.update(entity);
-        LOGGER.log(Level.INFO, "Timesheet entry updated: entry_id={0}, timesheet_id={1}", new Object[]{entry.getId(), timesheet.getId()});
+        LOGGER.log(Level.INFO, "Timesheet entry updated: entry_id=" + entry.getId() + ", timesheet_id=" + timesheet.getId());
     }
 
     @Override
@@ -228,7 +229,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     public void deleteEntry(Long entryId) {
         TimesheetEntryEntity entity = entryDao.findById(entryId);
         if (entity == null) {
-            throw new EntityNotFoundException("Timesheet Entry with id:" + entryId + " not found");
+            throw new ResourceNotFoundException("TimesheetEntry", entryId);
         }
 
         validateTimesheet(entity.getTimesheet());
@@ -236,7 +237,7 @@ public class TimesheetServiceImpl implements TimesheetService {
         
         Long timesheetId = entity.getTimesheet().getId();
         entryDao.delete(entryId);
-        LOGGER.log(Level.WARNING, "Timesheet entry deleted: entry_id={0}, timesheet_id={1}", new Object[]{entryId, timesheetId});
+        LOGGER.log(Level.WARNING, "Timesheet entry deleted: entry_id=" + entryId + ", timesheet_id=" + timesheetId);
     }
     
     @Override
@@ -245,7 +246,7 @@ public class TimesheetServiceImpl implements TimesheetService {
         TimesheetEntity entity = timesheetDao.findById(id);
 
         if (entity == null) {
-            throw new EntityNotFoundException("Timesheet with id:" + id + " not found");
+            throw new ResourceNotFoundException("Timesheet", id);
         }
 
         return createDTO(entity);
@@ -257,11 +258,11 @@ public class TimesheetServiceImpl implements TimesheetService {
         TimesheetEntity entity = timesheetDao.findById(id);
 
         if (entity == null) {
-            throw new EntityNotFoundException("Timesheet not found: " + id);
+            throw new ResourceNotFoundException("Timesheet", id);
         }
 
         if (entity.getStatus() != TimeSheetStatus.SIGNED_BY_SUPERVISOR) {
-            throw new IllegalStateException("Only timesheets in SIGNED_BY_SUPERVISOR status can be archived.");
+            throw new InvalidStateTransitionException("error.timesheetInvalidTransition", entity.getStatus());
         }
 
         entity.setStatus(TimeSheetStatus.ARCHIVED);
@@ -302,8 +303,7 @@ public class TimesheetServiceImpl implements TimesheetService {
                 Long timesheetId = timesheet.getId();
                 timesheetDao.delete(timesheet);
                 timesheetsDeleted++;
-                LOGGER.log(Level.INFO, "Deleted expired timesheet : timesheet_id={0}, signed by supervisor_id={1}, archive duration={2} months", 
-                        new Object[]{timesheetId, timesheet.getSignedBySupervisor(), archiveDurationMonths});
+                LOGGER.log(Level.INFO, "Deleted expired timesheet : timesheet_id=" + timesheetId + ", signed by supervisor_id=" + timesheet.getSignedBySupervisor() + ", archive duration=" + archiveDurationMonths); 
 
                 if (contract == null) {
                     continue;
@@ -318,14 +318,13 @@ public class TimesheetServiceImpl implements TimesheetService {
                     contractDao.delete(contract);
                     contractsDeleted++;
                     
-                    LOGGER.log(Level.INFO, "Deleted contract: contract_id={0}, because no timesheets are remaining", contractId);
+                    LOGGER.log(Level.INFO, "Deleted contract: contract_id=" + contractId + ", because no timesheets are remaining");
                 }
             } catch (RuntimeException e) {
-                LOGGER.log(Level.SEVERE, "Failed to process expired timesheet: timesheet_id={0}", timesheet.getId());
+                LOGGER.log(Level.SEVERE, "Failed to process expired timesheet: timesheet_id=" + timesheet.getId());
             }
         }
-        LOGGER.log(Level.INFO, "Total timesheets processed={0}, timesheets_deleted={1}, contracts_deleted={2}",
-            new Object[]{archived.size(), timesheetsDeleted, contractsDeleted});
+        LOGGER.log(Level.INFO, "Total timesheets processed=" + archived.size() + ", timesheets_deleted=" + timesheetsDeleted + ", contracts_deleted=" + contractsDeleted);
     }
     
     @Override
@@ -333,12 +332,12 @@ public class TimesheetServiceImpl implements TimesheetService {
     public void signTimesheet(Long timesheetId) {
         TimesheetEntity timesheet = timesheetDao.findById(timesheetId);
         if (timesheet == null) {
-            throw new EntityNotFoundException("Timesheet not found: " + timesheetId);
+            throw new ResourceNotFoundException("Timesheet", timesheetId);
         }
         validateEmployeeOwnsTimesheet(timesheet);
 
         if (timesheet.getStatus() != TimeSheetStatus.IN_PROGRESS) {
-            throw new IllegalStateException(" ");
+            throw new InvalidStateTransitionException("error.timesheetInvalidTransition", timesheet.getStatus());
         }
 
         timesheet.setStatus(TimeSheetStatus.SIGNED_BY_EMPLOYEE);
@@ -351,16 +350,16 @@ public class TimesheetServiceImpl implements TimesheetService {
     public void signAsSupervisor(Long timesheetId) {
         TimesheetEntity timesheet = timesheetDao.findById(timesheetId);
         if (timesheet == null) {
-            throw new EntityNotFoundException("Timesheet not found: " + timesheetId);
+            throw new ResourceNotFoundException("Timesheet", timesheetId);
         }
 
         PersonEntity currentPerson = getCurrentPerson();
         if (!isSupervisorOnTimesheet(currentPerson, timesheet)) {
-            throw new EJBAccessException(" ");
+            throw new AccessDeniedException();
         }
 
         if (timesheet.getStatus() != TimeSheetStatus.SIGNED_BY_EMPLOYEE) {
-            throw new IllegalStateException(" ");
+            throw new InvalidStateTransitionException("error.timesheetInvalidTransition", timesheet.getStatus());
         }
 
         timesheet.setStatus(TimeSheetStatus.SIGNED_BY_SUPERVISOR);
@@ -373,16 +372,16 @@ public class TimesheetServiceImpl implements TimesheetService {
     public void requestChanges(Long timesheetId) {
         TimesheetEntity timesheet = timesheetDao.findById(timesheetId);
         if (timesheet == null) {
-            throw new EntityNotFoundException("Timesheet not found: " + timesheetId);
+            throw new ResourceNotFoundException("Timesheet", timesheetId);
         }
 
         PersonEntity currentPerson = getCurrentPerson();
         if (!isSupervisorOrAssistantOnTimesheet(currentPerson, timesheet)) {
-            throw new EJBAccessException(" ");
+            throw new AccessDeniedException();
         }
 
         if (timesheet.getStatus() != TimeSheetStatus.SIGNED_BY_EMPLOYEE) {
-            throw new IllegalStateException(" ");
+            throw new InvalidStateTransitionException("error.timesheetInvalidTransition", timesheet.getStatus());
         }
 
         timesheet.setStatus(TimeSheetStatus.IN_PROGRESS);
@@ -396,12 +395,12 @@ public class TimesheetServiceImpl implements TimesheetService {
     public void revokeSignature(Long timesheetId) {
         TimesheetEntity timesheet = timesheetDao.findById(timesheetId);
         if (timesheet == null) {
-            throw new EntityNotFoundException("Timesheet not found: " + timesheetId);
+            throw new ResourceNotFoundException("Timesheet", timesheetId);
         }
         validateEmployeeOwnsTimesheet(timesheet);
 
         if (timesheet.getStatus() != TimeSheetStatus.SIGNED_BY_EMPLOYEE) {
-            throw new IllegalStateException("Only Employee signature can be revoked.");
+            throw new InvalidStateTransitionException("error.timesheetInvalidTransition", timesheet.getStatus());
         }
 
         timesheet.setStatus(TimeSheetStatus.IN_PROGRESS);
@@ -427,21 +426,20 @@ public class TimesheetServiceImpl implements TimesheetService {
         double vacationLimit = calculationService.calculateVacationHours(contract);
 
         if (reportedVacationHours + hours > vacationLimit) {
-            throw new IllegalStateException("The reported vacation hours: " + (reportedVacationHours + hours)
-                                + " exceeds the contract's vacation hours: " + vacationLimit);
+            throw new BusinessRuleViolationException("error.vacationHoursExceeded", vacationLimit);
         }
     }
     
     private void validateTimesheet(TimesheetEntity timesheet){
         
         if (timesheet == null) {
-            throw new EntityNotFoundException("Timesheet not found.");
+            throw new ResourceNotFoundException("Timesheet", null);
         }
         
         ContractEntity contract = timesheet.getContract();
         
         if (timesheet.getStatus() != TimeSheetStatus.IN_PROGRESS || contract == null || contract.getStatus() != sierra.tms.utils.enums.ContractStatus.STARTED) {
-            throw new IllegalStateException("Timesheet entries can only be changed while the timesheet is IN_PROGRESS state and contract is STARTED state");
+            throw new InvalidStateTransitionException("error.timesheetNotEditable");
         }
     }
     
@@ -491,7 +489,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     private void validateEmployeeOwnsTimesheet(TimesheetEntity timesheet) {
         PersonEntity currentPerson = getCurrentPerson();
         if (!isEmployeeOnTimesheet(currentPerson, timesheet)) {
-            throw new EJBAccessException("Only the employee on this contract may manage its timesheet entries.");
+            throw new AccessDeniedException("error.timesheet.notOwner", timesheet.getId());
         }
     }
 
@@ -525,3 +523,4 @@ public class TimesheetServiceImpl implements TimesheetService {
     }
 
 }
+    

@@ -42,37 +42,38 @@ public class TimesheetBean implements Serializable {
 
     private TimesheetDto printableTimesheet;
 
-    public void saveTimesheet() {
-
-        try {
-            TimesheetDto dto = new TimesheetDto();
-            dto.setContractId(Long.valueOf(contractId.trim()));
-            dto.setStartDate(LocalDate.parse(startDate.trim()));
-            dto.setEndDate(LocalDate.parse(endDate.trim()));
-
-            if (dto.getEndDate().isBefore(dto.getStartDate())) {
-                error("End date is before start date.");
-                return;
-            }
-
-            Long id = service.save(dto);
-
-            if (id == null) {
-                error("Contract " + dto.getContractId() + " not found.");
-                return;
-            }
-
-            info("Created timesheet " + id + ".");
-            contractId = "";
-            startDate = "";
-            endDate = "";
-
-        } catch (NumberFormatException e) {
-            error("Contract must be a number.");
-        } catch (DateTimeParseException e) {
-            error("Dates must be in ISO form, e.g. 2026-07-01.");
-        }
-    }
+//Check if needed - before deleting
+//    public void saveTimesheet() {
+//
+//        try {
+//            TimesheetDto dto = new TimesheetDto();
+//            dto.setContractId(Long.valueOf(contractId.trim()));
+//            dto.setStartDate(LocalDate.parse(startDate.trim()));
+//            dto.setEndDate(LocalDate.parse(endDate.trim()));
+//
+//            if (dto.getEndDate().isBefore(dto.getStartDate())) {
+//                error("End date is before start date.");
+//                return;
+//            }
+//
+//            Long id = service.save(dto);
+//
+//            if (id == null) {
+//                error("Contract " + dto.getContractId() + " not found.");
+//                return;
+//            }
+//
+//            info("Created timesheet " + id + ".");
+//            contractId = "";
+//            startDate = "";
+//            endDate = "";
+//
+//        } catch (NumberFormatException e) {
+//            error("Contract must be a number.");
+//        } catch (DateTimeParseException e) {
+//            error("Dates must be in ISO form, e.g. 2026-07-01.");
+//        }
+//    }
 
     public void addEntry() {
 

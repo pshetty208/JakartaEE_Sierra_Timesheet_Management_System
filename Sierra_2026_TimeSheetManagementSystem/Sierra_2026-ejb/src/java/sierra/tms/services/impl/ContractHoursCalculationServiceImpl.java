@@ -11,6 +11,8 @@ import sierra.tms.dao.TimesheetDao;
 import sierra.tms.entities.ContractEntity;
 import sierra.tms.entities.TimesheetEntity;
 import sierra.tms.entities.TimesheetEntryEntity;
+import sierra.tms.exceptions.ResourceNotFoundException;
+import sierra.tms.exceptions.ValidationException;
 import sierra.tms.services.HolidayService;
 import sierra.tms.services.ContractHoursCalculationService;
 
@@ -43,7 +45,7 @@ public class ContractHoursCalculationServiceImpl implements ContractHoursCalcula
         int publicHolidays = 0;
         
         if (periodStart == null || periodEnd == null || periodEnd.isBefore(periodStart)) {
-            throw new IllegalArgumentException("Invalid timesheet period.");
+            throw new ValidationException("INVALID_PERIOD", "error.invalidTimesheetPeriod");
         }
 
         for (LocalDate date = periodStart; !date.isAfter(periodEnd); date = date.plusDays(1)) {
@@ -64,12 +66,12 @@ public class ContractHoursCalculationServiceImpl implements ContractHoursCalcula
     @Override
     public double calculateTimesheetHoursDue(Long timesheetId) {
         if (timesheetId == null) {
-            throw new EntityNotFoundException("Timesheet not found.");
+            throw new ValidationException("MISSING_ID", "error.requiredField", "Timesheet id");
         }
         
         TimesheetEntity timesheet = timesheetDao.findById(timesheetId); 
         if (timesheet == null) {
-            throw new EntityNotFoundException("Timesheet with id: " + timesheetId + " not found.");
+            throw new ResourceNotFoundException("Timesheet", timesheetId);
         }
 
         ContractEntity contract = timesheet.getContract();
@@ -79,11 +81,11 @@ public class ContractHoursCalculationServiceImpl implements ContractHoursCalcula
     @Override
     public double calculateTotalHoursDueForContract(Long contractId) {
         if (contractId == null) {
-            throw new EntityNotFoundException("Contract not found.");
+            throw new ValidationException("MISSING_ID", "error.requiredField", "Contract id");
         }
         ContractEntity contract = contractDao.findById(contractId);
         if (contract == null) {
-            throw new EntityNotFoundException("Contract with id: " + contractId + " not found.");
+            throw new ResourceNotFoundException("Contract", contractId);
         }
         return timesheetDao.findByContractId(contractId)
                 .stream()
@@ -96,7 +98,7 @@ public class ContractHoursCalculationServiceImpl implements ContractHoursCalcula
         ContractEntity contract = contractDao.findById(contractId);
 
         if (contract == null) {
-            throw new EntityNotFoundException("Contract with id: " + contractId + " not found.");
+            throw new ValidationException("MISSING_ID", "error.requiredField", "Contract id");
         }
 
         return timesheetDao.findByContractId(contractId)
@@ -116,11 +118,13 @@ public class ContractHoursCalculationServiceImpl implements ContractHoursCalcula
                 || contract.getEndDate() == null
                 || contract.getHoursPerWeek() == null
                 || contract.getWorkingDaysPerWeek() == null) {
-            throw new IllegalArgumentException("Contract data is incomplete.");
+            throw new ValidationException("INCOMPLETE_CONTRACT", "error.requiredField", "Contract data");
+
         }
         
         if (contract.getWorkingDaysPerWeek() < 1 || contract.getWorkingDaysPerWeek() > 5) {
-            throw new IllegalArgumentException("Working days per week must be between 1 and 5.");
+                        throw new ValidationException("INVALID_WORKING_DAYS", "error.requiredField", "Working days per week (1-5)");
+
         }
     }
 
