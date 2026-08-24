@@ -56,10 +56,11 @@
                             <p:menuitem value="Timesheets"
                                         outcome="/app/timesheets"
                                         icon="pi pi-clock"
-                                        styleClass="#{facesContext.viewRoot.viewId.startsWith('/app/') ? 'app-shell__navigation-item--active' : ''}"/>
+                                        styleClass="#{facesContext.viewRoot.viewId eq '/app/timesheets.xhtml' ? 'sierra-shell__navigation-item--active' : ''}"/>
                             <p:menuitem value="Statistics"
+                                        outcome="/app/statistics"
                                         icon="pi pi-chart-bar"
-                                        disabled="true"/>
+                                        styleClass="#{facesContext.viewRoot.viewId eq '/app/statistics.xhtml' ? 'sierra-shell__navigation-item--active' : ''}"/>
                         </menu:menu>
                     </h:form>
                 </ui:insert>
