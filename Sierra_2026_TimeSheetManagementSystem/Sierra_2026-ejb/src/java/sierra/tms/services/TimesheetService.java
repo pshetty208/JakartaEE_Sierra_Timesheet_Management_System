@@ -8,17 +8,13 @@ import java.util.List;
 @Remote
 public interface TimesheetService {
 
-    public Long save(TimesheetDto timesheet);
-
     public TimesheetDto findById(Long id);
 
     public List<TimesheetDto> findAll();
 
     public List<TimesheetDto> findByContractId(Long contractId);
 
-    public void update(TimesheetDto timesheet);
-
-    public void delete(Long id);
+    public List<TimesheetDto> findForEntryManagement();
 
     public Long addEntry(Long timesheetId, TimesheetEntryDto entry);
 

@@ -2,10 +2,11 @@ package sierra.tms.web;
 
 import sierra.tms.dto.TimesheetDto;
 import sierra.tms.dto.TimesheetEntryDto;
+import sierra.tms.exceptions.TimesheetEntryOverlapException;
 import sierra.tms.services.TimesheetService;
 import sierra.tms.utils.enums.ReportType;
-import sierra.tms.utils.enums.TimeSheetStatus;
 import jakarta.ejb.EJB;
+import jakarta.ejb.EJBAccessException;
 import jakarta.ejb.EJBException;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -18,10 +19,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Drives the timesheet CRUD slice from the browser. Deliberately plain, like
- * UserBean - PrimeFaces (UI4) can replace the raw inputs later.
- */
+
 @Named
 @ViewScoped
 public class TimesheetBean implements Serializable {
@@ -29,50 +27,14 @@ public class TimesheetBean implements Serializable {
     @EJB
     private TimesheetService service;
 
-    private String contractId;
-    private String startDate;
-    private String endDate;
-
     private Long selectedTimesheetId;
     private ReportType entryType = ReportType.WORK;
     private String entryDate;
     private String startTime;
     private String endTime;
     private String description;
-
-    private TimesheetDto printableTimesheet;
-
-    public void saveTimesheet() {
-
-        try {
-            TimesheetDto dto = new TimesheetDto();
-            dto.setContractId(Long.valueOf(contractId.trim()));
-            dto.setStartDate(LocalDate.parse(startDate.trim()));
-            dto.setEndDate(LocalDate.parse(endDate.trim()));
-
-            if (dto.getEndDate().isBefore(dto.getStartDate())) {
-                error("End date is before start date.");
-                return;
-            }
-
-            Long id = service.save(dto);
-
-            if (id == null) {
-                error("Contract " + dto.getContractId() + " not found.");
-                return;
-            }
-
-            info("Created timesheet " + id + ".");
-            contractId = "";
-            startDate = "";
-            endDate = "";
-
-        } catch (NumberFormatException e) {
-            error("Contract must be a number.");
-        } catch (DateTimeParseException e) {
-            error("Dates must be in ISO form, e.g. 2026-07-01.");
-        }
-    }
+    private List<TimesheetDto> entryManageableTimesheets;
+    private List<TimesheetDto> timesheets;
 
     public void addEntry() {
 
@@ -101,7 +63,7 @@ public class TimesheetBean implements Serializable {
                 return;
             }
 
-            info("Added entry " + id + ".");
+            refreshTimesheets();
             description = "";
             entryDate = "";
             startTime = "";
@@ -109,19 +71,45 @@ public class TimesheetBean implements Serializable {
 
         } catch (DateTimeParseException e) {
             error("Date must be like 2026-07-06, times like 11:00.");
+        } catch (EJBAccessException e) {
+            error("You may manage entries only for your own Contract's Timesheets.");
+        } catch (EJBException e) {
+            if (e.getCause() instanceof TimesheetEntryOverlapException) {
+                error(e.getCause().getMessage());
+                return;
+            }
+            throw e;
+        } catch (IllegalStateException e) {
+            error(e.getMessage());
         }
     }
 
-    public void deleteTimesheet(Long id) {
-        run(() -> service.delete(id), "Deleted timesheet " + id + " and its entries.");
-    }
-
     public void deleteEntry(Long id) {
-        run(() -> service.deleteEntry(id), "Deleted entry " + id + ".");
+        try {
+            service.deleteEntry(id);
+            refreshTimesheets();
+        } catch (EJBAccessException e) {
+            error("You may manage entries only for your own Contract's Timesheets.");
+        }
     }
 
     public List<TimesheetDto> getTimesheets() {
-        return service.findAll();
+        if (timesheets == null) {
+            refreshTimesheets();
+        }
+        return timesheets;
+    }
+
+    public List<TimesheetDto> getEntryManageableTimesheets() {
+        if (entryManageableTimesheets == null) {
+            entryManageableTimesheets = service.findForEntryManagement();
+        }
+        return entryManageableTimesheets;
+    }
+
+    public boolean canManageEntries(Long timesheetId) {
+        return getEntryManageableTimesheets().stream()
+                .anyMatch(timesheet -> timesheet.getId().equals(timesheetId));
     }
 
     /** Flattened view of every entry, so the page can show them in one table. */
@@ -129,7 +117,7 @@ public class TimesheetBean implements Serializable {
 
         List<TimesheetEntryDto> all = new ArrayList<>();
 
-        for (TimesheetDto timesheet : service.findAll()) {
+        for (TimesheetDto timesheet : getTimesheets()) {
             if (timesheet.getEntries() != null) {
                 all.addAll(timesheet.getEntries());
             }
@@ -138,105 +126,17 @@ public class TimesheetBean implements Serializable {
         return all;
     }
 
+    private void refreshTimesheets() {
+        timesheets = service.findAll();
+    }
+
     public ReportType[] getReportTypes() {
         return ReportType.values();
-    }
-
-    public void signTimesheet(Long id) {
-        run(() -> service.signTimesheet(id), "Signed timesheet " + id + ".");
-    }
-
-    public void revokeSignature(Long id) {
-        run(() -> service.revokeSignature(id), "Revoked the signature on timesheet " + id + ".");
-    }
-
-    public void signAsSupervisor(Long id) {
-        run(() -> service.signAsSupervisor(id), "Countersigned timesheet " + id + ".");
-    }
-
-    public void requestChanges(Long id) {
-        run(() -> service.requestChanges(id), "Requested changes on timesheet " + id + ".");
-    }
-
-    public void archiveTimesheet(Long id) {
-        run(() -> service.archiveTimesheet(id), "Archived timesheet " + id + ".");
-    }
-
-    public void printTimesheet(Long id) {
-        try {
-            printableTimesheet = service.getForPrinting(id);
-        } catch (EJBException exception) {
-            printableTimesheet = null;
-            error(reasonOf(exception));
-        }
-    }
-
-    public TimesheetDto getPrintableTimesheet() {
-        return printableTimesheet;
-    }
-
-    public String statusLabel(TimeSheetStatus status) {
-        return switch (status) {
-            case IN_PROGRESS -> "In progress";
-            case SIGNED_BY_EMPLOYEE -> "Signed by employee";
-            case SIGNED_BY_SUPERVISOR -> "Signed by supervisor";
-            case ARCHIVED -> "Archived";
-        };
-    }
-
-    public String statusStyleClass(TimeSheetStatus status) {
-        return "timesheet-overview__status--" + status.name().toLowerCase().replace('_', '-');
-    }
-
-    private void run(Runnable action, String successMessage) {
-        try {
-            action.run();
-            info(successMessage);
-        } catch (EJBException exception) {
-            error(reasonOf(exception));
-        }
-    }
-
-    /** The container wraps the service exception, so the reason sits on the cause. */
-    private String reasonOf(EJBException exception) {
-        Throwable cause = exception.getCause();
-        return cause == null || cause.getMessage() == null
-                ? "The action could not be completed."
-                : cause.getMessage();
-    }
-
-    private void info(String message) {
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, message, null));
     }
 
     private void error(String message) {
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
-    }
-
-    public String getContractId() {
-        return contractId;
-    }
-
-    public void setContractId(String contractId) {
-        this.contractId = contractId;
-    }
-
-    public String getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
-    }
-
-    public String getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(String endDate) {
-        this.endDate = endDate;
     }
 
     public Long getSelectedTimesheetId() {

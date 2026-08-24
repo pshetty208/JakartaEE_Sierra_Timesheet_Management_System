@@ -159,6 +159,7 @@
                                          action="#{contractBean.startContract}"
                                          icon="pi pi-play"
                                          styleClass="contract-detail__action-button"
+                                         process="@this"
                                          update="contractDetailForm"
                                          rendered="#{contractBean.isPrepared()
                                                      and (request.isUserInRole('SUPERVISOR')
@@ -169,6 +170,7 @@
                                          action="#{contractBean.terminateContract}"
                                          icon="pi pi-stop"
                                          styleClass="contract-detail__action-button"
+                                         process="@this"
                                          update="contractDetailForm"
                                          rendered="#{contractBean.isStarted()
                                                      and (request.isUserInRole('SUPERVISOR')
@@ -202,12 +204,14 @@
                             <p:commandButton value="Confirm"
                                              action="#{contractBean.confirmTerminate}"
                                              icon="pi pi-check"
+                                             process="@this"
                                              update="contractDetailForm">
                                 <f:param name="id" value="#{contractBean.contractDetailId}"/>
                             </p:commandButton>
                             <p:commandButton value="Cancel"
                                              action="#{contractBean.cancelTerminate}"
                                              icon="pi pi-times"
+                                             process="@this"
                                              update="contractDetailForm">
                                 <f:param name="id" value="#{contractBean.contractDetailId}"/>
                             </p:commandButton>
