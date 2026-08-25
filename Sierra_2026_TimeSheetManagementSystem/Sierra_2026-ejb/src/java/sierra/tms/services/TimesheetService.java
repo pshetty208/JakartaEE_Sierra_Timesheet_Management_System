@@ -16,6 +16,8 @@ public interface TimesheetService {
 
     public List<TimesheetDto> findByContractId(Long contractId);
 
+    public List<TimesheetDto> findForEntryManagement();
+
     public void update(TimesheetDto timesheet);
 
     public void delete(Long id);

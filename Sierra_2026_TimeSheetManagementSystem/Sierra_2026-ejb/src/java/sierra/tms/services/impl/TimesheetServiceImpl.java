@@ -9,9 +9,11 @@ import sierra.tms.dto.TimesheetEntryDto;
 import sierra.tms.entities.ContractEntity;
 import sierra.tms.entities.TimesheetEntity;
 import sierra.tms.entities.TimesheetEntryEntity;
+import sierra.tms.exceptions.TimesheetEntryOverlapException;
 import sierra.tms.services.TimesheetService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
+import jakarta.ejb.EJBAccessException;
 import jakarta.ejb.Schedule;
 import jakarta.ejb.SessionContext;
 import jakarta.ejb.Stateless;
@@ -33,6 +35,7 @@ import sierra.tms.services.ContractService;
 import sierra.tms.utils.ConfigService;
 import sierra.tms.utils.enums.ReportType;
 import sierra.tms.utils.enums.TimeSheetStatus;
+import sierra.tms.utils.enums.ContractStatus;
 
 @Stateless
 public class TimesheetServiceImpl implements TimesheetService {
@@ -87,6 +90,7 @@ public class TimesheetServiceImpl implements TimesheetService {
 //
 //        return entity.getId();
 //    }
+
 
     @Override
     @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
@@ -155,6 +159,19 @@ public class TimesheetServiceImpl implements TimesheetService {
 
     @Override
     @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
+    public List<TimesheetDto> findForEntryManagement() {
+        PersonEntity currentPerson = getCurrentPerson();
+        return timesheetDao.findAll()
+                .stream()
+                .filter(t -> isEmployeeOnTimesheet(currentPerson, t))
+                .filter(t -> t.getStatus() == TimeSheetStatus.IN_PROGRESS
+                        && t.getContract().getStatus() == ContractStatus.STARTED)
+                .map(this::createDTO)
+                .toList();
+    }
+
+    @Override
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public void delete(Long id) {
         TimesheetEntity entity = timesheetDao.findById(id);
 
@@ -177,7 +194,8 @@ public class TimesheetServiceImpl implements TimesheetService {
         TimesheetEntity timesheet = timesheetDao.findById(timesheetId);
         validateTimesheet(timesheet);
         validateEmployeeOwnsTimesheet(timesheet);
-        
+        validateNoOverlappingEntry(null, timesheet, entry);
+
         double hours = computeHours(entry.getStartTime(), entry.getEndTime());
         if (entry.getType() == ReportType.VACATION) {
             validateVacationHours(null, timesheet, hours);
@@ -197,7 +215,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     }
 
     @Override
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public void updateEntry(TimesheetEntryDto entry) {
         TimesheetEntryEntity entity = entryDao.findById(entry.getId());
 
@@ -206,8 +224,9 @@ public class TimesheetServiceImpl implements TimesheetService {
         }
 
         TimesheetEntity timesheet = entity.getTimesheet();
-        validateTimesheet(timesheet);
         validateEmployeeOwnsTimesheet(timesheet);
+        validateTimesheet(timesheet);
+        validateNoOverlappingEntry(entity.getId(), timesheet, entry);
         
         double hours = computeHours(entry.getStartTime(), entry.getEndTime());
         if (entry.getType() == ReportType.VACATION) {
@@ -225,17 +244,19 @@ public class TimesheetServiceImpl implements TimesheetService {
     }
 
     @Override
-    @RolesAllowed({"EMPLOYEE"})
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public void deleteEntry(Long entryId) {
         TimesheetEntryEntity entity = entryDao.findById(entryId);
         if (entity == null) {
             throw new ResourceNotFoundException("TimesheetEntry", entryId);
         }
-
-        validateTimesheet(entity.getTimesheet());
-        validateEmployeeOwnsTimesheet(entity.getTimesheet());
         
         Long timesheetId = entity.getTimesheet().getId();
+        TimesheetEntity timesheet = entity.getTimesheet();
+        validateEmployeeOwnsTimesheet(timesheet);
+        validateTimesheet(timesheet);
+
+        timesheet.removeEntry(entity);
         entryDao.delete(entryId);
         LOGGER.log(Level.WARNING, "Timesheet entry deleted: entry_id=" + entryId + ", timesheet_id=" + timesheetId);
     }
@@ -247,6 +268,13 @@ public class TimesheetServiceImpl implements TimesheetService {
 
         if (entity == null) {
             throw new ResourceNotFoundException("Timesheet", id);
+        }
+
+        PersonEntity currentPerson = getCurrentPerson();
+        ContractEntity contract = entity.getContract();
+        if (contract == null || currentPerson == null
+                || !containsPerson(contract.getSecretaries(), currentPerson.getId())) {
+            throw new EJBAccessException("Only a secretary assigned to this contract may print its timesheet.");
         }
 
         return createDTO(entity);
@@ -414,6 +442,18 @@ public class TimesheetServiceImpl implements TimesheetService {
         }
         return Duration.between(startTime, endTime).toMinutes() / 60.0;
     }
+
+    private void validateNoOverlappingEntry(Long entryId, TimesheetEntity timesheet, TimesheetEntryDto candidate) {
+        boolean overlapsExistingEntry = timesheet.getEntries().stream()
+                .filter(existing -> entryId == null || !entryId.equals(existing.getId()))
+                .filter(existing -> existing.getEntryDate().equals(candidate.getEntryDate()))
+                .anyMatch(existing -> candidate.getStartTime().isBefore(existing.getEndTime())
+                        && existing.getStartTime().isBefore(candidate.getEndTime()));
+
+        if (overlapsExistingEntry) {
+            throw new TimesheetEntryOverlapException();
+        }
+    }
     
     private void validateVacationHours(Long entryId, TimesheetEntity timesheet, double hours) {
         ContractEntity contract = timesheet.getContract();
@@ -523,4 +563,3 @@ public class TimesheetServiceImpl implements TimesheetService {
     }
 
 }
-    

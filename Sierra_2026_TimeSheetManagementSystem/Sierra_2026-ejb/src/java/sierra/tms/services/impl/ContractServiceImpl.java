@@ -3,6 +3,7 @@ package sierra.tms.services.impl;
 import jakarta.annotation.Resource;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
+import jakarta.ejb.EJBAccessException;
 import jakarta.ejb.SessionContext;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityNotFoundException;
@@ -148,6 +149,11 @@ public class ContractServiceImpl implements ContractService {
         }
 
         ContractEntity contract = getRequiredContract(dto.getId());
+        PersonEntity currentPerson = getCurrentPerson();
+        if (!isAuthorizedToManageContract(currentPerson, contract)) {
+            throw new EJBAccessException("The current user is not authorized to update this contract.");
+        }
+
         validateState(contract);
         validateStartAndEndDates(dto.getStartDate(), dto.getEndDate()); 
         contract.setName(dto.getName());
@@ -194,6 +200,9 @@ public class ContractServiceImpl implements ContractService {
     @RolesAllowed({"SUPERVISOR", "ASSISTANT"})
     public void delete(Long id) {
         ContractEntity contract = getRequiredContract(id);
+        if (!isAuthorizedToManageContract(getCurrentPerson(), contract)) {
+            throw new EJBAccessException("The current user is not authorized to delete this contract.");
+        }
         validateState(contract);
         contractDao.delete(getRequiredContract(id));
         LOGGER.log(Level.INFO, "Contract deleted: contract_id=" + contract.getId());
@@ -204,6 +213,9 @@ public class ContractServiceImpl implements ContractService {
     @RolesAllowed({"SUPERVISOR", "ASSISTANT"})
     public void startContract(Long id) {
         ContractEntity contract = getRequiredContract(id);
+        if (!isAuthorizedToManageContract(getCurrentPerson(), contract)) {
+            throw new EJBAccessException("The current user is not authorized to start this contract.");
+        }
         if (contract.getStatus() != ContractStatus.PREPARED) {
             throw new InvalidStateTransitionException("error.contractNotPrepared");
         }
@@ -231,6 +243,9 @@ public class ContractServiceImpl implements ContractService {
     @RolesAllowed({"SUPERVISOR", "ASSISTANT"})
     public void terminateContract(Long id, boolean confirmed) {
         ContractEntity contract = getRequiredContract(id);
+        if (!isAuthorizedToManageContract(getCurrentPerson(), contract)) {
+            throw new EJBAccessException("The current user is not authorized to terminate this contract.");
+        }
         if (contract.getStatus() != ContractStatus.STARTED) {
             throw new InvalidStateTransitionException("error.contractNotStarted");
         }
@@ -329,6 +344,16 @@ public class ContractServiceImpl implements ContractService {
                 || containsPerson(contract.getAssistants(), personId)
                 || containsPerson(contract.getSecretaries(), personId);
         
+    }
+
+    private boolean isAuthorizedToManageContract(PersonEntity person, ContractEntity contract) {
+        if (person == null || person.getId() == null) {
+            return false;
+        }
+
+        Long personId = person.getId();
+        return personId.equals(contract.getSupervisor().getId())
+                || containsPerson(contract.getAssistants(), personId);
     }
 
     private boolean containsPerson(Set<PersonEntity> persons, Long personId) {

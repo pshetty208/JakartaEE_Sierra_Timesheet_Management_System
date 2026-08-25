@@ -66,7 +66,6 @@ public class TimesheetEntity implements Serializable {
 
     public void removeEntry(TimesheetEntryEntity entry) {
         entries.remove(entry);
-        entry.setTimesheet(null);
     }
 
     public Long getId() {
