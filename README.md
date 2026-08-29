@@ -27,6 +27,8 @@ last_name           VARCHAR(100) NOT NULL,
 date_of_birth       DATE,
 email_address       VARCHAR(100) NOT NULL UNIQUE,
 consent             BOOLEAN NOT NULL DEFAULT FALSE,
+preferred_language  VARCHAR(10) NOT NULL DEFAULT 'en',
+university_staff    BOOLEAN NOT NULL DEFAULT FALSE,
 PRIMARY KEY (id)
 );
 ```

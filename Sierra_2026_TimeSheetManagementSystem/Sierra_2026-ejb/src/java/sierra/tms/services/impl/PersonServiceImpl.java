@@ -11,6 +11,7 @@ import sierra.tms.dao.PersonDao;
 import sierra.tms.dto.PersonDto;
 import sierra.tms.entities.PersonEntity;
 import sierra.tms.entities.RoleEntity;
+import sierra.tms.i18n.LanguageResolver;
 import sierra.tms.services.PersonService;
 import sierra.tms.utils.enums.RoleType;
 
@@ -37,7 +38,8 @@ public class PersonServiceImpl implements PersonService {
         }
 
         if (dto.getPreferredLanguage() != null) {
-            person.setPreferredLanguage(dto.getPreferredLanguage());
+            person.setPreferredLanguage(
+                    LanguageResolver.normalize(dto.getPreferredLanguage()));
         }
 
         person.setUniversityStaff(dto.isUniversityStaff());
@@ -89,7 +91,8 @@ public class PersonServiceImpl implements PersonService {
         }
 
         if (dto.getPreferredLanguage() != null) {
-            person.setPreferredLanguage(dto.getPreferredLanguage());
+            person.setPreferredLanguage(
+                    LanguageResolver.normalize(dto.getPreferredLanguage()));
         }
 
         person.setUniversityStaff(dto.isUniversityStaff());
@@ -120,12 +123,23 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public void changePreferredLanguage(Long personId, String language) {
+    @RolesAllowed({
+        "EMPLOYEE",
+        "SUPERVISOR",
+        "ASSISTANT",
+        "SECRETARY",
+        "ADMIN"
+    })
+    public void changeCurrentPersonPreferredLanguage(String language) {
+        String normalizedLanguage = LanguageResolver.normalize(language);
+        String emailAddress = sessionContext
+                .getCallerPrincipal()
+                .getName();
 
-        PersonEntity person = personDao.findById(personId);
+        PersonEntity person = personDao.findByEmailAddress(emailAddress);
 
         if (person != null) {
-            person.setPreferredLanguage(language);
+            person.setPreferredLanguage(normalizedLanguage);
             personDao.update(person);
         }
     }

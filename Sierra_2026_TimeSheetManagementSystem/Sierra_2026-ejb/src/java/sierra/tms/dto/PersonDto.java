@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import sierra.tms.utils.enums.RoleType;
+import sierra.tms.i18n.LanguageResolver;
 
 public class PersonDto implements Serializable {
 
@@ -21,7 +22,8 @@ public class PersonDto implements Serializable {
 
     private Boolean consent = false;
 
-    private String preferredLanguage = "en";
+    private String preferredLanguage =
+            LanguageResolver.DEFAULT_LANGUAGE_CODE;
 
     private List<RoleType> roles;
 
