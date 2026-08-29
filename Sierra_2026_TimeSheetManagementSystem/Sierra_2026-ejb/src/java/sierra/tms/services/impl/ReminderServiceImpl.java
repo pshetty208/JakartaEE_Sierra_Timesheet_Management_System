@@ -11,11 +11,15 @@ import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 
+import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,6 +28,7 @@ import sierra.tms.dao.TimesheetDao;
 import sierra.tms.entities.ContractEntity;
 import sierra.tms.entities.PersonEntity;
 import sierra.tms.entities.TimesheetEntity;
+import sierra.tms.i18n.LanguageResolver;
 import sierra.tms.services.ReminderService;
 import sierra.tms.utils.enums.TimeSheetStatus;
 
@@ -35,8 +40,8 @@ public class ReminderServiceImpl implements ReminderService {
 
     private static final String SENDER_EMAIL =
             "noreply@sierra-tss.example";
-    private static final String EMAIL_SUBJECT =
-            "TSS: You have pending timesheet reminders";
+    private static final String MESSAGE_BUNDLE =
+            "sierra.tms.i18n.reminder_messages";
 
     private static final Logger LOGGER =
             Logger.getLogger(ReminderServiceImpl.class.getName());
@@ -57,15 +62,16 @@ public class ReminderServiceImpl implements ReminderService {
             persistent = false)
     public void sendDailyReminders() {
         LocalDate today = LocalDate.now(TIME_ZONE);
-        Map<String, Set<String>> remindersByRecipient =
+        Map<String, ReminderContent> remindersByRecipient =
                 collectDailyReminders(today);
 
         remindersByRecipient.forEach(this::sendEmail);
     }
 
     /** RE5: collect every reminder before sending one email per address. */
-    private Map<String, Set<String>> collectDailyReminders(LocalDate today) {
-        Map<String, Set<String>> remindersByRecipient =
+    private Map<String, ReminderContent> collectDailyReminders(
+            LocalDate today) {
+        Map<String, ReminderContent> remindersByRecipient =
                 new LinkedHashMap<>();
 
         collectInProgressTimesheetReminders(remindersByRecipient, today);
@@ -80,7 +86,7 @@ public class ReminderServiceImpl implements ReminderService {
      * overdue. Including overdue timesheets allows reminders to repeat daily.
      */
     private void collectInProgressTimesheetReminders(
-            Map<String, Set<String>> remindersByRecipient,
+            Map<String, ReminderContent> remindersByRecipient,
             LocalDate today) {
         for (TimesheetEntity timesheet
                 : timesheetDao.findByStatus(TimeSheetStatus.IN_PROGRESS)) {
@@ -92,7 +98,9 @@ public class ReminderServiceImpl implements ReminderService {
             addReminder(
                     remindersByRecipient,
                     employee,
-                    createEmployeeMessage(timesheet));
+                    "reminder.employee",
+                    timesheet.getStartDate(),
+                    timesheet.getEndDate());
         }
     }
 
@@ -101,16 +109,15 @@ public class ReminderServiceImpl implements ReminderService {
      * a timesheet and it is waiting for their review.
      */
     private void collectReviewerReminders(
-            Map<String, Set<String>> remindersByRecipient) {
+            Map<String, ReminderContent> remindersByRecipient) {
         for (TimesheetEntity timesheet : timesheetDao.findByStatus(
                 TimeSheetStatus.SIGNED_BY_EMPLOYEE)) {
             ContractEntity contract = timesheet.getContract();
-            String message = createApprovalMessage(timesheet);
 
             addContractReviewers(
                     remindersByRecipient,
                     contract,
-                    message);
+                    timesheet);
         }
     }
 
@@ -119,29 +126,46 @@ public class ReminderServiceImpl implements ReminderService {
      * is waiting for their processing.
      */
     private void collectSecretaryReminders(
-            Map<String, Set<String>> remindersByRecipient) {
+            Map<String, ReminderContent> remindersByRecipient) {
         for (TimesheetEntity timesheet : timesheetDao.findByStatus(
                 TimeSheetStatus.SIGNED_BY_SUPERVISOR)) {
-            String message = createSecretaryMessage(timesheet);
+            PersonEntity employee = timesheet.getContract().getEmployee();
 
             for (PersonEntity secretary
                     : timesheet.getContract().getSecretaries()) {
-                addReminder(remindersByRecipient, secretary, message);
+                addReminder(
+                        remindersByRecipient,
+                        secretary,
+                        "reminder.secretary",
+                        employee.getFirstName() + " " + employee.getLastName(),
+                        timesheet.getStartDate(),
+                        timesheet.getEndDate());
             }
         }
     }
 
     private void addContractReviewers(
-            Map<String, Set<String>> remindersByRecipient,
+            Map<String, ReminderContent> remindersByRecipient,
             ContractEntity contract,
-            String message) {
+            TimesheetEntity timesheet) {
+        PersonEntity employee = contract.getEmployee();
+
         addReminder(
                 remindersByRecipient,
                 contract.getSupervisor(),
-                message);
+                "reminder.reviewer",
+                employee.getFirstName() + " " + employee.getLastName(),
+                timesheet.getStartDate(),
+                timesheet.getEndDate());
 
         for (PersonEntity assistant : contract.getAssistants()) {
-            addReminder(remindersByRecipient, assistant, message);
+            addReminder(
+                    remindersByRecipient,
+                    assistant,
+                    "reminder.reviewer",
+                    employee.getFirstName() + " " + employee.getLastName(),
+                    timesheet.getStartDate(),
+                    timesheet.getEndDate());
         }
     }
 
@@ -153,9 +177,10 @@ public class ReminderServiceImpl implements ReminderService {
     }
 
     private void addReminder(
-            Map<String, Set<String>> remindersByRecipient,
+            Map<String, ReminderContent> remindersByRecipient,
             PersonEntity recipient,
-            String message) {
+            String messageKey,
+            Object... messageArguments) {
         if (recipient == null || recipient.getEmailAddress() == null
                 || recipient.getEmailAddress().isBlank()) {
             return;
@@ -166,54 +191,77 @@ public class ReminderServiceImpl implements ReminderService {
         String email = recipient.getEmailAddress()
                 .trim()
                 .toLowerCase(Locale.ROOT);
-        remindersByRecipient
-                .computeIfAbsent(email, ignored -> new LinkedHashSet<>())
-                .add(message);
+        Locale locale = LanguageResolver.resolveLocale(
+                recipient.getPreferredLanguage());
+        ReminderContent reminderContent = remindersByRecipient
+                .computeIfAbsent(
+                        email,
+                        ignored -> new ReminderContent(locale));
+
+        ResourceBundle bundle = ResourceBundle.getBundle(
+                MESSAGE_BUNDLE,
+                reminderContent.locale);
+        String message = new MessageFormat(
+                bundle.getString(messageKey),
+                reminderContent.locale)
+                .format(localizeDates(
+                        messageArguments,
+                        reminderContent.locale));
+
+        reminderContent.messages.add(message);
     }
 
-    private String createEmployeeMessage(TimesheetEntity timesheet) {
-        return "Your timesheet from " + timesheet.getStartDate()
-                + " to " + timesheet.getEndDate()
-                + " is still in progress. Please complete and sign it.";
+    /**
+     * Formats dates using the recipient's convention, for example
+     * "Aug 26, 2026" in English and "26.08.2026" in German.
+     */
+    private Object[] localizeDates(Object[] arguments, Locale locale) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter
+                .ofLocalizedDate(FormatStyle.MEDIUM)
+                .withLocale(locale);
+        Object[] localizedArguments = arguments.clone();
+
+        for (int index = 0; index < localizedArguments.length; index++) {
+            if (localizedArguments[index] instanceof LocalDate date) {
+                localizedArguments[index] = dateFormatter.format(date);
+            }
+        }
+
+        return localizedArguments;
     }
 
-    private String createApprovalMessage(TimesheetEntity timesheet) {
-        PersonEntity employee = timesheet.getContract().getEmployee();
-
-        return "The timesheet for " + employee.getFirstName()
-                + " " + employee.getLastName()
-                + " from " + timesheet.getStartDate()
-                + " to " + timesheet.getEndDate()
-                + " has been signed by the employee."
-                + " Please review, sign, or reject it.";
-    }
-
-    private String createSecretaryMessage(TimesheetEntity timesheet) {
-        PersonEntity employee = timesheet.getContract().getEmployee();
-
-        return "The timesheet for " + employee.getFirstName()
-                + " " + employee.getLastName()
-                + " from " + timesheet.getStartDate()
-                + " to " + timesheet.getEndDate()
-                + " has been signed by the supervisor."
-                + " Please process it.";
-    }
-
-    private void sendEmail(String recipient, Set<String> reminders) {
+    private void sendEmail(
+            String recipient,
+            ReminderContent reminderContent) {
         try {
+            ResourceBundle bundle = ResourceBundle.getBundle(
+                    MESSAGE_BUNDLE,
+                    reminderContent.locale);
             MimeMessage email = new MimeMessage(mailSession);
             email.setFrom(new InternetAddress(SENDER_EMAIL));
             email.setRecipient(
                     Message.RecipientType.TO,
                     new InternetAddress(recipient));
-            email.setSubject(EMAIL_SUBJECT, "UTF-8");
-            email.setText(String.join("\n\n", reminders), "UTF-8");
+            email.setSubject(bundle.getString("email.subject"), "UTF-8");
+            email.setText(
+                    String.join("\n\n", reminderContent.messages),
+                    "UTF-8");
             Transport.send(email);
         } catch (MessagingException exception) {
             LOGGER.log(
                     Level.SEVERE,
                     "Could not send timesheet reminder to " + recipient,
                     exception);
+        }
+    }
+
+    private static final class ReminderContent {
+
+        private final Locale locale;
+        private final Set<String> messages = new LinkedHashSet<>();
+
+        private ReminderContent(Locale locale) {
+            this.locale = locale;
         }
     }
 }
