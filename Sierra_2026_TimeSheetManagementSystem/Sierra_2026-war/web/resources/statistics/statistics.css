@@ -259,8 +259,8 @@
 }
 
 .contract-statistics__segment--employee {
-    color: var(--sierra-text);
-    background: #26424b;
+    color: var(--sierra-status-review-text);
+    background: var(--sierra-status-review-bg);
 }
 
 .contract-statistics__segment--supervisor {
@@ -299,7 +299,7 @@
 }
 
 .contract-statistics__key--employee {
-    background: #26424b;
+    background: var(--sierra-status-review-bg);
 }
 
 .contract-statistics__key--supervisor {

@@ -1,26 +1,54 @@
-<?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html">
-    <h:head>
-        <title>Sierra Login</title>
-    </h:head>
-    <h:body>
-        <h1>Sierra Login</h1>
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:inputText="jakarta.faces.composite/inputText"
+                xmlns:appButton="jakarta.faces.composite/appButton"
+                template="/WEB-INF/templates/auth-layout.xhtml">
+    <ui:define name="title">#{msg['login.page.title']}</ui:define>
 
-        <form method="post" action="#{request.contextPath}/j_security_check">
-            <p>
-                <label for="j_username">Email</label><br/>
-                <input id="j_username" type="text" name="j_username"/>
-            </p>
-            <p>
-                <label for="j_password">Password</label><br/>
-                <input id="j_password" type="password" name="j_password"/>
-            </p>
-            <p>
-                <button type="submit">Login</button>
-            </p>
+    <ui:define name="content">
+        <div class="sierra-auth__card-brand">
+            <h1 id="auth-card-title">TSS</h1>
+        </div>
+        <p class="sierra-auth__card-subtitle">#{msg['login.card.subtitle']}</p>
+
+        <!-- Container-managed form authentication requires these exact names. -->
+        <form class="sierra-login-form"
+              method="post"
+              action="#{request.contextPath}/j_security_check">
+            <inputText:inputText inputId="j_username"
+                                 name="j_username"
+                                 type="email"
+                                 label="#{msg['login.email.label']}"
+                                 autocomplete="username"
+                                 placeholder="#{msg['login.email.placeholder']}"
+                                 autofocus="true"
+                                 styleClass="sierra-login-form__field"/>
+
+            <inputText:inputText inputId="j_password"
+                                 name="j_password"
+                                 type="password"
+                                 label="#{msg['login.password.label']}"
+                                 autocomplete="current-password"
+                                 placeholder="#{msg['login.password.placeholder']}"
+                                 styleClass="sierra-login-form__field"/>
+
+            <aside class="sierra-auth__privacy">
+                <p>#{msg['login.privacy.description']}</p>
+                <label class="sierra-auth__consent" for="data_protection_acknowledgement">
+                    <input id="data_protection_acknowledgement"
+                           name="data_protection_acknowledgement"
+                           type="checkbox"
+                           required="required"/>
+                    <span>#{msg['login.privacy.consent']}</span>
+                </label>
+            </aside>
+
+            <appButton:appButton value="#{msg['login.submit']}"
+                                       nativeSubmit="true"
+                                       buttonId="sign_in_button"
+                                       type="submit"
+                                       styleClass="sierra-login-form__submit"/>
         </form>
-
-    </h:body>
-</html>
+    </ui:define>
+</ui:composition>

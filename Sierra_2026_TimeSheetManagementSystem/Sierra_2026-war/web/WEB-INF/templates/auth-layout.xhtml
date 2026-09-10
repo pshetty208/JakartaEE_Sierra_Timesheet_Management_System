@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="jakarta.faces.core"
+      xmlns:h="jakarta.faces.html"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:languageSwitcher="jakarta.faces.composite/languageSwitcher"
+      xmlns:themeSwitcher="jakarta.faces.composite/themeSwitcher">
+    <f:view locale="#{localeBean.locale}">
+        <f:loadBundle basename="sierra.tms.i18n.messages" var="msg"/>
+
+        <h:head>
+            <title><ui:insert name="title">#{msg['login.page.title']}</ui:insert></title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+            <h:outputStylesheet library="appTheme" name="appTheme.css"/>
+            <h:outputStylesheet library="appLayout" name="appLayout.css"/>
+            <h:outputStylesheet library="login" name="login.css"/>
+            <h:outputScript library="appTheme" name="appTheme.js" target="head"/>
+        </h:head>
+
+        <h:body styleClass="sierra-auth">
+            <header class="sierra-auth__header">
+                <h:link outcome="/login" styleClass="sierra-auth__brand">
+                    <span class="sierra-auth__brand-mark" aria-hidden="true">TSS</span>
+                    <span>
+                        <strong>Sierra TMS</strong>
+                        <small>#{msg['login.brand.subtitle']}</small>
+                    </span>
+                </h:link>
+
+                <div class="sierra-auth__actions">
+                    <themeSwitcher:themeSwitcher lightLabel="#{msg['theme.useLight']}"
+                                                         darkLabel="#{msg['theme.useDark']}"/>
+                    <languageSwitcher:languageSwitcher styleClass="sierra-auth__language"/>
+                </div>
+            </header>
+
+            <main class="sierra-auth__main">
+                <section class="sierra-auth__card" aria-labelledby="auth-card-title">
+                    <ui:insert name="content"/>
+                </section>
+            </main>
+
+            <footer class="sierra-auth__footer">
+                <span>#{msg['login.footer']}</span>
+            </footer>
+
+            <h:outputScript library="login" name="login.js" target="body"/>
+        </h:body>
+    </f:view>
+</html>

@@ -1,7 +1,7 @@
 .sierra-headerbar {
     width: 100%;
-    background: #ffffff;
-    border-bottom: 1px solid #d7dce2;
+    background: var(--sierra-surface-raised);
+    border-bottom: 1px solid var(--sierra-border);
 }
 
 .sierra-headerbar__form {
@@ -39,8 +39,8 @@
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    color: #ffffff;
-    background: #0f766e;
+    color: var(--sierra-on-brand);
+    background: var(--sierra-brand);
     border-radius: 0.375rem;
 }
 

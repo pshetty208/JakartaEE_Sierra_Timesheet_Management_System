@@ -7,13 +7,16 @@
       xmlns:ui="jakarta.faces.facelets"
       xmlns:headerbar="jakarta.faces.composite/headerbar"
       xmlns:menu="jakarta.faces.composite/menu"
+      xmlns:themeSwitcher="jakarta.faces.composite/themeSwitcher"
       xmlns:userProfileMenu="jakarta.faces.composite/userProfileMenu">
     <ui:insert name="metadata"/>
 
     <h:head>
         <title><ui:insert name="title">Sierra TMS</ui:insert></title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <h:outputStylesheet library="appTheme" name="appTheme.css"/>
         <h:outputStylesheet library="appLayout" name="appLayout.css"/>
+        <h:outputScript library="appTheme" name="appTheme.js" target="head"/>
     </h:head>
 
     <h:body styleClass="sierra-shell">
@@ -32,6 +35,7 @@
                     <ui:insert name="headerEnd">
                         <!-- TODO: Replace the placeholder with the authenticated data. -->
                         <div class="sierra-headerbar__actions">
+                            <themeSwitcher:themeSwitcher/>
                             <userProfileMenu:userProfileMenu name="User" label="U"/>
                         </div>
                     </ui:insert>

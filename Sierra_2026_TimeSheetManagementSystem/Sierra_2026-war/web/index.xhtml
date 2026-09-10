@@ -5,6 +5,7 @@
       xmlns:h="jakarta.faces.html"
       xmlns:p="http://primefaces.org/ui"
       xmlns:sidebar="jakarta.faces.composite/sidebar"
+      xmlns:appButton="jakarta.faces.composite/appButton"
       xmlns:languageSwitcher="jakarta.faces.composite/languageSwitcher">
     <f:view locale="#{localeBean.locale}">
     <f:loadBundle basename="sierra.tms.i18n.messages" var="msg"/>
@@ -19,9 +20,9 @@
         <!-- ! Test code delete later -->
         <sidebar:sidebar widgetVar="mainSidebar">
             <f:facet name="trigger">
-                <button type="button" onclick="SierraComponents.sidebar.toggle('mainSidebar'); return false;">
-                    Open menu
-                </button>
+                <appButton:appButton value="Open menu"
+                                           type="button"
+                                           onclick="SierraComponents.sidebar.toggle('mainSidebar'); return false;"/>
             </f:facet>
         
             <f:facet name="content">
@@ -54,7 +55,7 @@
 
                 <br/>
 
-                <h:commandButton value="Save" action="#{userBean.save}"/>
+                <appButton:appButton value="Save" action="#{userBean.save}"/>
 
                 <br/>
 

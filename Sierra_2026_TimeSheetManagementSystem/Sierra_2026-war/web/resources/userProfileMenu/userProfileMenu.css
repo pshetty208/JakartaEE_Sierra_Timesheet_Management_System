@@ -5,18 +5,18 @@
     min-width: 0;
     max-width: 11rem;
     padding: 0.35rem 0.6rem;
-    color: #111827;
-    background: #ffffff;
-    border: 1px solid #d7dce2;
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border: 1px solid var(--sierra-border);
     border-radius: 999rem;
     cursor: pointer;
 }
 
 .sierra-user-profile-menu:hover,
 .sierra-user-profile-menu:focus {
-    color: #111827;
-    background: #f8fafc;
-    border-color: #b8c0ca;
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+    border-color: var(--sierra-border-hover);
 }
 
 .sierra-user-profile-menu__avatar {
@@ -47,7 +47,7 @@
 
 .sierra-user-profile-menu__subtitle {
     margin-top: 0.15rem;
-    color: #64748b;
+    color: var(--sierra-text-muted);
     font-size: 0.75rem;
 }
 
@@ -57,7 +57,7 @@
 
 .sierra-user-profile-menu__chevron {
     flex: 0 0 auto;
-    color: #64748b;
+    color: var(--sierra-text-muted);
 }
 
 .sierra-user-profile-menu__overlay.ui-menu-dynamic {

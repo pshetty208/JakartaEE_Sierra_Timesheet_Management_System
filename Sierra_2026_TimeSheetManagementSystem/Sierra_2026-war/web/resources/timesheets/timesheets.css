@@ -131,7 +131,7 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 }
 
 .timesheet-entry-form__select-panel .ui-selectonemenu-list-item.ui-state-highlight {
-    color: #10110f;
+    color: var(--sierra-on-accent);
     background: var(--sierra-accent);
 }
 
@@ -152,7 +152,7 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 }
 
 .sierra-shell .timesheet-entry-form__submit.ui-button {
-    color: #10110f;
+    color: var(--sierra-on-accent);
     background: var(--sierra-accent);
     border-color: var(--sierra-accent);
 }
@@ -207,9 +207,9 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 }
 
 .timesheet-card__status--SIGNED_BY_EMPLOYEE, .timesheet-card__status--SIGNED_BY_SUPERVISOR {
-    color: #9bc6ff;
-    background: #142e4e;
-    border-color: #285789;
+    color: var(--sierra-status-review-text);
+    background: var(--sierra-status-review-bg);
+    border-color: var(--sierra-status-review-border);
 }
 
 .timesheet-card__metrics {

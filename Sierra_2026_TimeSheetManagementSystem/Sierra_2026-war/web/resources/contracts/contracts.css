@@ -40,7 +40,7 @@
 .contract-create__back:hover,
 .contract-create__back:focus {
     color: var(--sierra-text);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--sierra-surface-active);
 }
 
 .contract-create__card {
@@ -403,7 +403,7 @@
 .contract-detail__print-link:hover,
 .contract-detail__print-link:focus {
     color: var(--sierra-text);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--sierra-surface-active);
     border-color: var(--sierra-text-muted);
 }
 
@@ -423,7 +423,7 @@
 .contract-detail__back:hover,
 .contract-detail__back:focus {
     color: var(--sierra-text);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--sierra-surface-active);
 }
 
 .contract-detail__messages {
@@ -548,7 +548,7 @@
 .sierra-shell .contract-detail__action-button.ui-button:hover,
 .sierra-shell .contract-detail__action-button.ui-button:focus {
     color: var(--sierra-text);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--sierra-surface-active);
     border-color: var(--sierra-text);
 }
 
@@ -567,7 +567,7 @@
 .sierra-shell .contract-create__button.ui-button:hover,
 .sierra-shell .contract-create__button.ui-button:focus {
     color: var(--sierra-text);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--sierra-surface-active);
     border-color: var(--sierra-text);
 }
 

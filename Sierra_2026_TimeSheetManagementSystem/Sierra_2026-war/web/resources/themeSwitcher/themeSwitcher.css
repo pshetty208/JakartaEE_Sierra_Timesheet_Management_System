@@ -1,0 +1,42 @@
+.app-button.ui-button.app-theme-switcher {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--sierra-control-height);
+    height: var(--sierra-control-height);
+    padding: 0;
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border: 1px solid var(--sierra-border);
+    border-radius: var(--sierra-radius-md);
+    cursor: pointer;
+}
+
+.app-button.ui-button.app-theme-switcher .ui-button-icon-left {
+    position: static;
+    top: auto;
+    left: auto;
+    margin: 0;
+}
+
+.app-button.ui-button.app-theme-switcher .ui-button-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+.app-button.ui-button.app-theme-switcher:not(:disabled):hover {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+    border-color: var(--sierra-border-hover);
+}
+
+.app-button.ui-button.app-theme-switcher:focus-visible {
+    outline: none;
+    box-shadow: var(--sierra-focus-ring);
+}
