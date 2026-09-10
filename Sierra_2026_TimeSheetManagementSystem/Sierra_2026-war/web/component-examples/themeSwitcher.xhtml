@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:themeSwitcher="jakarta.faces.composite/themeSwitcher">
+    <h:head>
+        <title>Theme Switcher Component Example</title>
+        <h:outputStylesheet library="appTheme" name="appTheme.css"/>
+        <h:outputStylesheet library="appLayout" name="appLayout.css"/>
+        <h:outputScript library="appTheme" name="appTheme.js" target="head"/>
+    </h:head>
+    <h:body styleClass="sierra-shell">
+        <main class="sierra-shell__content">
+            <h1>Theme Switcher</h1>
+            <p>Use the button to switch between the shared light and dark themes.</p>
+            <themeSwitcher:themeSwitcher/>
+        </main>
+    </h:body>
+</html>

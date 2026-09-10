@@ -3,7 +3,8 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:f="jakarta.faces.core"
                 xmlns:h="jakarta.faces.html"
-                xmlns:p="http://primefaces.org/ui"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:appButton="jakarta.faces.composite/appButton"
                 xmlns:ui="jakarta.faces.facelets"
                 template="/WEB-INF/templates/app-layout.xhtml">
     <!-- TODO: Internationalization -->
@@ -178,13 +179,13 @@
                 </section>
 
                 <div class="contract-create__actions">
-                    <p:button value="Cancel"
-                              outcome="/index"
-                              styleClass="ui-button-outlined contract-create__button"/>
-                    <p:commandButton value="Save as prepared"
-                                     type="button"
-                                     disabled="true"
-                                     styleClass="ui-button-outlined contract-create__button"/>
+                    <appButton:appButton value="Cancel"
+                                               outcome="/index"
+                                               styleClass="ui-button-outlined contract-create__button"/>
+                    <appButton:appButton value="Save as prepared"
+                                               type="button"
+                                               disabled="true"
+                                               styleClass="ui-button-outlined contract-create__button"/>
                 </div>
             </h:form>
         </section>

@@ -2,7 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:cc="jakarta.faces.composite"
       xmlns:h="jakarta.faces.html"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:appButton="jakarta.faces.composite/appButton">
     <cc:interface>
         <cc:attribute name="overlay" default="false"/>
         <cc:attribute name="trigger"/>
@@ -25,10 +26,10 @@
                       rendered="#{cc.attrs.overlay}"
                       styleClass="app-menu-trigger">
             <cc:renderFacet name="trigger"/>
-            <p:commandButton value="#{cc.attrs.triggerLabel}"
-                             type="button"
-                             icon="#{cc.attrs.triggerIcon}"
-                             rendered="#{empty cc.facets.trigger}"/>
+            <appButton:appButton value="#{cc.attrs.triggerLabel}"
+                                       type="button"
+                                       icon="#{cc.attrs.triggerIcon}"
+                                       rendered="#{empty cc.facets.trigger}"/>
         </h:panelGroup>
 
         <p:menu overlay="#{cc.attrs.overlay}"

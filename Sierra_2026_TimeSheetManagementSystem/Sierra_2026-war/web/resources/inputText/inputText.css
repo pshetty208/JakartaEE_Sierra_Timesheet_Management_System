@@ -1,0 +1,9 @@
+.app-input-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.app-input-text > input {
+    width: 100%;
+}

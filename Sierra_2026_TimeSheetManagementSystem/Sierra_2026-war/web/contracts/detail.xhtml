@@ -3,7 +3,8 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:f="jakarta.faces.core"
                 xmlns:h="jakarta.faces.html"
-                xmlns:p="http://primefaces.org/ui"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:appButton="jakarta.faces.composite/appButton"
                 xmlns:ui="jakarta.faces.facelets"
                 template="/WEB-INF/templates/app-layout.xhtml">
     <!-- TODO: Internationalization -->
@@ -155,39 +156,38 @@
                         </dl>
                     </article>
                     <div class="contract-detail__actions">
-                        <p:commandButton value="Start contract"
-                                         action="#{contractBean.startContract}"
-                                         icon="pi pi-play"
-                                         styleClass="contract-detail__action-button"
-                                         process="@this"
-                                         update="contractDetailForm"
-                                         rendered="#{contractBean.isPrepared()
+                        <appButton:appButton value="Start contract"
+                                                   action="#{contractBean.startContract}"
+                                                   icon="pi pi-play"
+                                                   styleClass="contract-detail__action-button"
+                                                   process="@this"
+                                                   update="contractDetailForm"
+                                                   parameterName="id"
+                                                   parameterValue="#{contractBean.contractDetailId}"
+                                                   rendered="#{contractBean.isPrepared()
                                                      and (request.isUserInRole('SUPERVISOR')
-                                                          or request.isUserInRole('ASSISTANT'))}">
-                            <f:param name="id" value="#{contractBean.contractDetailId}"/>
-                        </p:commandButton>
-                        <p:commandButton value="Terminate contract"
-                                         action="#{contractBean.terminateContract}"
-                                         icon="pi pi-stop"
-                                         styleClass="contract-detail__action-button"
-                                         process="@this"
-                                         update="contractDetailForm"
-                                         rendered="#{contractBean.isStarted()
+                                                          or request.isUserInRole('ASSISTANT'))}"/>
+                        <appButton:appButton value="Terminate contract"
+                                                   action="#{contractBean.terminateContract}"
+                                                   icon="pi pi-stop"
+                                                   styleClass="contract-detail__action-button ui-button-danger"
+                                                   process="@this"
+                                                   update="contractDetailForm"
+                                                   parameterName="id"
+                                                   parameterValue="#{contractBean.contractDetailId}"
+                                                   confirmHeader="Terminate contract"
+                                                   confirmMessage="Are you sure you want to terminate this contract? This action cannot be undone."
+                                                   rendered="#{contractBean.isStarted()
                                                      and (request.isUserInRole('SUPERVISOR')
-                                                          or request.isUserInRole('ASSISTANT'))}">
-                            <p:confirm header="Terminate contract"
-                                       message="Are you sure you want to terminate this contract? This action cannot be undone."
-                                       icon="pi pi-exclamation-triangle"/>
-                            <f:param name="id" value="#{contractBean.contractDetailId}"/>
-                        </p:commandButton>
+                                                          or request.isUserInRole('ASSISTANT'))}"/>
                         <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
-                            <p:commandButton value="Cancel"
-                                             type="button"
-                                             icon="pi pi-times"
-                                             styleClass="ui-confirmdialog-no p-button-outlined"/>
-                            <p:commandButton value="Terminate"
-                                             icon="pi pi-stop"
-                                             styleClass="ui-confirmdialog-yes"/>
+                            <appButton:appButton value="Cancel"
+                                                       type="button"
+                                                       icon="pi pi-times"
+                                                       styleClass="ui-confirmdialog-no p-button-outlined"/>
+                            <appButton:appButton value="Terminate"
+                                                       icon="pi pi-stop"
+                                                       styleClass="ui-confirmdialog-yes ui-button-danger"/>
                         </p:confirmDialog>
                     </div>
 
@@ -201,20 +201,21 @@
                             <p>This contract has IN_PROGRESS timesheets with entries. Terminating will permanently delete them.</p>
                         </div>
                         <div class="contract-detail__warning-actions">
-                            <p:commandButton value="Confirm"
-                                             action="#{contractBean.confirmTerminate}"
-                                             icon="pi pi-check"
-                                             process="@this"
-                                             update="contractDetailForm">
-                                <f:param name="id" value="#{contractBean.contractDetailId}"/>
-                            </p:commandButton>
-                            <p:commandButton value="Cancel"
-                                             action="#{contractBean.cancelTerminate}"
-                                             icon="pi pi-times"
-                                             process="@this"
-                                             update="contractDetailForm">
-                                <f:param name="id" value="#{contractBean.contractDetailId}"/>
-                            </p:commandButton>
+                            <appButton:appButton value="Confirm"
+                                                       action="#{contractBean.confirmTerminate}"
+                                                       icon="pi pi-check"
+                                                       process="@this"
+                                                       update="contractDetailForm"
+                                                       parameterName="id"
+                                                       parameterValue="#{contractBean.contractDetailId}"/>
+                            <appButton:appButton value="Cancel"
+                                                       action="#{contractBean.cancelTerminate}"
+                                                       icon="pi pi-times"
+                                                       process="@this"
+                                                       update="contractDetailForm"
+                                                       parameterName="id"
+                                                       parameterValue="#{contractBean.contractDetailId}"
+                                                       styleClass="ui-button-outlined"/>
                         </div>
                     </h:panelGroup>
                 </ui:fragment>
