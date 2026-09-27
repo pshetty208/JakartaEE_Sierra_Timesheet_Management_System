@@ -13,6 +13,7 @@ public class TimesheetDto implements Serializable {
     public LocalDate endDate;
     public LocalDate signedByEmployee;
     public LocalDate signedBySupervisor;
+    public boolean changesRequested;
     public List<TimesheetEntryDto> entries;
 
     public TimesheetDto() {}
@@ -37,6 +38,7 @@ public class TimesheetDto implements Serializable {
     public LocalDate getEndDate() { return endDate; }
     public LocalDate getSignedByEmployee() { return signedByEmployee; }
     public LocalDate getSignedBySupervisor() { return signedBySupervisor; }
+    public boolean isChangesRequested() { return changesRequested; }
     public List<TimesheetEntryDto> getEntries() { return entries; }
 
     public void setId(Long id) { this.id = id; }
@@ -46,5 +48,6 @@ public class TimesheetDto implements Serializable {
     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
     public void setSignedByEmployee(LocalDate signedByEmployee) { this.signedByEmployee = signedByEmployee; }
     public void setSignedBySupervisor(LocalDate signedBySupervisor) { this.signedBySupervisor = signedBySupervisor; }
+    public void setChangesRequested(boolean changesRequested) { this.changesRequested = changesRequested; }
     public void setEntries(List<TimesheetEntryDto> entries) { this.entries = entries; }
 }

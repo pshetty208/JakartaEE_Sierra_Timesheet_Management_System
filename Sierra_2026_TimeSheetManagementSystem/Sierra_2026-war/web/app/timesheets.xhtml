@@ -3,8 +3,7 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:f="jakarta.faces.core"
                 xmlns:h="jakarta.faces.html"
-      xmlns:p="http://primefaces.org/ui"
-      xmlns:appButton="jakarta.faces.composite/appButton"
+                xmlns:p="http://primefaces.org/ui"
                 xmlns:ui="jakarta.faces.facelets"
                 template="/WEB-INF/templates/app-layout.xhtml">
 
@@ -67,11 +66,11 @@
                         </div>
                     </div>
                     <div class="timesheet-entry-form__actions">
-                        <appButton:appButton value="Add entry" icon="pi pi-plus"
-                                                   action="#{timesheetBean.addEntry}"
-                                                   process="@form"
-                                                   update="timesheetsForm"
-                                                   styleClass="timesheet-entry-form__submit"/>
+                        <p:commandButton value="Add entry" icon="pi pi-plus"
+                                         action="#{timesheetBean.addEntry}"
+                                         process="@form"
+                                         update="timesheetsForm"
+                                         styleClass="timesheet-entry-form__submit"/>
                     </div>
                 </p:panel>
 
@@ -96,6 +95,16 @@
                             </span>
                         </header>
 
+                        <ui:fragment rendered="#{timesheet.changesRequested and timesheetBean.canManageEntries(timesheet.id)}">
+                            <div class="timesheet-card__change-request" role="status">
+                                <i class="pi pi-info-circle" aria-hidden="true"></i>
+                                <div>
+                                    <strong>Changes requested</strong>
+                                    <span>A supervisor or assistant returned this timesheet. Review and update it, then sign it again.</span>
+                                </div>
+                            </div>
+                        </ui:fragment>
+
                         <dl class="timesheet-card__metrics">
                             <div><dt>Entries reported</dt><dd>#{timesheet.entries.size()}</dd></div>
                             <div>
@@ -119,6 +128,56 @@
                                 </dd>
                             </div>
                         </dl>
+
+                        <div class="timesheet-card__actions">
+                            <p:commandButton value="Sign timesheet" icon="pi pi-pencil"
+                                             action="#{timesheetBean.signTimesheet(timesheet.id)}"
+                                             process="@this"
+                                             update="timesheetsForm"
+                                             styleClass="timesheet-card__sign"
+                                             rendered="#{timesheetBean.canSignTimesheet(timesheet.id)}">
+                                <p:confirm header="Sign timesheet"
+                                           message="I confirm that this timesheet is complete and accurate. Once signed, its entries cannot be changed."
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandButton>
+                            <p:commandButton value="Revoke signature" icon="pi pi-undo"
+                                             action="#{timesheetBean.revokeSignature(timesheet.id)}"
+                                             process="@this"
+                                             update="timesheetsForm"
+                                             styleClass="timesheet-card__revoke"
+                                             rendered="#{timesheetBean.canRevokeSignature(timesheet.id)}">
+                                <p:confirm header="Revoke employee signature"
+                                           message="This reopens the timesheet. You can add or remove entries and sign it again."
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandButton>
+                            <p:commandButton value="Sign as supervisor" icon="pi pi-check-circle"
+                                             action="#{timesheetBean.signAsSupervisor(timesheet.id)}"
+                                             process="@this"
+                                             update="timesheetsForm"
+                                             styleClass="timesheet-card__supervisor-sign"
+                                             rendered="#{timesheetBean.canSignAsSupervisor(timesheet.id)}">
+                                <p:confirm header="Sign timesheet as supervisor"
+                                           message="I confirm that this timesheet is complete and accurate. Once signed, it is ready for archiving."
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandButton>
+                            <p:commandButton value="Request changes" icon="pi pi-replay"
+                                             action="#{timesheetBean.requestChanges(timesheet.id)}"
+                                             process="@this"
+                                             update="timesheetsForm"
+                                             styleClass="timesheet-card__request-changes"
+                                             rendered="#{timesheetBean.canRequestChanges(timesheet.id)}">
+                                <p:confirm header="Request changes"
+                                           message="This removes the employee signature and reopens the timesheet for editing."
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandButton>
+                            <h:link outcome="/app/timesheet-print"
+                                    styleClass="timesheet-card__print-link"
+                                    rendered="#{request.isUserInRole('SECRETARY')}">
+                                <span class="pi pi-print" aria-hidden="true"></span>
+                                <span>Print</span>
+                                <f:param name="id" value="#{timesheet.id}"/>
+                            </h:link>
+                        </div>
 
                         <section class="timesheet-card__entries" aria-labelledby="timesheet-#{timesheet.id}-entries">
                             <header class="timesheet-card__entries-heading">
@@ -158,17 +217,28 @@
                                 </p:column>
                                 <p:column headerText="Type"><span class="timesheet-card__type">#{entry.type}</span></p:column>
                                 <p:column headerText="Action" styleClass="timesheet-card__action">
-                                    <appButton:appButton value="Delete" icon="pi pi-trash"
-                                                               action="#{timesheetBean.deleteEntry(entry.id)}"
-                                                               process="@this"
-                                                               update="timesheetsForm"
-                                                               styleClass="timesheet-card__delete ui-button-danger"
-                                                               rendered="#{timesheetBean.canManageEntries(entry.timesheetId)}"/>
+                                    <p:commandButton value="Delete" icon="pi pi-trash"
+                                                     action="#{timesheetBean.deleteEntry(entry.id)}"
+                                                     process="@this"
+                                                     update="timesheetsForm"
+                                                     styleClass="timesheet-card__delete"
+                                                     rendered="#{timesheetBean.canManageEntries(entry.timesheetId)}"/>
                                 </p:column>
                             </p:dataTable>
                         </section>
                     </article>
                 </ui:repeat>
+
+                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                    <p:commandButton value="Cancel"
+                                     type="button"
+                                     icon="pi pi-times"
+                                     styleClass="ui-confirmdialog-no p-button-outlined"/>
+                    <p:commandButton value="Confirm"
+                                     type="button"
+                                     icon="pi pi-check"
+                                     styleClass="ui-confirmdialog-yes"/>
+                </p:confirmDialog>
 
                 <h:panelGroup layout="block" rendered="#{empty timesheetBean.timesheets}"
                               styleClass="timesheet-overview__empty">

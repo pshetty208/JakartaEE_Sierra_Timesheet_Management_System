@@ -131,7 +131,7 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 }
 
 .timesheet-entry-form__select-panel .ui-selectonemenu-list-item.ui-state-highlight {
-    color: var(--sierra-on-accent);
+    color: #10110f;
     background: var(--sierra-accent);
 }
 
@@ -152,7 +152,7 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 }
 
 .sierra-shell .timesheet-entry-form__submit.ui-button {
-    color: var(--sierra-on-accent);
+    color: #10110f;
     background: var(--sierra-accent);
     border-color: var(--sierra-accent);
 }
@@ -207,9 +207,37 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 }
 
 .timesheet-card__status--SIGNED_BY_EMPLOYEE, .timesheet-card__status--SIGNED_BY_SUPERVISOR {
-    color: var(--sierra-status-review-text);
-    background: var(--sierra-status-review-bg);
-    border-color: var(--sierra-status-review-border);
+    color: #9bc6ff;
+    background: #142e4e;
+    border-color: #285789;
+}
+
+.timesheet-card__change-request {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sierra-space-sm);
+    padding: var(--sierra-space-md) var(--sierra-space-xl);
+    color: #ffd892;
+    background: #332710;
+    border-bottom: 1px solid #6c5220;
+}
+
+.timesheet-card__change-request .pi {
+    margin-top: .14rem;
+}
+
+.timesheet-card__change-request div {
+    display: grid;
+    gap: .18rem;
+}
+
+.timesheet-card__change-request strong {
+    font-size: var(--sierra-font-size-sm);
+}
+
+.timesheet-card__change-request span {
+    color: #f0d5a4;
+    font-size: var(--sierra-font-size-xs);
 }
 
 .timesheet-card__metrics {
@@ -239,6 +267,49 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
     color: var(--sierra-text);
     font-size: .82rem;
     font-weight: 700;
+}
+
+.timesheet-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--sierra-space-sm);
+    padding: var(--sierra-space-md) var(--sierra-space-xl);
+    border-bottom: 1px solid var(--sierra-border);
+}
+
+.sierra-shell .timesheet-card__sign.ui-button,
+.sierra-shell .timesheet-card__supervisor-sign.ui-button {
+    color: #10110f;
+    background: var(--sierra-accent);
+    border-color: var(--sierra-accent);
+}
+
+.sierra-shell .timesheet-card__revoke.ui-button,
+.sierra-shell .timesheet-card__request-changes.ui-button {
+    color: var(--sierra-text);
+    background: transparent;
+    border-color: var(--sierra-border);
+}
+
+.timesheet-card__print-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.7rem;
+    color: var(--sierra-text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid var(--sierra-border);
+    border-radius: 0.45rem;
+    text-decoration: none;
+}
+
+.timesheet-card__print-link:hover,
+.timesheet-card__print-link:focus {
+    color: var(--sierra-text);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--sierra-text-muted);
 }
 
 .timesheet-card__entries {

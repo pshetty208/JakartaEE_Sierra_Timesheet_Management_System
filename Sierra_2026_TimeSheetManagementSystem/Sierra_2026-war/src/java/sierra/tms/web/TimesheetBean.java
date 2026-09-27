@@ -34,7 +34,12 @@ public class TimesheetBean implements Serializable {
     private String endTime;
     private String description;
     private List<TimesheetDto> entryManageableTimesheets;
+    private List<TimesheetDto> employeeSignatureRevocableTimesheets;
+    private List<TimesheetDto> supervisorSignableTimesheets;
+    private List<TimesheetDto> changeRequestableTimesheets;
     private List<TimesheetDto> timesheets;
+    private Long timesheetDetailId;
+    private TimesheetDto timesheetForPrinting;
 
     public void addEntry() {
 
@@ -93,6 +98,66 @@ public class TimesheetBean implements Serializable {
         }
     }
 
+    public void signTimesheet(Long id) {
+        try {
+            service.signTimesheet(id);
+            refreshTimesheets();
+            success("Timesheet signed successfully.");
+        } catch (EJBAccessException e) {
+            error("Only the assigned employee may sign this timesheet.");
+        } catch (IllegalStateException e) {
+            error(e.getMessage());
+        }
+    }
+
+    public void revokeSignature(Long id) {
+        try {
+            service.revokeSignature(id);
+            refreshTimesheets();
+            success("Employee signature revoked. You can manage entries again.");
+        } catch (EJBAccessException e) {
+            error("Only the assigned employee may revoke this timesheet signature.");
+        } catch (IllegalStateException e) {
+            error(e.getMessage());
+        }
+    }
+
+    public void signAsSupervisor(Long id) {
+        try {
+            service.signAsSupervisor(id);
+            refreshTimesheets();
+            success("Timesheet signed successfully as supervisor.");
+        } catch (EJBAccessException e) {
+            error("Only the assigned supervisor may sign this timesheet.");
+        } catch (IllegalStateException e) {
+            error(e.getMessage());
+        }
+    }
+
+    public void requestChanges(Long id) {
+        try {
+            service.requestChanges(id);
+            refreshTimesheets();
+            success("Changes requested. The employee can update the timesheet again.");
+        } catch (EJBAccessException e) {
+            error("Only the assigned supervisor or assistant may request changes to this timesheet.");
+        } catch (IllegalStateException e) {
+            error(e.getMessage());
+        }
+    }
+
+    public void loadTimesheetForPrinting() {
+        try {
+            timesheetForPrinting = service.getForPrinting(timesheetDetailId);
+        } catch (EJBException e) {
+            timesheetForPrinting = null;
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "The printable timesheet is temporarily unavailable.",
+                            null));
+        }
+    }
+
     public List<TimesheetDto> getTimesheets() {
         if (timesheets == null) {
             refreshTimesheets();
@@ -107,8 +172,48 @@ public class TimesheetBean implements Serializable {
         return entryManageableTimesheets;
     }
 
+    public List<TimesheetDto> getEmployeeSignatureRevocableTimesheets() {
+        if (employeeSignatureRevocableTimesheets == null) {
+            employeeSignatureRevocableTimesheets = service.findForEmployeeSignatureRevocation();
+        }
+        return employeeSignatureRevocableTimesheets;
+    }
+
+    public List<TimesheetDto> getSupervisorSignableTimesheets() {
+        if (supervisorSignableTimesheets == null) {
+            supervisorSignableTimesheets = service.findForSupervisorSigning();
+        }
+        return supervisorSignableTimesheets;
+    }
+
+    public List<TimesheetDto> getChangeRequestableTimesheets() {
+        if (changeRequestableTimesheets == null) {
+            changeRequestableTimesheets = service.findForChangeRequest();
+        }
+        return changeRequestableTimesheets;
+    }
+
     public boolean canManageEntries(Long timesheetId) {
         return getEntryManageableTimesheets().stream()
+                .anyMatch(timesheet -> timesheet.getId().equals(timesheetId));
+    }
+
+    public boolean canSignTimesheet(Long timesheetId) {
+        return canManageEntries(timesheetId);
+    }
+
+    public boolean canRevokeSignature(Long timesheetId) {
+        return getEmployeeSignatureRevocableTimesheets().stream()
+                .anyMatch(timesheet -> timesheet.getId().equals(timesheetId));
+    }
+
+    public boolean canSignAsSupervisor(Long timesheetId) {
+        return getSupervisorSignableTimesheets().stream()
+                .anyMatch(timesheet -> timesheet.getId().equals(timesheetId));
+    }
+
+    public boolean canRequestChanges(Long timesheetId) {
+        return getChangeRequestableTimesheets().stream()
                 .anyMatch(timesheet -> timesheet.getId().equals(timesheetId));
     }
 
@@ -128,6 +233,10 @@ public class TimesheetBean implements Serializable {
 
     private void refreshTimesheets() {
         timesheets = service.findAll();
+        entryManageableTimesheets = null;
+        employeeSignatureRevocableTimesheets = null;
+        supervisorSignableTimesheets = null;
+        changeRequestableTimesheets = null;
     }
 
     public ReportType[] getReportTypes() {
@@ -137,6 +246,11 @@ public class TimesheetBean implements Serializable {
     private void error(String message) {
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
+    }
+
+    private void success(String message) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, message, null));
     }
 
     public Long getSelectedTimesheetId() {
@@ -185,5 +299,21 @@ public class TimesheetBean implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Long getTimesheetDetailId() {
+        return timesheetDetailId;
+    }
+
+    public void setTimesheetDetailId(Long timesheetDetailId) {
+        this.timesheetDetailId = timesheetDetailId;
+    }
+
+    public TimesheetDto getTimesheetForPrinting() {
+        return timesheetForPrinting;
+    }
+
+    public void setTimesheetForPrinting(TimesheetDto timesheetForPrinting) {
+        this.timesheetForPrinting = timesheetForPrinting;
     }
 }

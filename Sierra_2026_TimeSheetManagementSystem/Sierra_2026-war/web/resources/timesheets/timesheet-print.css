@@ -1,0 +1,351 @@
+.timesheet-print {
+    width: 100%;
+    max-width: 52rem;
+    margin: 0 auto;
+}
+
+.timesheet-print__sheet {
+    --print-xs: 0.65rem;
+    --print-sm: 0.72rem;
+    --print-body: 0.82rem;
+    --print-md: 1rem;
+    --print-lg: 1.7rem;
+    --print-tracking: 0.08em;
+
+    min-height: 70rem;
+    padding: 2.5rem;
+    overflow: hidden;
+    color: #171a17;
+    background: #fff;
+    border: 1px solid #d8ddd8;
+    border-radius: 0.3rem;
+    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.2);
+}
+
+.timesheet-print__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.timesheet-print__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--sierra-text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.timesheet-print__back:hover,
+.timesheet-print__back:focus {
+    color: var(--sierra-text);
+}
+
+.timesheet-print__button.ui-button {
+    color: var(--sierra-text);
+    background: transparent;
+    border-color: var(--sierra-text-muted);
+}
+
+.timesheet-print__button.ui-button:hover,
+.timesheet-print__button.ui-button:focus {
+    color: var(--sierra-text);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--sierra-text);
+}
+
+.timesheet-print__messages {
+    margin-bottom: 1rem;
+}
+
+.timesheet-print__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2rem;
+    padding-bottom: 1.4rem;
+    border-bottom: 3px solid #193e22;
+}
+
+.timesheet-print__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: #314136;
+    font-size: var(--print-sm);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.timesheet-print__brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    color: #fff;
+    background: #193e22;
+    border-radius: 50%;
+    font-size: var(--print-sm);
+    letter-spacing: 0.02em;
+}
+
+.timesheet-print__document-type {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 0.15rem;
+    color: #667068;
+    font-size: var(--print-xs);
+    letter-spacing: var(--print-tracking);
+    text-transform: uppercase;
+}
+
+.timesheet-print__document-type strong {
+    color: #193e22;
+    font-size: var(--print-md);
+    letter-spacing: 0.02em;
+}
+
+.timesheet-print__title-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 2rem 0 1.6rem;
+}
+
+.timesheet-print__eyebrow,
+.timesheet-print__identity span {
+    display: block;
+    color: #667068;
+    font-size: var(--print-xs);
+    font-weight: 700;
+    letter-spacing: var(--print-tracking);
+    text-transform: uppercase;
+}
+
+.timesheet-print__title-row h1 {
+    margin: 0.35rem 0 0;
+    color: #172d1d;
+    font-size: var(--print-lg);
+    line-height: 1.2;
+}
+
+.timesheet-print__identity {
+    flex: 0 0 auto;
+    min-width: 7rem;
+    padding: 0.65rem 0.8rem;
+    background: #f0f4f0;
+    border-left: 3px solid #4d8158;
+}
+
+.timesheet-print__identity strong {
+    display: block;
+    margin-top: 0.25rem;
+    color: #172d1d;
+    font-size: var(--print-md);
+}
+
+.timesheet-print__section {
+    margin-top: 1.35rem;
+    break-inside: avoid;
+}
+
+.timesheet-print__section h2 {
+    margin: 0 0 0.6rem;
+    color: #314136;
+    font-size: var(--print-sm);
+    letter-spacing: var(--print-tracking);
+    text-transform: uppercase;
+}
+
+.timesheet-print__fields {
+    display: grid;
+    margin: 0;
+    border-top: 1px solid #cfd6d0;
+    border-left: 1px solid #cfd6d0;
+}
+
+.timesheet-print__fields--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.timesheet-print__fields > div {
+    min-width: 0;
+    padding: 0.72rem 0.8rem;
+    border-right: 1px solid #cfd6d0;
+    border-bottom: 1px solid #cfd6d0;
+}
+
+.timesheet-print__fields dt {
+    color: #667068;
+    font-size: var(--print-xs);
+    font-weight: 600;
+}
+
+.timesheet-print__fields dd {
+    margin: 0.25rem 0 0;
+    overflow-wrap: anywhere;
+    color: #171a17;
+    font-size: var(--print-body);
+    font-weight: 700;
+}
+
+.timesheet-print__status {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.timesheet-print__table {
+    width: 100%;
+    margin-top: 0.5rem;
+    border-collapse: collapse;
+    font-size: var(--print-body);
+}
+
+.timesheet-print__table th,
+.timesheet-print__table td {
+    padding: 0.5rem 0.6rem;
+    text-align: left;
+    border-bottom: 1px solid #cfd6d0;
+}
+
+.timesheet-print__table th {
+    color: #667068;
+    font-size: var(--print-xs);
+    font-weight: 700;
+    letter-spacing: var(--print-tracking);
+    text-transform: uppercase;
+}
+
+.timesheet-print__footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 0.7rem;
+    color: #667068;
+    font-size: var(--print-xs);
+    border-top: 1px solid #cfd6d0;
+}
+
+.timesheet-print__state {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    color: var(--sierra-text-muted);
+    background: var(--sierra-surface-raised);
+    border: 1px solid var(--sierra-border);
+    border-radius: 0.8rem;
+}
+
+.timesheet-print__state > .pi {
+    margin-top: 0.15rem;
+    color: var(--sierra-text);
+}
+
+.timesheet-print__state h2 {
+    margin: 0;
+    color: var(--sierra-text);
+    font-size: 0.9rem;
+}
+
+.timesheet-print__state p {
+    margin: 0.25rem 0 0;
+    font-size: 0.78rem;
+    line-height: 1.45;
+}
+
+@media (max-width: 48rem) {
+    .timesheet-print__sheet {
+        min-height: 0;
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 34rem) {
+    .timesheet-print__sheet {
+        padding: 1rem;
+    }
+
+    .timesheet-print__header,
+    .timesheet-print__title-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .timesheet-print__document-type {
+        align-items: flex-start;
+    }
+
+    .timesheet-print__identity {
+        width: 100%;
+    }
+
+    .timesheet-print__fields--three {
+        grid-template-columns: 1fr;
+    }
+}
+
+@page {
+    size: A4 portrait;
+    margin: 14mm;
+}
+
+@media print {
+    :root {
+        color-scheme: light;
+    }
+
+    body.sierra-shell {
+        min-height: 0;
+        color: #171a17;
+        background: #fff;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .sierra-shell__header,
+    .sierra-shell__navigation,
+    .timesheet-print__toolbar,
+    .timesheet-print__messages {
+        display: none !important;
+    }
+
+    .sierra-shell__body {
+        display: block;
+        min-height: 0;
+    }
+
+    .sierra-shell__content,
+    .timesheet-print {
+        width: auto;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .timesheet-print__sheet {
+        min-height: 0;
+        padding: 0;
+        overflow: visible;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .timesheet-print__header,
+    .timesheet-print__title-row,
+    .timesheet-print__section,
+    .timesheet-print__footer {
+        break-inside: avoid;
+    }
+}

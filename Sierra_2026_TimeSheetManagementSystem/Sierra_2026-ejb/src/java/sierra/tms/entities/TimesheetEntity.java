@@ -54,6 +54,9 @@ public class TimesheetEntity implements Serializable {
     @OneToMany(mappedBy = "timesheet", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TimesheetEntryEntity> entries = new ArrayList<>();
 
+    @OneToMany(mappedBy = "timesheet", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TimesheetSignatureEventEntity> signatureEvents = new ArrayList<>();
+
     public TimesheetEntity() {}
 
     // hoursDue (CN4c) is derived from the contract and the public holiday
@@ -66,6 +69,10 @@ public class TimesheetEntity implements Serializable {
 
     public void removeEntry(TimesheetEntryEntity entry) {
         entries.remove(entry);
+    }
+
+    public void addSignatureEvent(TimesheetSignatureEventEntity event) {
+        signatureEvents.add(event);
     }
 
     public Long getId() {
@@ -131,4 +138,5 @@ public class TimesheetEntity implements Serializable {
     public void setEntries(List<TimesheetEntryEntity> entries) {
         this.entries = entries;
     }
+
 }

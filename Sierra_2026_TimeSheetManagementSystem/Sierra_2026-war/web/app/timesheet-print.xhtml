@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="jakarta.faces.core"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/templates/app-layout.xhtml">
+    <!-- TODO: Internationalization -->
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam id="timesheetId"
+                         name="id"
+                         value="#{timesheetBean.timesheetDetailId}"
+                         required="true"
+                         requiredMessage="A timesheet ID is required."
+                         converterMessage="The timesheet ID must be a number."
+                         validatorMessage="The timesheet ID must be positive.">
+                <f:validateLongRange minimum="1"/>
+            </f:viewParam>
+            <f:viewAction action="#{timesheetBean.loadTimesheetForPrinting}"
+                          if="#{not empty param.id}"
+                          onPostback="false"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="title">Print timesheet</ui:define>
+
+    <ui:define name="content">
+        <h:outputStylesheet library="timesheets" name="timesheet-print.css"/>
+
+        <section class="timesheet-print" aria-labelledby="timesheet-print-title">
+            <h:form id="timesheetPrintForm">
+                <div class="timesheet-print__toolbar">
+                    <h:link outcome="/app/timesheets"
+                            styleClass="timesheet-print__back">
+                        <span class="pi pi-arrow-left" aria-hidden="true"></span>
+                        <span>Back to timesheets</span>
+                    </h:link>
+                    <p:commandButton value="Print"
+                                     type="button"
+                                     icon="pi pi-print"
+                                     onclick="window.print(); return false;"
+                                     styleClass="timesheet-print__button"
+                                     rendered="#{not empty timesheetBean.timesheetForPrinting.id}"/>
+                </div>
+
+                <p:messages id="messages"
+                            showDetail="true"
+                            closable="true"
+                            styleClass="timesheet-print__messages"/>
+
+                <ui:fragment rendered="#{not empty timesheetBean.timesheetForPrinting.id}">
+                    <article class="timesheet-print__sheet">
+                        <header class="timesheet-print__header">
+                            <div class="timesheet-print__brand" aria-label="Time Sheet System">
+                                <span class="timesheet-print__brand-mark">Sierra TSS</span>
+                                <span>Sierra Time Sheet System</span>
+                            </div>
+                            <div class="timesheet-print__document-type">
+                                <span>Archive cover sheet</span>
+                                <strong>Timesheet</strong>
+                            </div>
+                        </header>
+
+                        <div class="timesheet-print__title-row">
+                            <div>
+                                <span class="timesheet-print__eyebrow">Reporting period</span>
+                                <h1 id="timesheet-print-title">
+                                    <h:outputText value="#{timesheetBean.timesheetForPrinting.startDate}">
+                                        <f:convertDateTime type="localDate" pattern="dd MMM yyyy"/>
+                                    </h:outputText>
+                                    <span aria-hidden="true">–</span>
+                                    <h:outputText value="#{timesheetBean.timesheetForPrinting.endDate}">
+                                        <f:convertDateTime type="localDate" pattern="dd MMM yyyy"/>
+                                    </h:outputText>
+                                </h1>
+                            </div>
+                            <div class="timesheet-print__identity">
+                                <span>Timesheet ID</span>
+                                <strong><h:outputText value="#{timesheetBean.timesheetForPrinting.id}"/></strong>
+                            </div>
+                        </div>
+
+                        <section class="timesheet-print__section" aria-labelledby="timesheet-print-status">
+                            <h2 id="timesheet-print-status">Status</h2>
+                            <dl class="timesheet-print__fields timesheet-print__fields--three">
+                                <div>
+                                    <dt>Contract ID</dt>
+                                    <dd><h:outputText value="#{timesheetBean.timesheetForPrinting.contractId}"/></dd>
+                                </div>
+                                <div>
+                                    <dt>Status</dt>
+                                    <dd class="timesheet-print__status">
+                                        <h:outputText value="#{timesheetBean.timesheetForPrinting.status}"/>
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt>Entries reported</dt>
+                                    <dd><h:outputText value="#{timesheetBean.timesheetForPrinting.entries.size()}"/></dd>
+                                </div>
+                                <div>
+                                    <dt>Employee signature</dt>
+                                    <dd>
+                                        <h:outputText value="#{timesheetBean.timesheetForPrinting.signedByEmployee}"
+                                                      rendered="#{not empty timesheetBean.timesheetForPrinting.signedByEmployee}">
+                                            <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                                        </h:outputText>
+                                        <h:outputText value="Pending"
+                                                      rendered="#{empty timesheetBean.timesheetForPrinting.signedByEmployee}"/>
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt>Supervisor signature</dt>
+                                    <dd>
+                                        <h:outputText value="#{timesheetBean.timesheetForPrinting.signedBySupervisor}"
+                                                      rendered="#{not empty timesheetBean.timesheetForPrinting.signedBySupervisor}">
+                                            <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                                        </h:outputText>
+                                        <h:outputText value="Pending"
+                                                      rendered="#{empty timesheetBean.timesheetForPrinting.signedBySupervisor}"/>
+                                    </dd>
+                                </div>
+                            </dl>
+                        </section>
+
+                        <section class="timesheet-print__section" aria-labelledby="timesheet-print-entries">
+                            <h2 id="timesheet-print-entries">Entries</h2>
+                            <table class="timesheet-print__table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Start</th>
+                                        <th>End</th>
+                                        <th>Hours</th>
+                                        <th>Type</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <ui:repeat value="#{timesheetBean.timesheetForPrinting.entries}" var="entry">
+                                        <tr>
+                                            <td>
+                                                <h:outputText value="#{entry.entryDate}">
+                                                    <f:convertDateTime type="localDate" pattern="EEE, dd MMM"/>
+                                                </h:outputText>
+                                            </td>
+                                            <td>
+                                                <h:outputText value="#{entry.startTime}">
+                                                    <f:convertDateTime type="localTime" pattern="HH:mm"/>
+                                                </h:outputText>
+                                            </td>
+                                            <td>
+                                                <h:outputText value="#{entry.endTime}">
+                                                    <f:convertDateTime type="localTime" pattern="HH:mm"/>
+                                                </h:outputText>
+                                            </td>
+                                            <td>
+                                                <h:outputText value="#{entry.hours}">
+                                                    <f:convertNumber minFractionDigits="1" maxFractionDigits="2"/>
+                                                </h:outputText>
+                                            </td>
+                                            <td><h:outputText value="#{entry.type}"/></td>
+                                            <td><h:outputText value="#{entry.description}"/></td>
+                                        </tr>
+                                    </ui:repeat>
+                                </tbody>
+                            </table>
+                        </section>
+
+                        <footer class="timesheet-print__footer">
+                            <span>Paper archive cover sheet</span>
+                            <span>Timesheet <h:outputText value="#{timesheetBean.timesheetForPrinting.id}"/></span>
+                        </footer>
+                    </article>
+                </ui:fragment>
+
+                <h:panelGroup layout="block"
+                              rendered="#{empty timesheetBean.timesheetForPrinting.id and facesContext.validationFailed}"
+                              styleClass="timesheet-print__state"
+                              role="alert">
+                    <span class="pi pi-link" aria-hidden="true"></span>
+                    <div>
+                        <h2>Check the timesheet link</h2>
+                        <p>A valid positive timesheet ID is required to open this print view.</p>
+                    </div>
+                </h:panelGroup>
+
+                <h:panelGroup layout="block"
+                              rendered="#{empty timesheetBean.timesheetForPrinting.id and not facesContext.validationFailed}"
+                              styleClass="timesheet-print__state"
+                              role="status">
+                    <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
+                    <div>
+                        <h2>Printable timesheet unavailable</h2>
+                        <p>The timesheet could not be loaded for printing. Return to the overview and try again.</p>
+                    </div>
+                </h:panelGroup>
+            </h:form>
+        </section>
+    </ui:define>
+</ui:composition>
