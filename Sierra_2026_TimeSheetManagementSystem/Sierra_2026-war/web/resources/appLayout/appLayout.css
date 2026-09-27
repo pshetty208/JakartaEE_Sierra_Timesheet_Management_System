@@ -1,4 +1,12 @@
 :root {
+    color-scheme: dark;
+    --sierra-background: #10110f;
+    --sierra-surface: #1a1b19;
+    --sierra-surface-raised: #292a27;
+    --sierra-border: #3d3e3a;
+    --sierra-text: #f5f5f3;
+    --sierra-text-muted: #a7a8a3;
+    --sierra-accent: #68b56b;
     --sierra-space-xs: .25rem;
     --sierra-space-sm: .55rem;
     --sierra-space-md: .8rem;
@@ -11,8 +19,21 @@
     --sierra-radius-md: .55rem;
     --sierra-radius-lg: .8rem;
     --sierra-control-height: 2.45rem;
+    --sierra-focus-ring: 0 0 0 1px var(--sierra-accent);
     --sierra-header-height: 3.75rem;
     --sierra-navigation-width: 14rem;
+    --sierra-status-prepared-text: #f3d98b;
+    --sierra-status-prepared-bg: #413717;
+    --sierra-status-prepared-border: #665623;
+    --sierra-status-started-text: #b8e0b9;
+    --sierra-status-started-bg: #0f421b;
+    --sierra-status-started-border: #286637;
+    --sierra-status-terminated-text: #f2b8b5;
+    --sierra-status-terminated-bg: #481c1c;
+    --sierra-status-terminated-border: #713232;
+    --sierra-status-archived-text: #c9cac5;
+    --sierra-status-archived-bg: #333430;
+    --sierra-status-archived-border: #555650;
 }
 
 * {
@@ -135,12 +156,12 @@ body.sierra-shell {
 .sierra-shell .sierra-shell__navigation-menu .ui-menuitem-link:hover,
 .sierra-shell .sierra-shell__navigation-menu .ui-menuitem-link:focus {
     color: var(--sierra-text);
-    background: var(--sierra-surface-active);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .sierra-shell .sierra-shell__navigation-menu .ui-menuitem-link.sierra-shell__navigation-item--active {
     color: var(--sierra-text);
-    background: var(--sierra-surface-active);
+    background: #0d0e0c;
     border-left-color: var(--sierra-accent);
     font-weight: 700;
     opacity: 1;
