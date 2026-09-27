@@ -3,6 +3,7 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:f="jakarta.faces.core"
                 xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
                 xmlns:ui="jakarta.faces.facelets"
                 template="/WEB-INF/templates/app-layout.xhtml">
     <!-- TODO: Internationalization -->
@@ -23,15 +24,8 @@
                 <p>Where your reported hours stand across every contract assigned to you.</p>
             </header>
 
-            <h:panelGroup layout="block"
-                          rendered="#{statisticsBean.summaries eq null}"
-                          styleClass="contract-statistics__unavailable">
-                <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
-                <div>
-                    <h2>Statistics are temporarily unavailable</h2>
-                    <p>The figures could not be loaded. Please try again later.</p>
-                </div>
-            </h:panelGroup>
+            <p:messages id="messages" showDetail="false" closable="true"
+                        rendered="#{statisticsBean.summaries eq null}"/>
 
             <ui:fragment rendered="#{not empty statisticsBean.summaries}">
 
@@ -74,7 +68,7 @@
                     <div>
                         <h2>Needs your attention</h2>
                         <ul>
-                            <li rendered="true">
+                            <li>
                                 <h:panelGroup rendered="#{statisticsBean.employee and statisticsBean.overdueCount gt 0}">
                                     <strong>#{statisticsBean.overdueCount}</strong>
                                     timesheets are past their period and still in progress.
@@ -93,10 +87,9 @@
                 </h:panelGroup>
 
                 <ui:repeat value="#{statisticsBean.summaries}" var="summary">
-                    <article class="contract-statistics__card">
-
-                        <header class="contract-statistics__card-head">
-                            <h2>#{summary.contract.name}</h2>
+                    <p:panel toggleable="true" styleClass="contract-statistics__card">
+                        <f:facet name="header">
+                            <span class="contract-statistics__card-title">#{summary.contract.name}</span>
                             <span class="contract-statistics__status #{statisticsBean.statusStyleClass(summary.contract.status)}">
                                 <h:outputText value="#{statisticsBean.statusLabel(summary.contract.status)}"/>
                             </span>
@@ -113,7 +106,7 @@
                                     styleClass="contract-statistics__link">
                                 <f:param name="id" value="#{summary.contract.id}"/>
                             </h:link>
-                        </header>
+                        </f:facet>
 
                         <div class="contract-statistics__bars">
                             <div>
@@ -128,10 +121,8 @@
                                         </h:outputText> h
                                     </span>
                                 </div>
-                                <div class="contract-statistics__bar">
-                                    <span class="contract-statistics__bar-fill"
-                                          style="width: #{summary.hoursPercent}%"></span>
-                                </div>
+                                <p:progressBar value="#{summary.hoursPercent}" displayOnly="true"
+                                               styleClass="contract-statistics__progress"/>
                             </div>
                             <div>
                                 <div class="contract-statistics__bar-label">
@@ -145,10 +136,8 @@
                                         </h:outputText> h
                                     </span>
                                 </div>
-                                <div class="contract-statistics__bar">
-                                    <span class="contract-statistics__bar-fill contract-statistics__bar-fill--vacation"
-                                          style="width: #{summary.vacationPercent}%"></span>
-                                </div>
+                                <p:progressBar value="#{summary.vacationPercent}" displayOnly="true"
+                                               styleClass="contract-statistics__progress contract-statistics__progress--vacation"/>
                             </div>
                         </div>
 
@@ -172,8 +161,7 @@
                             <span><i class="contract-statistics__key contract-statistics__key--supervisor"></i>Countersigned</span>
                             <span><i class="contract-statistics__key contract-statistics__key--archived"></i>Archived</span>
                         </div>
-
-                    </article>
+                    </p:panel>
                 </ui:repeat>
             </ui:fragment>
         </section>

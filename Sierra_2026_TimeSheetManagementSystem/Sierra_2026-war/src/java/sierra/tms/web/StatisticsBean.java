@@ -2,6 +2,8 @@ package sierra.tms.web;
 
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
@@ -49,6 +51,9 @@ public class StatisticsBean implements Serializable {
             }
         } catch (EJBException exception) {
             summaries = null;
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "The statistics could not be loaded.", null));
         }
     }
 
