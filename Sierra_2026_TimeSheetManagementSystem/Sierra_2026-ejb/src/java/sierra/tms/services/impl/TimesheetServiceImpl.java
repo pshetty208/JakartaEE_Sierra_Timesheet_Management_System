@@ -83,7 +83,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     }
 
     @Override
-    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMINISTRATOR"})
     public List<TimesheetDto> findAll() {
         PersonEntity currentPerson = getCurrentPerson();
         List<TimesheetEntity> timesheets = timesheetDao.findAll()
@@ -506,6 +506,10 @@ public class TimesheetServiceImpl implements TimesheetService {
     }
 
     private boolean isAuthorizedToViewTimesheet(PersonEntity person, TimesheetEntity timesheet) {
+        if (sessionContext.isCallerInRole("ADMINISTRATOR")) {
+            return true;
+        }
+
         ContractEntity contract = timesheet.getContract();
         if (contract == null || person == null) {
             return false;

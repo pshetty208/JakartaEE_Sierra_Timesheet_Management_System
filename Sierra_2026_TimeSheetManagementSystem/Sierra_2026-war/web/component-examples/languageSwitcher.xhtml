@@ -13,11 +13,13 @@
         <h:body>
             <h1>Language Switcher</h1>
 
-            <h2>Default</h2>
-            <languageSwitcher:languageSwitcher condensed="false"/>
+            <h:form>
+                <h2>Default</h2>
+                <languageSwitcher:languageSwitcher condensed="false"/>
 
-            <h2>Condensed</h2>
-            <languageSwitcher:languageSwitcher condensed="true"/>
+                <h2>Condensed</h2>
+                <languageSwitcher:languageSwitcher condensed="true"/>
+            </h:form>
 
             <h2>#{msg['welcome']}</h2>
             <p>The heading above changes when a language is selected.</p>

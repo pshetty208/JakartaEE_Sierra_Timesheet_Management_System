@@ -13,13 +13,15 @@
         <h:outputStylesheet library="languageSwitcher" name="languageSwitcher.css"/>
         <f:loadBundle basename="sierra.tms.i18n.messages" var="languageMsg"/>
 
-        <h:form styleClass="#{cc.attrs.styleClass} #{cc.attrs.condensed ? 'app-language-switcher--condensed' : ''}">
+        <h:panelGroup layout="block"
+                      styleClass="#{cc.attrs.styleClass} #{cc.attrs.condensed ? 'app-language-switcher--condensed' : ''}">
             <p:outputLabel for="language"
                            value="#{languageMsg['language.label']}"
                            styleClass="app-language-switcher__label"/>
             <p:selectOneMenu id="language"
                              value="#{localeBean.language}"
                              title="#{languageMsg['language.label']}"
+                             panelStyleClass="app-language-switcher__panel"
                              styleClass="app-language-switcher__select">
                 <p:ajax update="@all"/>
                 <f:selectItem itemLabel="#{cc.attrs.condensed ? '🇬🇧' : '🇬🇧 '.concat(languageMsg['language.english'])}"
@@ -27,6 +29,6 @@
                 <f:selectItem itemLabel="#{cc.attrs.condensed ? '🇩🇪' : '🇩🇪 '.concat(languageMsg['language.german'])}"
                               itemValue="de"/>
             </p:selectOneMenu>
-        </h:form>
+        </h:panelGroup>
     </cc:implementation>
 </html>

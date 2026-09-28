@@ -103,10 +103,10 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMINISTRATOR"})
     public ContractDto findById(Long id) {
         ContractEntity entity = getRequiredContract(id);
-        if (!sessionContext.isCallerInRole("ADMIN")) {
+        if (!sessionContext.isCallerInRole("ADMINISTRATOR")) {
             PersonEntity currentPerson = getCurrentPerson();
             if (currentPerson == null || !isAuthorizedToViewContract(currentPerson, entity)) {
                 throw new EJBAccessException("The current user is not authorized to view this contract.");
@@ -116,12 +116,12 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
-    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMINISTRATOR"})
     public List<ContractDto> findAll() {
-        boolean isAdmin = sessionContext.isCallerInRole("ADMIN");
-        PersonEntity person = isAdmin ? null : getCurrentPerson();
+        boolean isAdministrator = sessionContext.isCallerInRole("ADMINISTRATOR");
+        PersonEntity person = isAdministrator ? null : getCurrentPerson();
         return contractDao.findAll().stream()
-            .filter(c -> isAdmin || isAuthorizedToViewContract(person, c))
+            .filter(c -> isAdministrator || isAuthorizedToViewContract(person, c))
             .map(this::createDto)
             .toList();
     }
@@ -258,7 +258,7 @@ public class ContractServiceImpl implements ContractService {
     }
     
     @Override
-    @RolesAllowed({"SECRETARY", "ADMIN"})
+    @RolesAllowed({"SECRETARY", "ADMINISTRATOR"})
     public ContractDto getContractForPrinting(Long id) {
         return createDto(getRequiredContract(id));
     }

@@ -128,7 +128,7 @@ public class PersonServiceImpl implements PersonService {
         "SUPERVISOR",
         "ASSISTANT",
         "SECRETARY",
-        "ADMIN"
+        "ADMINISTRATOR"
     })
     public void changeCurrentPersonPreferredLanguage(String language) {
         String normalizedLanguage = LanguageResolver.normalize(language);
@@ -185,7 +185,7 @@ public class PersonServiceImpl implements PersonService {
         "SUPERVISOR",
         "ASSISTANT",
         "SECRETARY",
-        "ADMIN"
+        "ADMINISTRATOR"
     })
     public PersonDto getCurrentPerson() {
 

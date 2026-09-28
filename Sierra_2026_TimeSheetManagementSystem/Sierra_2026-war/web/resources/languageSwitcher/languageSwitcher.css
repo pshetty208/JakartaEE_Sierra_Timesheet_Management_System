@@ -19,6 +19,89 @@
     min-width: 10rem;
 }
 
+body .app-language-switcher__select.ui-selectonemenu {
+    height: var(--sierra-control-height);
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border-color: var(--sierra-border);
+    border-radius: var(--sierra-radius-md);
+}
+
+body .app-language-switcher__select.ui-selectonemenu:hover {
+    border-color: var(--sierra-border-hover);
+}
+
+body .app-language-switcher .app-language-switcher__select.ui-selectonemenu.ui-state-focus {
+    border-color: var(--sierra-border-hover);
+    box-shadow: var(--sierra-focus-ring);
+}
+
+body .app-language-switcher__select .ui-selectonemenu-label,
+body .app-language-switcher__select .ui-selectonemenu-trigger {
+    color: var(--sierra-text);
+    background: transparent;
+}
+
+body .app-language-switcher__select .ui-selectonemenu-label {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding-left: 0.75rem;
+}
+
+body .app-language-switcher__select .ui-selectonemenu-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+}
+
+body .app-language-switcher__select .ui-selectonemenu-trigger .ui-icon {
+    color: var(--sierra-text-muted);
+}
+
+html[data-theme="dark"] body .app-language-switcher .app-language-switcher__select.ui-selectonemenu,
+html[data-theme="dark"] body .app-language-switcher .app-language-switcher__select.ui-selectonemenu.ui-state-hover,
+html[data-theme="dark"] body .app-language-switcher .app-language-switcher__select.ui-selectonemenu.ui-state-focus {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border-color: var(--sierra-border);
+}
+
+html[data-theme="dark"] body .app-language-switcher .app-language-switcher__select.ui-selectonemenu .ui-selectonemenu-label,
+html[data-theme="dark"] body .app-language-switcher .app-language-switcher__select.ui-selectonemenu .ui-selectonemenu-trigger,
+html[data-theme="dark"] body .app-language-switcher .app-language-switcher__select.ui-selectonemenu .ui-selectonemenu-trigger .ui-icon {
+    color: var(--sierra-text);
+    background: transparent;
+}
+
+body .app-language-switcher__panel.ui-selectonemenu-panel {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border: 1px solid var(--sierra-border);
+    border-radius: var(--sierra-radius-md);
+    box-shadow: var(--sierra-shadow-raised);
+}
+
+body .app-language-switcher__panel .ui-selectonemenu-items-wrapper,
+body .app-language-switcher__panel .ui-selectonemenu-items {
+    background: transparent;
+}
+
+body .app-language-switcher__panel.ui-selectonemenu-panel .ui-selectonemenu-items .ui-selectonemenu-item {
+    margin: 0;
+    color: var(--sierra-text);
+    background: transparent;
+    border-radius: 0.35rem;
+}
+
+body .app-language-switcher__panel.ui-selectonemenu-panel .ui-selectonemenu-items .ui-selectonemenu-item:hover,
+body .app-language-switcher__panel.ui-selectonemenu-panel .ui-selectonemenu-items .ui-selectonemenu-item.ui-state-hover,
+body .app-language-switcher__panel.ui-selectonemenu-panel .ui-selectonemenu-items .ui-selectonemenu-item.ui-state-highlight {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+}
+
 .app-language-switcher--condensed .app-language-switcher__select {
     width: 4.25rem;
     min-width: 4.25rem;
