@@ -186,6 +186,10 @@ body.sierra-shell {
 }
 
 @media (max-width: 34rem) {
+    .sierra-shell .sierra-headerbar__actions .sierra-user-profile-menu__text {
+        display: none;
+    }
+
     .sierra-shell__body {
         grid-template-columns: 1fr;
     }

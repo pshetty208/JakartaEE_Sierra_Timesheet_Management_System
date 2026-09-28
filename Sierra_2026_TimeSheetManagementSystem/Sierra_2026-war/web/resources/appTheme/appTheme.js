@@ -36,15 +36,21 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         applyTheme(preferredTheme());
-
-        document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
-            button.addEventListener("click", function () {
-                const nextTheme = document.documentElement.dataset.theme === DARK
-                        ? LIGHT : DARK;
-
-                localStorage.setItem(STORAGE_KEY, nextTheme);
-                applyTheme(nextTheme);
-            });
-        });
     });
+
+    if (!window.sierraThemeToggleBound) {
+        document.addEventListener("click", function (event) {
+            const button = event.target.closest("[data-theme-toggle]");
+            if (!button) {
+                return;
+            }
+
+            const nextTheme = document.documentElement.dataset.theme === DARK
+                    ? LIGHT : DARK;
+
+            localStorage.setItem(STORAGE_KEY, nextTheme);
+            applyTheme(nextTheme);
+        });
+        window.sierraThemeToggleBound = true;
+    }
 }());

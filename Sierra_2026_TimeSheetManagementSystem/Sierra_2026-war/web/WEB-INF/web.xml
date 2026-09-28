@@ -39,7 +39,7 @@
             <role-name>SUPERVISOR</role-name>
             <role-name>ASSISTANT</role-name>
             <role-name>SECRETARY</role-name>
-            <role-name>ADMIN</role-name>
+            <role-name>ADMINISTRATOR</role-name>
         </auth-constraint>
     </security-constraint>
     <login-config>
@@ -63,9 +63,9 @@
         <role-name>SECRETARY</role-name>
     </security-role>
     <security-role>
-        <role-name>ADMIN</role-name>
+        <role-name>ADMINISTRATOR</role-name>
     </security-role>
     <welcome-file-list>
-        <welcome-file>faces/index.xhtml</welcome-file>
+        <welcome-file>faces/app/dashboard.xhtml</welcome-file>
     </welcome-file-list>
 </web-app>

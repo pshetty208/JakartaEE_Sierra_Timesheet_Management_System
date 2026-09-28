@@ -5,6 +5,7 @@
       xmlns:h="jakarta.faces.html"
       xmlns:p="http://primefaces.org/ui"
       xmlns:headerbar="jakarta.faces.composite/headerbar"
+      xmlns:languageSwitcher="jakarta.faces.composite/languageSwitcher"
       xmlns:userProfileMenu="jakarta.faces.composite/userProfileMenu">
     <h:head>
         <title>Headerbar Component Example</title>
@@ -21,6 +22,7 @@
 
                 <f:facet name="end">
                     <h:panelGroup layout="block" styleClass="app-headerbar__actions">
+                        <languageSwitcher:languageSwitcher condensed="true"/>
                         <span class="ui-input-icon-left">
                             <i class="pi pi-fw pi-search"></i>
                             <p:inputText styleClass="app-headerbar__search" placeholder="Search"/>
