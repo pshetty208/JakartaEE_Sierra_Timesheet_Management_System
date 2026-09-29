@@ -12,15 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.ToDoubleFunction;
 import sierra.tms.dto.ContractDto;
-import sierra.tms.dto.PersonDto;
 import sierra.tms.dto.TimesheetDto;
 import sierra.tms.dto.TimesheetEntryDto;
 import sierra.tms.services.ContractService;
-import sierra.tms.services.PersonService;
+import sierra.tms.services.FeatureAccessService;
 import sierra.tms.services.TimesheetService;
 import sierra.tms.utils.enums.ContractStatus;
 import sierra.tms.utils.enums.ReportType;
-import sierra.tms.utils.enums.RoleType;
 import sierra.tms.utils.enums.TimeSheetStatus;
 
 @Named
@@ -36,11 +34,9 @@ public class StatisticsBean implements Serializable {
     private TimesheetService timesheetService;
 
     @EJB
-    private PersonService personService;
+    private FeatureAccessService featureAccessService;
 
     private List<ContractSummary> summaries;
-
-    private List<RoleType> roles;
 
     public void load() {
         try {
@@ -62,24 +58,11 @@ public class StatisticsBean implements Serializable {
     }
 
     public boolean isEmployee() {
-        return hasRole(RoleType.EMPLOYEE);
+        return featureAccessService.isReportWork();
     }
 
     public boolean isSupervisor() {
-        return hasRole(RoleType.SUPERVISOR);
-    }
-
-    private boolean hasRole(RoleType role) {
-        if (roles == null) {
-            try {
-                PersonDto person = personService.getCurrentPerson();
-                roles = person == null || person.getRoles() == null
-                        ? List.of() : person.getRoles();
-            } catch (EJBException exception) {
-                roles = List.of();
-            }
-        }
-        return roles.contains(role);
+        return featureAccessService.isCountersignTimesheet();
     }
 
     public double getHoursDue() {

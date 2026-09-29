@@ -5,6 +5,7 @@ import sierra.tms.dto.TimesheetEntryDto;
 import sierra.tms.exceptions.TimesheetEntryOverlapException;
 import sierra.tms.services.TimesheetService;
 import sierra.tms.utils.enums.ReportType;
+import sierra.tms.utils.enums.TimeSheetStatus;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBAccessException;
 import jakarta.ejb.EJBException;
@@ -146,6 +147,18 @@ public class TimesheetBean implements Serializable {
         }
     }
 
+    public void archiveTimesheet(Long id) {
+        try {
+            service.archiveTimesheet(id);
+            refreshTimesheets();
+            success("Timesheet archived successfully.");
+        } catch (EJBAccessException e) {
+            error("Only an assigned secretary may archive this timesheet.");
+        } catch (IllegalStateException e) {
+            error(e.getMessage());
+        }
+    }
+
     public void loadTimesheetForPrinting() {
         try {
             timesheetForPrinting = service.getForPrinting(timesheetDetailId);
@@ -215,6 +228,11 @@ public class TimesheetBean implements Serializable {
     public boolean canRequestChanges(Long timesheetId) {
         return getChangeRequestableTimesheets().stream()
                 .anyMatch(timesheet -> timesheet.getId().equals(timesheetId));
+    }
+
+    public boolean canArchive(TimesheetDto timesheet) {
+        return timesheet != null
+                && timesheet.getStatus() == TimeSheetStatus.SIGNED_BY_SUPERVISOR;
     }
 
     /** Flattened view of every entry, so the page can show them in one table. */

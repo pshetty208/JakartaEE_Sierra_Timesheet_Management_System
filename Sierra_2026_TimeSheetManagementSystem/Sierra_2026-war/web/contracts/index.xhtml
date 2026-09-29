@@ -26,6 +26,12 @@
                     <h1 id="contract-overview-title">Contracts</h1>
                     <p>View the contracts assigned to you and their current status.</p>
                 </div>
+                <h:link outcome="/contracts/create"
+                        styleClass="contract-overview__create"
+                        rendered="#{featureAccess.manageContract}">
+                    <span class="pi pi-plus" aria-hidden="true"></span>
+                    <span>Create contract</span>
+                </h:link>
             </header>
 
             <h:panelGroup layout="block"

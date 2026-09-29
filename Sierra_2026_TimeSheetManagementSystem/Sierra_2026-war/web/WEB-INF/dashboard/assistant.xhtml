@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:dashboardMetric="jakarta.faces.composite/dashboardMetric">
+    <section class="dashboard" aria-labelledby="dashboard-title">
+        <header class="dashboard__heading">
+            <div>
+                <span class="dashboard__eyebrow">#{msg['dashboard.assistant.eyebrow']}</span>
+                <h1 id="dashboard-title">#{msg['dashboard.assistant.title']}</h1>
+                <p>#{msg['dashboard.assistant.description']}</p>
+            </div>
+            <h:link outcome="/contracts/index" styleClass="dashboard__heading-action">
+                <span class="pi pi-file" aria-hidden="true"></span>
+                <span>#{msg['dashboard.viewContracts']}</span>
+            </h:link>
+        </header>
+
+        <div class="dashboard__metrics">
+            <dashboardMetric:dashboardMetric label="#{msg['dashboard.assistant.metric.review']}"
+                                             value="#{dashboardBean.pendingApprovalCount}"
+                                             icon="pi pi-inbox" tone="accent"/>
+            <dashboardMetric:dashboardMetric label="#{msg['dashboard.assistant.metric.prepared']}"
+                                             value="#{dashboardBean.preparedContractCount}"
+                                             icon="pi pi-file-edit"/>
+            <dashboardMetric:dashboardMetric label="#{msg['dashboard.metric.contracts']}"
+                                             value="#{dashboardBean.activeContractCount}"
+                                             icon="pi pi-file" tone="positive"/>
+            <dashboardMetric:dashboardMetric label="#{msg['dashboard.assistant.metric.people']}"
+                                             value="#{dashboardBean.teamMemberCount}"
+                                             icon="pi pi-users"/>
+        </div>
+
+        <ui:include src="/WEB-INF/dashboard/timesheet-panel.xhtml">
+            <ui:param name="panelId" value="assistant-review-title"/>
+            <ui:param name="title" value="#{msg['dashboard.assistant.review.title']}"/>
+            <ui:param name="description" value="#{msg['dashboard.assistant.review.description']}"/>
+            <ui:param name="rows" value="#{dashboardBean.pendingTimesheets}"/>
+            <ui:param name="count" value="#{dashboardBean.pendingApprovalCount}"/>
+            <ui:param name="showCount" value="true"/>
+            <ui:param name="showEmployee" value="true"/>
+            <ui:param name="showSigned" value="true"/>
+            <ui:param name="actionLabel" value="#{msg['dashboard.review']}"/>
+            <ui:param name="actionIcon" value="pi pi-arrow-right"/>
+            <ui:param name="emptyIcon" value="pi pi-check-circle"/>
+            <ui:param name="emptyTitle" value="#{msg['dashboard.assistant.review.empty.title']}"/>
+            <ui:param name="emptyDescription" value="#{msg['dashboard.assistant.review.empty.description']}"/>
+        </ui:include>
+
+        <ui:include src="/WEB-INF/dashboard/timesheet-panel.xhtml">
+            <ui:param name="panelId" value="assistant-recent-title"/>
+            <ui:param name="title" value="#{msg['dashboard.assistant.recent.title']}"/>
+            <ui:param name="description" value="#{msg['dashboard.assistant.recent.description']}"/>
+            <ui:param name="rows" value="#{dashboardBean.recentlyApprovedTimesheets}"/>
+            <ui:param name="showEmployee" value="true"/>
+            <ui:param name="showApproved" value="true"/>
+            <ui:param name="showStatus" value="true"/>
+            <ui:param name="emptyIcon" value="pi pi-history"/>
+            <ui:param name="emptyTitle" value="#{msg['dashboard.recent.empty.title']}"/>
+            <ui:param name="emptyDescription" value="#{msg['dashboard.recent.empty.description']}"/>
+        </ui:include>
+    </section>
+</ui:composition>
