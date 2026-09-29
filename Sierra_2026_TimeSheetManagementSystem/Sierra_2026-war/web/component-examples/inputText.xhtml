@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:inputText="jakarta.faces.composite/inputText">
+    <h:head>
+        <title>Input Text Component Example</title>
+        <h:outputStylesheet library="appTheme" name="appTheme.css"/>
+        <h:outputStylesheet library="appLayout" name="appLayout.css"/>
+        <h:outputStylesheet library="componentExamples" name="componentExamples.css"/>
+        <h:outputScript library="appTheme" name="appTheme.js" target="head"/>
+    </h:head>
+    <h:body>
+        <h1>Input Text</h1>
+
+        <div class="input-text-example-card">
+            <h5>Email</h5>
+            <inputText:inputText inputId="example_email"
+                                 name="example_email"
+                                 label="University email"
+                                 type="email"
+                                 autocomplete="username"
+                                 placeholder="employee@uni-koblenz.de"
+                                 autofocus="true"/>
+
+            <h5>Password</h5>
+            <inputText:inputText inputId="example_password"
+                                 name="example_password"
+                                 label="Password"
+                                 type="password"
+                                 autocomplete="current-password"
+                                 placeholder="Enter your password"/>
+        </div>
+    </h:body>
+</html>

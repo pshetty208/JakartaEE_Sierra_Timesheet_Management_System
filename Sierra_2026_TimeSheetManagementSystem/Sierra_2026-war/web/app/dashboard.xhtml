@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/templates/app-layout.xhtml">
+
+    <ui:define name="title">#{msg[dashboardBean.pageTitleKey]}</ui:define>
+
+    <ui:define name="content">
+        <h:outputStylesheet library="dashboard" name="dashboard.css"/>
+        <ui:include src="#{dashboardBean.viewPath}"/>
+    </ui:define>
+</ui:composition>

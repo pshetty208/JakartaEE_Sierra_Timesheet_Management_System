@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="jakarta.faces.composite"
+      xmlns:h="jakarta.faces.html">
+    <cc:interface>
+        <cc:attribute name="label" required="true"/>
+        <cc:attribute name="value" required="true"/>
+        <cc:attribute name="icon"/>
+        <cc:attribute name="tone" default="default"/>
+        <cc:attribute name="styleClass"/>
+    </cc:interface>
+
+    <cc:implementation>
+        <h:outputStylesheet library="dashboardMetric" name="dashboardMetric.css"/>
+
+        <article class="dashboard-metric dashboard-metric--#{cc.attrs.tone} #{cc.attrs.styleClass}">
+            <span class="dashboard-metric__icon #{cc.attrs.icon}" aria-hidden="true"></span>
+            <div>
+                <span class="dashboard-metric__label">#{cc.attrs.label}</span>
+                <strong class="dashboard-metric__value">#{cc.attrs.value}</strong>
+            </div>
+        </article>
+    </cc:implementation>
+</html>

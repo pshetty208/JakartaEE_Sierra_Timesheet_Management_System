@@ -69,11 +69,11 @@ public class ContractEntity implements Serializable {
 
 
     @Column(name = "working_days_per_week", nullable = false)
-    private Integer workingDaysPerWeek = 5;
+    private Integer workingDaysPerWeek;
 
 
     @Column(name = "vacation_days_per_year", nullable = false)
-    private Integer vacationDaysPerYear = 20;
+    private Integer vacationDaysPerYear;
 
 
     @Column(name = "termination_date")
@@ -81,7 +81,7 @@ public class ContractEntity implements Serializable {
 
 
     @Column(name = "archive_duration", nullable = false)
-    private Integer archiveDuration = 24;
+    private Integer archiveDuration;
 
 
     @OneToMany

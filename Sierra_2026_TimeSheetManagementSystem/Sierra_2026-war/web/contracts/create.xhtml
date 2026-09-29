@@ -3,11 +3,11 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:f="jakarta.faces.core"
                 xmlns:h="jakarta.faces.html"
-                xmlns:p="http://primefaces.org/ui"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:appButton="jakarta.faces.composite/appButton"
                 xmlns:ui="jakarta.faces.facelets"
                 template="/WEB-INF/templates/app-layout.xhtml">
-    <!-- TODO: Internationalization -->
-    <ui:define name="title">Create contract</ui:define>
+    <ui:define name="title">#{msg['contract.create.page.title']}</ui:define>
 
     <ui:define name="content">
         <h:outputStylesheet library="contracts" name="contracts.css"/>
@@ -16,28 +16,26 @@
             <header class="contract-create__heading">
                 <h:link outcome="/index"
                         styleClass="contract-create__back"
-                        aria-label="Back">
+                        aria-label="#{msg['common.back']}">
                     <span class="pi pi-arrow-left" aria-hidden="true"></span>
                 </h:link>
 
                 <div>
-                    <h1 id="contract-create-title">Create contract</h1>
-                    <p>
-                        New contracts are created in Prepared status. You can start them once all details are set.
-                    </p>
+                    <h1 id="contract-create-title">#{msg['contract.create.title']}</h1>
+                    <p>#{msg['contract.create.description']}</p>
                 </div>
             </header>
 
             <h:form id="createContractForm" styleClass="contract-create__card">
                 <div class="contract-create__grid">
                     <div class="contract-create__field contract-create__field--wide">
-                        <p:outputLabel for="contractName" value="Contract name"/>
+                        <p:outputLabel for="contractName" value="#{msg['contract.name']}"/>
                         <p:inputText id="contractName"
                                      value="#{contractBean.contract.name}"
-                                     placeholder="Enter a contract name"
+                                     placeholder="#{msg['contract.create.name.placeholder']}"
                                      required="true"
-                                     requiredMessage="Contract name is required."
-                                     validatorMessage="Contract name must contain text and be at most 100 characters.">
+                                     requiredMessage="#{msg['contract.validation.name.required']}"
+                                     validatorMessage="#{msg['contract.validation.name.invalid']}">
                             <f:validateLength maximum="100"/>
                             <f:validateRegex pattern=".*\S.*"/>
                         </p:inputText>
@@ -45,18 +43,18 @@
                     </div>
 
                     <div class="contract-create__field">
-                        <p:outputLabel for="employee" value="Employee"/>
-                        <p:selectOneMenu id="employee">
-                            <f:selectItem itemLabel="Select employee"
+                        <p:outputLabel for="employee" value="#{msg['contract.employee']}"/>
+                        <p:selectOneMenu id="employee" panelStyleClass="contract-create__select-panel">
+                            <f:selectItem itemLabel="#{msg['contract.create.employee.placeholder']}"
                                           itemValue="#{null}"
                                           noSelectionOption="true"/>
                         </p:selectOneMenu>
                     </div>
 
                     <div class="contract-create__field">
-                        <p:outputLabel for="supervisor" value="Supervisor"/>
-                        <p:selectOneMenu id="supervisor">
-                            <f:selectItem itemLabel="Select supervisor"
+                        <p:outputLabel for="supervisor" value="#{msg['contract.supervisor']}"/>
+                        <p:selectOneMenu id="supervisor" panelStyleClass="contract-create__select-panel">
+                            <f:selectItem itemLabel="#{msg['contract.create.supervisor.placeholder']}"
                                           itemValue="#{null}"
                                           noSelectionOption="true"/>
                         </p:selectOneMenu>
@@ -64,38 +62,41 @@
 
                     <!-- TODO: Add CN6a complete-month validation after backend enforcement is implemented. -->
                     <div class="contract-create__field">
-                        <p:outputLabel for="startDate" value="Start date (1st of month)"/>
+                        <p:outputLabel for="startDate" value="#{msg['contract.startDate.first']}"/>
                         <p:datePicker id="startDate"
                                       value="#{contractBean.contract.startDate}"
                                       placeholder="dd.mm.yyyy"
                                       pattern="dd.MM.yyyy"
                                       showIcon="true"
+                                      panelStyleClass="contract-create__date-panel"
                                       required="true"
-                                      requiredMessage="Start date is required."
-                                      converterMessage="Start date must use the format dd.mm.yyyy."/>
+                                      requiredMessage="#{msg['contract.validation.startDate.required']}"
+                                      converterMessage="#{msg['contract.validation.startDate.format']}"/>
                         <p:message for="startDate"/>
                     </div>
 
                     <div class="contract-create__field">
-                        <p:outputLabel for="endDate" value="End date (last of month)"/>
+                        <p:outputLabel for="endDate" value="#{msg['contract.endDate.last']}"/>
                         <p:datePicker id="endDate"
                                       value="#{contractBean.contract.endDate}"
                                       placeholder="dd.mm.yyyy"
                                       pattern="dd.MM.yyyy"
                                       showIcon="true"
+                                      panelStyleClass="contract-create__date-panel"
                                       required="true"
-                                      requiredMessage="End date is required."
-                                      converterMessage="End date must use the format dd.mm.yyyy."/>
+                                      requiredMessage="#{msg['contract.validation.endDate.required']}"
+                                      converterMessage="#{msg['contract.validation.endDate.format']}"/>
                         <p:message for="endDate"/>
                     </div>
 
                     <div class="contract-create__field">
-                        <p:outputLabel for="frequency" value="Timesheet frequency"/>
+                        <p:outputLabel for="frequency" value="#{msg['contract.frequency']}"/>
                         <p:selectOneMenu id="frequency"
+                                         panelStyleClass="contract-create__select-panel"
                                          value="#{contractBean.contract.frequency}"
                                          required="true"
-                                         requiredMessage="Timesheet frequency is required.">
-                            <f:selectItem itemLabel="Select frequency"
+                                         requiredMessage="#{msg['contract.validation.frequency.required']}">
+                            <f:selectItem itemLabel="#{msg['contract.create.frequency.placeholder']}"
                                           itemValue="#{null}"
                                           noSelectionOption="true"/>
                             <f:selectItems value="#{contractBean.frequencies}"
@@ -107,84 +108,84 @@
                     </div>
 
                     <div class="contract-create__field">
-                        <p:outputLabel for="hoursPerWeek" value="Hours per week"/>
+                        <p:outputLabel for="hoursPerWeek" value="#{msg['contract.hoursPerWeek']}"/>
                         <p:inputNumber id="hoursPerWeek"
                                        value="#{contractBean.contract.hoursPerWeek}"
                                        decimalPlaces="0"
                                        minValue="0"
                                        required="true"
-                                       requiredMessage="Hours per week is required."
-                                       validatorMessage="Hours per week cannot be negative.">
+                                       requiredMessage="#{msg['contract.validation.hours.required']}"
+                                       validatorMessage="#{msg['contract.validation.hours.nonnegative']}">
                             <f:validateLongRange minimum="0"/>
                         </p:inputNumber>
                         <p:message for="hoursPerWeek"/>
                     </div>
 
                     <div class="contract-create__field">
-                        <p:outputLabel for="workingDays" value="Working days per week"/>
+                        <p:outputLabel for="workingDays" value="#{msg['contract.workingDaysPerWeek']}"/>
                         <p:inputNumber id="workingDays"
                                        value="#{contractBean.contract.workingDaysPerWeek}"
                                        decimalPlaces="0"
                                        minValue="1"
                                        maxValue="7"
                                        required="true"
-                                       requiredMessage="Working days per week is required."
-                                       validatorMessage="Working days per week must be between 1 and 7.">
+                                       requiredMessage="#{msg['contract.validation.workingDays.required']}"
+                                       validatorMessage="#{msg['contract.validation.workingDays.range']}">
                             <f:validateLongRange minimum="1" maximum="7"/>
                         </p:inputNumber>
                         <p:message for="workingDays"/>
                     </div>
 
                     <div class="contract-create__field">
-                        <p:outputLabel for="vacationDays" value="Vacation days per year"/>
+                        <p:outputLabel for="vacationDays" value="#{msg['contract.vacationDaysPerYear']}"/>
                         <p:inputNumber id="vacationDays"
                                        value="#{contractBean.contract.vacationDaysPerYear}"
                                        decimalPlaces="0"
                                        minValue="0"
                                        required="true"
-                                       requiredMessage="Vacation days per year is required."
-                                       validatorMessage="Vacation days per year cannot be negative.">
+                                       requiredMessage="#{msg['contract.validation.vacationDays.required']}"
+                                       validatorMessage="#{msg['contract.validation.vacationDays.nonnegative']}">
                             <f:validateLongRange minimum="0"/>
                         </p:inputNumber>
                         <p:message for="vacationDays"/>
                     </div>
 
                     <div class="contract-create__field">
-                        <p:outputLabel for="federalState" value="Federal state (holidays)"/>
-                        <p:selectOneMenu id="federalState">
-                            <f:selectItem itemLabel="Rhineland-Palatinate (RP)"
+                        <p:outputLabel for="federalState" value="#{msg['contract.federalState']}"/>
+                        <p:selectOneMenu id="federalState" panelStyleClass="contract-create__select-panel">
+                            <f:selectItem itemLabel="#{msg['federalState.rp']}"
                                           itemValue="RP"/>
                         </p:selectOneMenu>
                     </div>
                 </div>
 
                 <section class="contract-create__calculated" aria-labelledby="calculated-values-title">
-                    <h2 id="calculated-values-title">Calculated values</h2>
+                    <h2 id="calculated-values-title">#{msg['contract.calculatedValues']}</h2>
 
                     <dl>
                         <div>
-                            <dt>Vacation hours</dt>
+                            <dt>#{msg['contract.vacationHours']}</dt>
                             <dd>—</dd>
                         </div>
                         <div>
-                            <dt>Contract duration</dt>
+                            <dt>#{msg['contract.duration']}</dt>
                             <dd>—</dd>
                         </div>
                         <div>
-                            <dt>Total hours due</dt>
+                            <dt>#{msg['contract.totalHoursDue']}</dt>
                             <dd>—</dd>
                         </div>
                     </dl>
                 </section>
 
                 <div class="contract-create__actions">
-                    <p:button value="Cancel"
-                              outcome="/index"
-                              styleClass="ui-button-outlined contract-create__button"/>
-                    <p:commandButton value="Save as prepared"
-                                     type="button"
-                                     disabled="true"
-                                     styleClass="ui-button-outlined contract-create__button"/>
+                    <appButton:appButton value="#{msg['common.cancel']}"
+                                               outcome="/index"
+                                               styleClass="ui-button-outlined contract-create__button"/>
+                    <appButton:appButton value="#{msg['contract.create.savePrepared']}"
+                                               type="button"
+                                               disabled="true"
+                                               styleClass="ui-button-outlined contract-create__button"/>
                 </div>
             </h:form>
         </section>

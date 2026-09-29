@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="jakarta.faces.composite"
+      xmlns:f="jakarta.faces.core"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pt="jakarta.faces.passthrough"
+      xmlns:ui="jakarta.faces.facelets">
+    <cc:interface>
+        <cc:attribute name="value"/>
+        <cc:attribute name="icon"/>
+        <cc:attribute name="title"/>
+        <cc:attribute name="action" method-signature="java.lang.Object action()"/>
+        <cc:attribute name="outcome"/>
+        <cc:attribute name="process" default="@this"/>
+        <cc:attribute name="update"/>
+        <cc:attribute name="type" default="submit"/>
+        <cc:attribute name="disabled" default="false"/>
+        <cc:attribute name="onclick"/>
+        <cc:attribute name="styleClass"/>
+        <cc:attribute name="themeToggle" default="false"/>
+        <cc:attribute name="lightLabel"/>
+        <cc:attribute name="darkLabel"/>
+        <cc:attribute name="parameterName"/>
+        <cc:attribute name="parameterValue"/>
+        <cc:attribute name="confirmHeader"/>
+        <cc:attribute name="confirmMessage"/>
+
+        <!-- Only external forms, such as j_security_check, require native submission. -->
+        <cc:attribute name="nativeSubmit" default="false"/>
+        <cc:attribute name="buttonId"/>
+    </cc:interface>
+
+    <cc:implementation>
+        <h:outputStylesheet library="appButton" name="appButton.css"/>
+
+        <p:button value="#{cc.attrs.value}"
+                  icon="#{cc.attrs.icon}"
+                  title="#{cc.attrs.title}"
+                  outcome="#{cc.attrs.outcome}"
+                  disabled="#{cc.attrs.disabled}"
+                  styleClass="app-button #{cc.attrs.styleClass}"
+                  rendered="#{not cc.attrs.nativeSubmit and not empty cc.attrs.outcome}">
+            <f:param name="#{cc.attrs.parameterName}"
+                     value="#{cc.attrs.parameterValue}"
+                     disable="#{empty cc.attrs.parameterName}"/>
+        </p:button>
+
+        <p:commandButton value="#{cc.attrs.value}"
+                         icon="#{cc.attrs.icon}"
+                         title="#{cc.attrs.title}"
+                         action="#{cc.attrs.action}"
+                         process="#{cc.attrs.process}"
+                         update="#{cc.attrs.update}"
+                         type="#{cc.attrs.type}"
+                         disabled="#{cc.attrs.disabled}"
+                         onclick="#{cc.attrs.onclick}"
+                         styleClass="app-button #{cc.attrs.styleClass}"
+                         pt:data-theme-toggle="#{cc.attrs.themeToggle ? 'true' : null}"
+                         pt:data-light-label="#{cc.attrs.lightLabel}"
+                         pt:data-dark-label="#{cc.attrs.darkLabel}"
+                         rendered="#{not cc.attrs.nativeSubmit and empty cc.attrs.outcome}">
+            <f:param name="#{cc.attrs.parameterName}"
+                     value="#{cc.attrs.parameterValue}"
+                     disable="#{empty cc.attrs.parameterName}"/>
+            <p:confirm header="#{cc.attrs.confirmHeader}"
+                       message="#{cc.attrs.confirmMessage}"
+                       icon="pi pi-exclamation-triangle"
+                       disabled="#{empty cc.attrs.confirmMessage}"/>
+        </p:commandButton>
+
+        <ui:fragment rendered="#{cc.attrs.nativeSubmit}">
+            <button id="#{cc.attrs.buttonId}"
+                    class="app-button ui-button ui-widget ui-state-default #{cc.attrs.styleClass}"
+                    type="#{cc.attrs.type}"
+                    disabled="disabled">
+                <span>#{cc.attrs.value}</span>
+            </button>
+        </ui:fragment>
+    </cc:implementation>
+</html>

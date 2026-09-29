@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="jakarta.faces.core"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/templates/app-layout.xhtml">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam id="timesheetId"
+                         name="id"
+                         value="#{timesheetBean.timesheetDetailId}"
+                         required="true"
+                         requiredMessage="#{msg['timesheet.validation.id.required']}"
+                         converterMessage="#{msg['timesheet.validation.id.number']}"
+                         validatorMessage="#{msg['timesheet.validation.id.positive']}">
+                <f:validateLongRange minimum="1"/>
+            </f:viewParam>
+            <f:viewAction action="#{timesheetBean.loadTimesheetForPrinting}"
+                          if="#{not empty param.id}"
+                          onPostback="false"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="title">#{msg['timesheet.print.page.title']}</ui:define>
+
+    <ui:define name="content">
+        <h:outputStylesheet library="timesheets" name="timesheet-print.css"/>
+
+        <section class="timesheet-print" aria-labelledby="timesheet-print-title">
+            <h:form id="timesheetPrintForm">
+                <div class="timesheet-print__toolbar">
+                    <h:link outcome="/app/timesheets"
+                            styleClass="timesheet-print__back">
+                        <span class="pi pi-arrow-left" aria-hidden="true"></span>
+                        <span>#{msg['timesheet.backToTimesheets']}</span>
+                    </h:link>
+                    <p:commandButton value="#{msg['common.print']}"
+                                     type="button"
+                                     icon="pi pi-print"
+                                     onclick="window.print(); return false;"
+                                     styleClass="timesheet-print__button"
+                                     rendered="#{not empty timesheetBean.timesheetForPrinting.id}"/>
+                </div>
+
+                <p:messages id="messages"
+                            showDetail="true"
+                            closable="true"
+                            styleClass="timesheet-print__messages"/>
+
+                <ui:fragment rendered="#{not empty timesheetBean.timesheetForPrinting.id}">
+                    <article class="timesheet-print__sheet">
+                        <header class="timesheet-print__header">
+                            <div class="timesheet-print__brand" aria-label="#{msg['product.fullName']}">
+                                <span class="timesheet-print__brand-mark">Sierra TSS</span>
+                                <span>#{msg['product.fullName']}</span>
+                            </div>
+                            <div class="timesheet-print__document-type">
+                                <span>#{msg['print.archiveCover']}</span>
+                                <strong>#{msg['timesheet.label']}</strong>
+                            </div>
+                        </header>
+
+                        <div class="timesheet-print__title-row">
+                            <div>
+                                <span class="timesheet-print__eyebrow">#{msg['timesheet.reportingPeriod']}</span>
+                                <h1 id="timesheet-print-title">
+                                    <h:outputText value="#{timesheetBean.timesheetForPrinting.startDate}">
+                                        <f:convertDateTime type="localDate" pattern="dd MMM yyyy"/>
+                                    </h:outputText>
+                                    <span aria-hidden="true">–</span>
+                                    <h:outputText value="#{timesheetBean.timesheetForPrinting.endDate}">
+                                        <f:convertDateTime type="localDate" pattern="dd MMM yyyy"/>
+                                    </h:outputText>
+                                </h1>
+                            </div>
+                            <div class="timesheet-print__identity">
+                                <span>#{msg['timesheet.id']}</span>
+                                <strong><h:outputText value="#{timesheetBean.timesheetForPrinting.id}"/></strong>
+                            </div>
+                        </div>
+
+                        <section class="timesheet-print__section" aria-labelledby="timesheet-print-status">
+                            <h2 id="timesheet-print-status">#{msg['common.status']}</h2>
+                            <dl class="timesheet-print__fields timesheet-print__fields--three">
+                                <div>
+                                    <dt>#{msg['contract.id']}</dt>
+                                    <dd><h:outputText value="#{timesheetBean.timesheetForPrinting.contractId}"/></dd>
+                                </div>
+                                <div>
+                                    <dt>#{msg['common.status']}</dt>
+                                    <dd class="timesheet-print__status">
+                                        <h:outputText value="#{timesheetBean.statusLabel(timesheetBean.timesheetForPrinting.status)}"/>
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt>#{msg['timesheet.entriesReported']}</dt>
+                                    <dd><h:outputText value="#{timesheetBean.timesheetForPrinting.entries.size()}"/></dd>
+                                </div>
+                                <div>
+                                    <dt>#{msg['timesheet.employeeSignature']}</dt>
+                                    <dd>
+                                        <h:outputText value="#{timesheetBean.timesheetForPrinting.signedByEmployee}"
+                                                      rendered="#{not empty timesheetBean.timesheetForPrinting.signedByEmployee}">
+                                            <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                                        </h:outputText>
+                                        <h:outputText value="#{msg['common.pending']}"
+                                                      rendered="#{empty timesheetBean.timesheetForPrinting.signedByEmployee}"/>
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt>#{msg['timesheet.supervisorSignature']}</dt>
+                                    <dd>
+                                        <h:outputText value="#{timesheetBean.timesheetForPrinting.signedBySupervisor}"
+                                                      rendered="#{not empty timesheetBean.timesheetForPrinting.signedBySupervisor}">
+                                            <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
+                                        </h:outputText>
+                                        <h:outputText value="#{msg['common.pending']}"
+                                                      rendered="#{empty timesheetBean.timesheetForPrinting.signedBySupervisor}"/>
+                                    </dd>
+                                </div>
+                            </dl>
+                        </section>
+
+                        <section class="timesheet-print__section" aria-labelledby="timesheet-print-entries">
+                            <h2 id="timesheet-print-entries">#{msg['common.entries']}</h2>
+                            <table class="timesheet-print__table">
+                                <thead>
+                                    <tr>
+                                        <th>#{msg['common.date']}</th>
+                                        <th>#{msg['common.start']}</th>
+                                        <th>#{msg['common.end']}</th>
+                                        <th>#{msg['common.hours']}</th>
+                                        <th>#{msg['common.type']}</th>
+                                        <th>#{msg['common.description']}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <ui:repeat value="#{timesheetBean.timesheetForPrinting.entries}" var="entry">
+                                        <tr>
+                                            <td>
+                                                <h:outputText value="#{entry.entryDate}">
+                                                    <f:convertDateTime type="localDate" pattern="EEE, dd MMM"/>
+                                                </h:outputText>
+                                            </td>
+                                            <td>
+                                                <h:outputText value="#{entry.startTime}">
+                                                    <f:convertDateTime type="localTime" pattern="HH:mm"/>
+                                                </h:outputText>
+                                            </td>
+                                            <td>
+                                                <h:outputText value="#{entry.endTime}">
+                                                    <f:convertDateTime type="localTime" pattern="HH:mm"/>
+                                                </h:outputText>
+                                            </td>
+                                            <td>
+                                                <h:outputText value="#{entry.hours}">
+                                                    <f:convertNumber minFractionDigits="1" maxFractionDigits="2"/>
+                                                </h:outputText>
+                                            </td>
+                                            <td><h:outputText value="#{timesheetBean.reportTypeLabel(entry.type)}"/></td>
+                                            <td><h:outputText value="#{entry.description}"/></td>
+                                        </tr>
+                                    </ui:repeat>
+                                </tbody>
+                            </table>
+                        </section>
+
+                        <footer class="timesheet-print__footer">
+                            <span>#{msg['print.paperArchiveCover']}</span>
+                            <span>#{msg['timesheet.label']} <h:outputText value="#{timesheetBean.timesheetForPrinting.id}"/></span>
+                        </footer>
+                    </article>
+                </ui:fragment>
+
+                <h:panelGroup layout="block"
+                              rendered="#{empty timesheetBean.timesheetForPrinting.id and facesContext.validationFailed}"
+                              styleClass="timesheet-print__state"
+                              role="alert">
+                    <span class="pi pi-link" aria-hidden="true"></span>
+                    <div>
+                        <h2>#{msg['timesheet.invalidLink.title']}</h2>
+                        <p>#{msg['timesheet.print.invalidLink.description']}</p>
+                    </div>
+                </h:panelGroup>
+
+                <h:panelGroup layout="block"
+                              rendered="#{empty timesheetBean.timesheetForPrinting.id and not facesContext.validationFailed}"
+                              styleClass="timesheet-print__state"
+                              role="status">
+                    <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
+                    <div>
+                        <h2>#{msg['timesheet.print.unavailable.title']}</h2>
+                        <p>#{msg['timesheet.print.unavailable.description']}</p>
+                    </div>
+                </h:panelGroup>
+            </h:form>
+        </section>
+    </ui:define>
+</ui:composition>

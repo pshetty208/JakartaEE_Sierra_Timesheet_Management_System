@@ -7,7 +7,6 @@
                 xmlns:ui="jakarta.faces.facelets"
                 xmlns:dataTable="jakarta.faces.composite/dataTable"
                 template="/WEB-INF/templates/app-layout.xhtml">
-    <!-- TODO: Internationalization -->
     <ui:define name="metadata">
         <f:metadata>
             <f:viewAction action="#{contractBean.loadContracts}"
@@ -15,7 +14,7 @@
         </f:metadata>
     </ui:define>
 
-    <ui:define name="title">Contracts</ui:define>
+    <ui:define name="title">#{msg['contracts.page.title']}</ui:define>
 
     <ui:define name="content">
         <h:outputStylesheet library="contracts" name="contracts.css"/>
@@ -23,9 +22,15 @@
         <section class="contract-overview" aria-labelledby="contract-overview-title">
             <header class="contract-overview__heading">
                 <div>
-                    <h1 id="contract-overview-title">Contracts</h1>
-                    <p>View the contracts assigned to you and their current status.</p>
+                    <h1 id="contract-overview-title">#{msg['contracts.title']}</h1>
+                    <p>#{msg['contracts.description']}</p>
                 </div>
+                <h:link outcome="/contracts/create"
+                        styleClass="contract-overview__create"
+                        rendered="#{featureAccess.manageContract}">
+                    <span class="pi pi-plus" aria-hidden="true"></span>
+                    <span>#{msg['contracts.create']}</span>
+                </h:link>
             </header>
 
             <h:panelGroup layout="block"
@@ -33,8 +38,8 @@
                           styleClass="contract-overview__unavailable">
                 <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
                 <div>
-                    <h2>Contracts are temporarily unavailable</h2>
-                    <p>The contract list could not be loaded. Please try again later.</p>
+                    <h2>#{msg['contracts.unavailable.title']}</h2>
+                    <p>#{msg['contracts.unavailable.description']}</p>
                 </div>
             </h:panelGroup>
 
@@ -43,14 +48,14 @@
                     <dataTable:dataTable value="#{contractBean.contracts}"
                                          rowKey="#{row.id}"
                                          rows="8"
-                                         emptyMessage="No contracts found."
+                                         emptyMessage="#{msg['contracts.empty']}"
                                          styleClass="app-data-table contract-overview__table">
-                        <p:column headerText="Contract"
+                        <p:column headerText="#{msg['contract.label']}"
                                   styleClass="contract-overview__column--contract">
                             <h:outputText value="#{row.name}" styleClass="contract-overview__name"/>
                         </p:column>
 
-                        <p:column headerText="Status"
+                        <p:column headerText="#{msg['common.status']}"
                                   styleClass="contract-overview__column--status">
                             <span class="contract-overview__status #{contractBean.statusStyleClass(row.status)}">
                                 <h:outputText value="#{contractBean.statusLabel(row.status)}"/>
@@ -58,17 +63,17 @@
                         </p:column>
 
                         <!-- TODO: Replace person IDs with backend-provided display names. -->
-                        <p:column headerText="Employee"
+                        <p:column headerText="#{msg['contract.employee']}"
                                   styleClass="contract-overview__column--person">
                             <h:outputText value="#{row.employeeId}"/>
                         </p:column>
 
-                        <p:column headerText="Supervisor"
+                        <p:column headerText="#{msg['contract.supervisor']}"
                                   styleClass="contract-overview__column--person">
                             <h:outputText value="#{row.supervisorId}"/>
                         </p:column>
 
-                        <p:column headerText="Period"
+                        <p:column headerText="#{msg['common.period']}"
                                   styleClass="contract-overview__column--period">
                             <span class="contract-overview__period">
                                 <h:outputText value="#{row.startDate}">
@@ -81,16 +86,16 @@
                             </span>
                         </p:column>
 
-                        <p:column headerText="Frequency">
+                        <p:column headerText="#{msg['contract.frequency']}">
                             <h:outputText value="#{contractBean.frequencyLabel(row.frequency)}"/>
                         </p:column>
 
-                        <p:column headerText="Hours/week">
+                        <p:column headerText="#{msg['contract.hoursPerWeek.short']}">
                             <h:outputText value="#{row.hoursPerWeek}"/>
                         </p:column>
 
-                        <p:column headerText="Actions">
-                            <h:link value="View details" outcome="/contracts/detail">
+                        <p:column headerText="#{msg['common.actions']}">
+                            <h:link value="#{msg['contracts.viewDetails']}" outcome="/contracts/detail">
                                 <f:param name="id" value="#{row.id}"/>
                             </h:link>
                         </p:column>

@@ -6,14 +6,20 @@
       xmlns:p="http://primefaces.org/ui"
       xmlns:ui="jakarta.faces.facelets"
       xmlns:headerbar="jakarta.faces.composite/headerbar"
+      xmlns:languageSwitcher="jakarta.faces.composite/languageSwitcher"
       xmlns:menu="jakarta.faces.composite/menu"
+      xmlns:themeSwitcher="jakarta.faces.composite/themeSwitcher"
       xmlns:userProfileMenu="jakarta.faces.composite/userProfileMenu">
+    <f:view locale="#{localeBean.locale}">
+    <f:loadBundle basename="sierra.tms.i18n.messages" var="msg"/>
     <ui:insert name="metadata"/>
 
     <h:head>
-        <title><ui:insert name="title">Sierra TMS</ui:insert></title>
+        <title><ui:insert name="title">#{msg['page.title']}</ui:insert></title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <h:outputStylesheet library="appTheme" name="appTheme.css"/>
         <h:outputStylesheet library="appLayout" name="appLayout.css"/>
+        <h:outputScript library="appTheme" name="appTheme.js" target="head"/>
     </h:head>
 
     <h:body styleClass="sierra-shell">
@@ -21,7 +27,7 @@
             <headerbar:headerbar styleClass="sierra-headerbar">
                 <f:facet name="start">
                     <ui:insert name="headerStart">
-                        <h:link outcome="/index" styleClass="sierra-shell__brand">
+                        <h:link outcome="/app/dashboard" styleClass="sierra-shell__brand">
                             <span class="pi pi-clock sierra-shell__brand-icon" aria-hidden="true"></span>
                             <span>TSS</span>
                         </h:link>
@@ -30,9 +36,17 @@
 
                 <f:facet name="end">
                     <ui:insert name="headerEnd">
-                        <!-- TODO: Replace the placeholder with the authenticated data. -->
                         <div class="sierra-headerbar__actions">
-                            <userProfileMenu:userProfileMenu name="User" label="U"/>
+                            <languageSwitcher:languageSwitcher condensed="false"/>
+                            <themeSwitcher:themeSwitcher lightLabel="#{msg['theme.useLight']}"
+                                                           darkLabel="#{msg['theme.useDark']}"/>
+                            <userProfileMenu:userProfileMenu name="#{currentPersonBean.displayName}"
+                                                             label="#{currentPersonBean.initials}">
+                                <p:menuitem value="#{msg['session.logout']}"
+                                            icon="pi pi-sign-out"
+                                            action="#{currentPersonBean.logout}"
+                                            ajax="false"/>
+                            </userProfileMenu:userProfileMenu>
                         </div>
                     </ui:insert>
                 </f:facet>
@@ -40,26 +54,29 @@
         </h:form>
 
         <div class="sierra-shell__body">
-            <aside class="sierra-shell__navigation" aria-label="Primary navigation">
+            <aside class="sierra-shell__navigation" aria-label="#{msg['navigation.primary']}">
                 <ui:insert name="navigation">
-                    <!-- TODO: Make this navigation role aware. -->
                     <h:form id="navigationForm">
+                        <span class="sierra-shell__navigation-label">#{msg['navigation.workspace']}</span>
                         <menu:menu styleClass="sierra-menu sierra-shell__navigation-menu">
-                            <p:menuitem value="Dashboard"
-                                        outcome="/index"
+                            <p:menuitem value="#{msg['navigation.dashboard']}"
+                                        outcome="/app/dashboard"
                                         icon="pi pi-th-large"
-                                        styleClass="#{facesContext.viewRoot.viewId eq '/index.xhtml' ? 'sierra-shell__navigation-item--active' : ''}"/>
-                            <p:menuitem value="Contracts"
+                                        styleClass="#{facesContext.viewRoot.viewId eq '/app/dashboard.xhtml' ? 'sierra-shell__navigation-item--active' : ''}"/>
+                            <p:menuitem value="#{msg['navigation.contracts']}"
                                         outcome="/contracts/index"
                                         icon="pi pi-file"
+                                        rendered="#{featureAccess.viewContract}"
                                         styleClass="#{facesContext.viewRoot.viewId.startsWith('/contracts/') ? 'sierra-shell__navigation-item--active' : ''}"/>
-                            <p:menuitem value="Timesheets"
+                            <p:menuitem value="#{msg['navigation.timesheets']}"
                                         outcome="/app/timesheets"
                                         icon="pi pi-clock"
+                                        rendered="#{featureAccess.viewTimesheets}"
                                         styleClass="#{facesContext.viewRoot.viewId eq '/app/timesheets.xhtml' ? 'sierra-shell__navigation-item--active' : ''}"/>
-                            <p:menuitem value="Statistics"
+                            <p:menuitem value="#{msg['navigation.statistics']}"
                                         outcome="/app/statistics"
                                         icon="pi pi-chart-bar"
+                                        rendered="#{featureAccess.viewStatistics}"
                                         styleClass="#{facesContext.viewRoot.viewId eq '/app/statistics.xhtml' ? 'sierra-shell__navigation-item--active' : ''}"/>
                         </menu:menu>
                     </h:form>
@@ -71,4 +88,5 @@
             </main>
         </div>
     </h:body>
+    </f:view>
 </html>

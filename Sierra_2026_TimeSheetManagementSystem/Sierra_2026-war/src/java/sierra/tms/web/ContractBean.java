@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sierra.tms.dto.ContractDto;
-import sierra.tms.exceptions.TerminationWarning;
+import sierra.tms.i18n.UiMessages;
 import sierra.tms.services.ContractService;
 import sierra.tms.utils.enums.ContractStatus;
 import sierra.tms.utils.enums.Frequency;
@@ -42,24 +42,33 @@ public class ContractBean implements Serializable {
     }
 
     public void create() {
-        contractService.createContract(contract);
-        contract = newContractWithDefaults();
-        loadContracts();
+        try {
+            contractService.createContract(contract);
+            contract = newContractWithDefaults();
+            loadContracts();
+        } catch (RuntimeException exception) {
+            WebExceptionHandler.handle(getClass(), "create contract",
+                    "common.error.operationFailed", exception);
+        }
     }
 
     public void load(Long id) {
-        contract = contractService.findById(id);
+        try {
+            contract = contractService.findById(id);
+        } catch (RuntimeException exception) {
+            contract = null;
+            WebExceptionHandler.handle(getClass(), "load contract",
+                    "contract.message.detailsUnavailable", exception);
+        }
     }
 
     public void loadContractDetails() {
         try {
             contract = contractService.findById(contractDetailId);
-        } catch (EJBException exception) {
+        } catch (RuntimeException exception) {
             contract = null;
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Contract details are temporarily unavailable.",
-                            null));
+            WebExceptionHandler.handle(getClass(), "load contract details",
+                    "contract.message.detailsUnavailable", exception);
         }
     }
 
@@ -67,34 +76,41 @@ public class ContractBean implements Serializable {
         try {
             contractService.findById(contractDetailId);
             contract = contractService.getContractForPrinting(contractDetailId);
-        } catch (EJBException exception) {
+        } catch (RuntimeException exception) {
             contract = null;
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "The printable contract is temporarily unavailable.",
-                            null));
+            WebExceptionHandler.handle(getClass(), "load printable contract",
+                    "contract.message.printUnavailable", exception);
         }
     }
 
     public void update() {
-        contractService.update(contract);
-        contract = newContractWithDefaults();
-        loadContracts();
+        try {
+            contractService.update(contract);
+            contract = newContractWithDefaults();
+            loadContracts();
+        } catch (RuntimeException exception) {
+            WebExceptionHandler.handle(getClass(), "update contract",
+                    "common.error.operationFailed", exception);
+        }
     }
 
     public void delete(Long id) {
-        contractService.delete(id);
-        loadContracts();
+        try {
+            contractService.delete(id);
+            loadContracts();
+        } catch (RuntimeException exception) {
+            WebExceptionHandler.handle(getClass(), "delete contract",
+                    "common.error.operationFailed", exception);
+        }
     }
 
     public void startContract() {
         try {
             contractService.startContract(contractDetailId);
             loadContractDetails();
-        } catch (EJBException e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "The contract could not be started.", null));
+        } catch (RuntimeException e) {
+            WebExceptionHandler.handle(getClass(), "start contract",
+                    "contract.message.startFailed", e);
         }
     }
 
@@ -102,16 +118,15 @@ public class ContractBean implements Serializable {
         try {
             contractService.terminateContract(contractDetailId, false);
             loadContractDetails();
-        } catch (EJBException e) {
-            if (e.getCause() instanceof TerminationWarning tw) {
+        } catch (RuntimeException e) {
+            if (hasTerminationWarning(e)) {
                 terminationWarningActive = true;
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_WARN,
-                                tw.getMessage(), null));
+                                UiMessages.get("contract.message.terminationWarning"), null));
             } else {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "The contract could not be terminated.", null));
+                WebExceptionHandler.handle(getClass(), "terminate contract",
+                        "contract.message.terminateFailed", e);
             }
         }
     }
@@ -121,11 +136,10 @@ public class ContractBean implements Serializable {
             contractService.terminateContract(contractDetailId, true);
             terminationWarningActive = false;
             loadContractDetails();
-        } catch (EJBException e) {
+        } catch (RuntimeException e) {
             terminationWarningActive = false;
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "The contract could not be terminated.", null));
+            WebExceptionHandler.handle(getClass(), "confirm contract termination",
+                    "contract.message.terminateFailed", e);
         }
     }
 
@@ -133,11 +147,26 @@ public class ContractBean implements Serializable {
         terminationWarningActive = false;
     }
 
+    private boolean hasTerminationWarning(Throwable throwable) {
+        Throwable current = throwable;
+        while (current != null) {
+            if (current instanceof IllegalStateException
+                    && current.getMessage() != null
+                    && current.getMessage().startsWith("Terminating contract")) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
+    }
+
     public void loadContracts() {
         try {
             contracts = contractService.findAll();
-        } catch (EJBException exception) {
-            contracts = null;
+        } catch (RuntimeException exception) {
+            contracts = List.of();
+            WebExceptionHandler.handle(getClass(), "load contracts",
+                    "common.error.loadFailed", exception);
         }
     }
 
@@ -161,19 +190,11 @@ public class ContractBean implements Serializable {
     }
 
     public String frequencyLabel(Frequency frequency) {
-        return switch (frequency) {
-            case WEEKLY -> "Weekly";
-            case MONTHLY -> "Monthly";
-        };
+        return UiMessages.get("frequency." + frequency.name().toLowerCase());
     }
 
     public String statusLabel(ContractStatus status) {
-        return switch (status) {
-            case PREPARED -> "Prepared";
-            case STARTED -> "Started";
-            case TERMINATED -> "Terminated";
-            case ARCHIVED -> "Archived";
-        };
+        return UiMessages.get("contract.status." + status.name().toLowerCase());
     }
 
     public String statusStyleClass(ContractStatus status) {

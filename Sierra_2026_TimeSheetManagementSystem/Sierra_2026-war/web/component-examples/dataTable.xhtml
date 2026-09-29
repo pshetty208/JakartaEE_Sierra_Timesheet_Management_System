@@ -3,9 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:p="http://primefaces.org/ui"
+      xmlns:appButton="jakarta.faces.composite/appButton"
       xmlns:dataTable="jakarta.faces.composite/dataTable">
     <h:head>
         <title>Data Table Component Example</title>
+        <h:outputStylesheet library="appTheme" name="appTheme.css"/>
+        <h:outputStylesheet library="appLayout" name="appLayout.css"/>
+        <h:outputStylesheet library="componentExamples" name="componentExamples.css"/>
+        <h:outputScript library="appTheme" name="appTheme.js" target="head"/>
     </h:head>
     <h:body>
         <h1>Data Table</h1>
@@ -35,10 +40,10 @@
                         <h:outputText value="#{row.status}"/>
                     </p:column>
                     <p:column headerText="Actions">
-                        <p:button value="View"
-                                  icon="pi pi-search"
-                                  outcome="/component-examples/dataTable"
-                                  styleClass="ui-button-sm"/>
+                        <appButton:appButton value="View"
+                                                   icon="pi pi-search"
+                                                   outcome="/component-examples/dataTable"
+                                                   styleClass="ui-button-sm"/>
                     </p:column>
                 </dataTable:dataTable>
             </div>

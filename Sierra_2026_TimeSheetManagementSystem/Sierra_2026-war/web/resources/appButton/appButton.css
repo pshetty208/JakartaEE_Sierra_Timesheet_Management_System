@@ -1,0 +1,44 @@
+.app-button.ui-button {
+    color: var(--sierra-on-brand);
+    background: var(--sierra-brand);
+    border-color: var(--sierra-brand);
+    box-shadow: none;
+}
+
+.app-button.ui-button:not(:disabled):hover,
+.app-button.ui-button:not(:disabled):focus {
+    color: var(--sierra-on-brand);
+    background: var(--sierra-brand-hover);
+    border-color: var(--sierra-brand-hover);
+}
+
+.app-button.ui-button.ui-button-outlined,
+.app-button.ui-button.p-button-outlined {
+    color: var(--sierra-text);
+    background: transparent;
+    border-color: var(--sierra-border);
+}
+
+.app-button.ui-button.ui-button-outlined:not(:disabled):hover,
+.app-button.ui-button.p-button-outlined:not(:disabled):hover {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+    border-color: var(--sierra-border-hover);
+}
+
+.app-button.ui-button.ui-button-danger {
+    color: var(--sierra-on-danger);
+    background: var(--sierra-danger);
+    border-color: var(--sierra-danger);
+}
+
+.app-button.ui-button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--sierra-focus-color);
+}
+
+.app-button.ui-button:disabled {
+    color: var(--sierra-disabled-text);
+    background: var(--sierra-disabled-background);
+    border-color: var(--sierra-disabled-border);
+}

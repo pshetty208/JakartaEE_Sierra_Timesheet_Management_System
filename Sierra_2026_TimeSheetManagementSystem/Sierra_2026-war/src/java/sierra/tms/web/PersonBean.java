@@ -28,25 +28,38 @@ public class PersonBean implements Serializable {
 
 
     public void init() {
-        persons = personService.findAll();
+        try {
+            persons = personService.findAll();
+        } catch (RuntimeException exception) {
+            persons = List.of();
+            WebExceptionHandler.handle(getClass(), "load people",
+                    "common.error.loadFailed", exception);
+        }
     }
 
 
     public void save() {
 
-        personService.createPerson(person);
-
-        person = new PersonDto();
-
-        persons = personService.findAll();
+        try {
+            personService.createPerson(person);
+            person = new PersonDto();
+            persons = personService.findAll();
+        } catch (RuntimeException exception) {
+            WebExceptionHandler.handle(getClass(), "create person",
+                    "common.error.operationFailed", exception);
+        }
     }
 
 
     public void delete(Long id) {
 
-        personService.delete(id);
-
-        persons = personService.findAll();
+        try {
+            personService.delete(id);
+            persons = personService.findAll();
+        } catch (RuntimeException exception) {
+            WebExceptionHandler.handle(getClass(), "delete person",
+                    "common.error.operationFailed", exception);
+        }
     }
 
 
@@ -58,11 +71,14 @@ public class PersonBean implements Serializable {
 
     public void update() {
 
-        personService.update(person);
-
-        person = new PersonDto();
-
-        persons = personService.findAll();
+        try {
+            personService.update(person);
+            person = new PersonDto();
+            persons = personService.findAll();
+        } catch (RuntimeException exception) {
+            WebExceptionHandler.handle(getClass(), "update person",
+                    "common.error.operationFailed", exception);
+        }
     }
 
 

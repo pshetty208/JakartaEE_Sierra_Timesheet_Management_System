@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="jakarta.faces.composite"
+      xmlns:h="jakarta.faces.html"
+      xmlns:appButton="jakarta.faces.composite/appButton">
+    <cc:interface>
+        <cc:attribute name="lightLabel" default="Use light theme"/>
+        <cc:attribute name="darkLabel" default="Use dark theme"/>
+        <cc:attribute name="styleClass"/>
+    </cc:interface>
+
+    <cc:implementation>
+        <h:outputStylesheet library="themeSwitcher" name="themeSwitcher.css"/>
+        <appButton:appButton type="button"
+                                   icon="pi pi-moon"
+                                   title="#{cc.attrs.darkLabel}"
+                                   themeToggle="true"
+                                   lightLabel="#{cc.attrs.lightLabel}"
+                                   darkLabel="#{cc.attrs.darkLabel}"
+                                   styleClass="app-theme-switcher ui-button-rounded #{cc.attrs.styleClass}"/>
+    </cc:implementation>
+</html>

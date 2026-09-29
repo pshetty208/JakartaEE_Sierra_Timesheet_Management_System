@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:dashboardMetric="jakarta.faces.composite/dashboardMetric">
+    <section class="dashboard" aria-labelledby="dashboard-title">
+        <header class="dashboard__heading">
+            <div>
+                <span class="dashboard__eyebrow">#{msg['dashboard.supervisor.eyebrow']}</span>
+                <h1 id="dashboard-title">#{msg['dashboard.supervisor.title']}</h1>
+                <p>#{msg['dashboard.supervisor.description']}</p>
+            </div>
+            <h:link outcome="/app/timesheets" styleClass="dashboard__heading-action">
+                <span class="pi pi-clock" aria-hidden="true"></span>
+                <span>#{msg['dashboard.viewTimesheets']}</span>
+            </h:link>
+        </header>
+
+        <div class="dashboard__metrics">
+            <dashboardMetric:dashboardMetric label="#{msg['dashboard.metric.pending']}"
+                                             value="#{dashboardBean.pendingApprovalCount}"
+                                             icon="pi pi-inbox" tone="accent"/>
+            <dashboardMetric:dashboardMetric label="#{msg['dashboard.metric.signed']}"
+                                             value="#{dashboardBean.signedThisMonthCount}"
+                                             icon="pi pi-check-circle" tone="positive"/>
+            <dashboardMetric:dashboardMetric label="#{msg['dashboard.metric.contracts']}"
+                                             value="#{dashboardBean.activeContractCount}"
+                                             icon="pi pi-file"/>
+            <dashboardMetric:dashboardMetric label="#{msg['dashboard.metric.team']}"
+                                             value="#{dashboardBean.teamMemberCount}"
+                                             icon="pi pi-users"/>
+        </div>
+
+        <ui:include src="/WEB-INF/dashboard/timesheet-panel.xhtml">
+            <ui:param name="panelId" value="supervisor-pending-title"/>
+            <ui:param name="title" value="#{msg['dashboard.pending.title']}"/>
+            <ui:param name="description" value="#{msg['dashboard.pending.description']}"/>
+            <ui:param name="rows" value="#{dashboardBean.pendingTimesheets}"/>
+            <ui:param name="count" value="#{dashboardBean.pendingApprovalCount}"/>
+            <ui:param name="showCount" value="true"/>
+            <ui:param name="showEmployee" value="true"/>
+            <ui:param name="showSigned" value="true"/>
+            <ui:param name="actionLabel" value="#{msg['dashboard.review']}"/>
+            <ui:param name="actionIcon" value="pi pi-arrow-right"/>
+            <ui:param name="emptyIcon" value="pi pi-check-circle"/>
+            <ui:param name="emptyTitle" value="#{msg['dashboard.pending.empty.title']}"/>
+            <ui:param name="emptyDescription" value="#{msg['dashboard.pending.empty.description']}"/>
+        </ui:include>
+
+        <ui:include src="/WEB-INF/dashboard/timesheet-panel.xhtml">
+            <ui:param name="panelId" value="supervisor-recent-title"/>
+            <ui:param name="title" value="#{msg['dashboard.recent.title']}"/>
+            <ui:param name="description" value="#{msg['dashboard.recent.description']}"/>
+            <ui:param name="rows" value="#{dashboardBean.recentlyApprovedTimesheets}"/>
+            <ui:param name="showEmployee" value="true"/>
+            <ui:param name="showApproved" value="true"/>
+            <ui:param name="showStatus" value="true"/>
+            <ui:param name="emptyIcon" value="pi pi-history"/>
+            <ui:param name="emptyTitle" value="#{msg['dashboard.recent.empty.title']}"/>
+            <ui:param name="emptyDescription" value="#{msg['dashboard.recent.empty.description']}"/>
+        </ui:include>
+    </section>
+</ui:composition>

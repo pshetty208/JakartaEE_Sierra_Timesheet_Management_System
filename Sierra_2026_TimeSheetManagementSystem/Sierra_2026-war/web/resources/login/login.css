@@ -1,0 +1,315 @@
+body.sierra-auth {
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+    flex-direction: column;
+    color: var(--sierra-text);
+    background: var(--sierra-background);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body.sierra-auth::before {
+    display: block;
+    height: 0.35rem;
+    flex: 0 0 auto;
+    background: var(--sierra-brand);
+    content: "";
+}
+
+.sierra-auth__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    min-height: 5rem;
+    padding: 0.9rem clamp(1rem, 5vw, 4rem);
+    background: var(--sierra-surface-raised);
+    border-bottom: 1px solid var(--sierra-border);
+}
+
+.sierra-auth__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--sierra-text);
+    text-decoration: none;
+}
+
+.sierra-auth__brand:hover,
+.sierra-auth__brand:focus {
+    color: var(--sierra-text);
+}
+
+.sierra-auth__brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.4rem;
+    height: 3.4rem;
+    color: var(--sierra-on-brand);
+    background: var(--sierra-brand);
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.sierra-auth__brand strong,
+.sierra-auth__brand small {
+    display: block;
+}
+
+.sierra-auth__brand strong {
+    font-size: 0.95rem;
+}
+
+.sierra-auth__brand small {
+    margin-top: 0.12rem;
+    color: var(--sierra-text-muted);
+    font-size: 0.68rem;
+}
+
+.sierra-auth__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--sierra-space-sm);
+}
+
+.sierra-auth__language .ui-selectonemenu {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border-color: var(--sierra-border);
+    box-shadow: none;
+}
+
+.sierra-auth__language .ui-selectonemenu-label,
+.sierra-auth__language .ui-selectonemenu-trigger {
+    color: var(--sierra-text);
+}
+
+.sierra-auth__main {
+    display: flex;
+    width: 100%;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+}
+
+.sierra-auth__card {
+    width: min(100%, 34rem);
+    padding: clamp(1.75rem, 5vw, 3rem);
+    background: var(--sierra-surface);
+    border: 1px solid var(--sierra-border);
+    border-top: 0.45rem solid var(--sierra-brand);
+    box-shadow: 0 0.8rem 2rem var(--sierra-shadow-color);
+}
+
+.sierra-auth__card-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sierra-auth__card h1 {
+    margin: 0;
+    color: var(--sierra-text);
+    font-size: 2rem;
+    letter-spacing: -0.03em;
+}
+
+.sierra-auth__card-subtitle {
+    margin: 0.8rem 0;
+    color: var(--sierra-text-muted);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.sierra-auth__card-description {
+    margin: 0.35rem 0 1.8rem;
+    color: var(--sierra-text-muted);
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+
+.sierra-login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+}
+
+.sierra-login-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.sierra-login-form__field label {
+    color: var(--sierra-text);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.sierra-login-form__field input {
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.75rem 0.9rem;
+    color: var(--sierra-text);
+    background: var(--sierra-input-background);
+    border: 1px solid var(--sierra-border);
+    border-radius: 0.2rem;
+    outline: 0;
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.sierra-login-form__field input:hover {
+    border-color: var(--sierra-border-hover);
+}
+
+.sierra-login-form__field input:focus {
+    border-color: var(--sierra-brand);
+    box-shadow: 0 0 0 3px var(--sierra-focus-color);
+}
+
+.sierra-login-form__field input::placeholder {
+    color: var(--sierra-placeholder);
+}
+
+.sierra-login-form__submit,
+.sierra-auth-error__retry {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.25rem;
+    margin-top: 0.25rem;
+    color: var(--sierra-on-brand);
+    background: var(--sierra-brand);
+    border: 1px solid var(--sierra-brand);
+    border-radius: 0.2rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.sierra-login-form__submit:hover,
+.sierra-login-form__submit:focus,
+.sierra-auth-error__retry:hover,
+.sierra-auth-error__retry:focus {
+    color: var(--sierra-on-brand);
+    background: var(--sierra-brand-hover);
+    border-color: var(--sierra-brand-hover);
+}
+
+.sierra-login-form__submit:disabled {
+    color: var(--sierra-disabled-text);
+    background: var(--sierra-disabled-background);
+    border-color: var(--sierra-disabled-border);
+    cursor: not-allowed;
+}
+
+.sierra-login-form__submit:disabled:hover {
+    color: var(--sierra-disabled-text);
+    background: var(--sierra-disabled-background);
+    border-color: var(--sierra-disabled-border);
+}
+
+.sierra-auth__privacy {
+    margin-top: 0.35rem;
+    padding: 1rem 1.1rem;
+    background: var(--sierra-surface-subtle);
+    border-left: 0.25rem solid var(--sierra-brand);
+}
+
+.sierra-auth__privacy p {
+    margin: 0;
+    color: var(--sierra-text-muted);
+    font-size: 0.76rem;
+    line-height: 1.55;
+}
+
+.sierra-auth__consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    margin-top: 0.9rem;
+    color: var(--sierra-text-muted);
+    font-size: 0.76rem;
+    line-height: 1.55;
+    cursor: pointer;
+}
+
+.sierra-auth__consent input {
+    width: 1rem;
+    height: 1rem;
+    margin: 0.15rem 0 0;
+    flex: 0 0 auto;
+    accent-color: var(--sierra-brand);
+}
+
+.sierra-auth__support {
+    margin: 1.4rem 0 0;
+    color: var(--sierra-text-muted);
+    font-size: 0.72rem;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.sierra-auth-error__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    margin-bottom: 1rem;
+    color: var(--sierra-danger);
+    background: var(--sierra-danger-surface);
+    border: 1px solid var(--sierra-danger-border);
+    border-radius: 50%;
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.sierra-auth-error__retry {
+    width: 100%;
+}
+
+.sierra-auth__footer {
+    width: 100%;
+    padding: 1.25rem;
+    color: var(--sierra-text-muted);
+    background: var(--sierra-surface-raised);
+    border-top: 1px solid var(--sierra-border);
+    font-size: 0.67rem;
+    text-align: center;
+}
+
+@media (max-width: 34rem) {
+    .sierra-auth__header {
+        min-height: 4rem;
+        padding: 0.65rem 0.75rem;
+    }
+
+    .sierra-auth__brand-mark {
+        width: 2.8rem;
+        height: 2.8rem;
+    }
+
+    .sierra-auth__brand small {
+        display: none;
+    }
+
+    .sierra-auth__language .app-language-switcher__select {
+        width: 8.5rem;
+        min-width: 8.5rem;
+    }
+
+    .sierra-auth__main {
+        align-items: flex-start;
+        padding: 1.5rem 0.75rem;
+    }
+
+    .sierra-auth__card {
+        padding: 1.5rem;
+    }
+}

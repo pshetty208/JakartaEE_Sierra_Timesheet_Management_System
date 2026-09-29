@@ -2,16 +2,17 @@ package sierra.tms.services.impl;
 
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.annotation.security.RolesAllowed;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
-import sierra.tms.exceptions.ValidationException;
 import sierra.tms.services.HolidayService;
 import sierra.tms.utils.ConfigService;
 import sierra.tms.utils.enums.States;
 import static sierra.tms.utils.enums.States.RHINELAND_PALATINATE;
 
 @Stateless
+@RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
 public class HolidayServiceImpl implements HolidayService {
     
     @EJB
@@ -25,16 +26,18 @@ public class HolidayServiceImpl implements HolidayService {
     @Override
     public boolean isPublicHoliday(LocalDate date, States state) {
         if (date == null) {
-            throw new ValidationException("MISSING_DATE", "error.requiredField", "Date");
+            throw new IllegalArgumentException("Date is required.");
         }
 
         if (state == null) {
-            throw new ValidationException("MISSING_STATE", "error.requiredField", "Federal state");
+            throw new IllegalArgumentException("Federal state is required.");
         }
 
         int year = date.getYear();
         if (year < configService.getHolidayMinYear() || year > configService.getHolidayMaxYear() ) {
-            throw new ValidationException("YEAR_OUT_OF_RANGE", "error.holidayYearOutOfRange", year, configService.getHolidayMinYear(), configService.getHolidayMaxYear());
+            throw new IllegalArgumentException("Year " + year + " must be between "
+                    + configService.getHolidayMinYear() + " and "
+                    + configService.getHolidayMaxYear() + ".");
         }
 
         return holidaysFor(date.getYear(), state).contains(date);

@@ -13,7 +13,9 @@ import sierra.tms.utils.enums.States;
 @Startup
 public class ConfigService {
 
-    private static final String CONFIG_RESOURCE = "sierra.properties";
+    public static final String TIME_ZONE_ID = "Europe/Berlin";
+
+    private static final String CONFIG_RESOURCE = "sierra/tms/utils/sierra.properties";
 
     private Properties properties;
 
@@ -68,6 +70,10 @@ public class ConfigService {
     
     public String getReminderEmailSubject() { 
         return getString("tss.reminder.email-subject"); 
+    }
+
+    public String getReminderMessageBundle() {
+        return getString("tss.reminder.message-bundle");
     }
 
     private String getString(String key) {

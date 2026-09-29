@@ -20,7 +20,7 @@ public interface PersonService {
 
     void giveConsent(Long personId);
 
-    void changePreferredLanguage(Long personId, String language);
+    void changeCurrentPersonPreferredLanguage(String language);
 
     void assignRole(Long personId, RoleType role);
 

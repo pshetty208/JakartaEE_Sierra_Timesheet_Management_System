@@ -2,13 +2,11 @@ package sierra.tms.services;
 
 import sierra.tms.dto.TimesheetDto;
 import sierra.tms.dto.TimesheetEntryDto;
-import jakarta.ejb.Remote;
+import jakarta.ejb.Local;
 import java.util.List;
 
-@Remote
+@Local
 public interface TimesheetService {
-
-//    public Long save(TimesheetDto timesheet);
 
     public TimesheetDto findById(Long id);
 
@@ -18,9 +16,11 @@ public interface TimesheetService {
 
     public List<TimesheetDto> findForEntryManagement();
 
-    public void update(TimesheetDto timesheet);
+    public List<TimesheetDto> findForEmployeeSignatureRevocation();
 
-    public void delete(Long id);
+    public List<TimesheetDto> findForSupervisorSigning();
+
+    public List<TimesheetDto> findForChangeRequest();
 
     public Long addEntry(Long timesheetId, TimesheetEntryDto entry);
 

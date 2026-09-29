@@ -1,0 +1,51 @@
+.dashboard-metric {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    min-width: 0;
+    min-height: 5.5rem;
+    padding: 1rem;
+    background: var(--sierra-surface-raised);
+    border: 1px solid var(--sierra-border);
+    border-radius: var(--sierra-radius-md);
+}
+
+.dashboard-metric__icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    color: var(--sierra-text-muted);
+    background: var(--sierra-surface-subtle);
+    border-radius: 0.45rem;
+    font-size: 1rem;
+}
+
+.dashboard-metric--accent .dashboard-metric__icon,
+.dashboard-metric--accent .dashboard-metric__value {
+    color: var(--sierra-status-prepared-text);
+}
+
+.dashboard-metric--positive .dashboard-metric__icon,
+.dashboard-metric--positive .dashboard-metric__value {
+    color: var(--sierra-status-started-text);
+}
+
+.dashboard-metric__label,
+.dashboard-metric__value {
+    display: block;
+}
+
+.dashboard-metric__label {
+    margin-bottom: 0.25rem;
+    color: var(--sierra-text-muted);
+    font-size: var(--sierra-font-size-sm);
+}
+
+.dashboard-metric__value {
+    color: var(--sierra-text);
+    font-size: 1.45rem;
+    line-height: 1;
+}

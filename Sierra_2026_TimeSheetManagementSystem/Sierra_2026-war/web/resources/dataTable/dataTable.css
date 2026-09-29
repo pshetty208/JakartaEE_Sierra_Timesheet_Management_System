@@ -1,7 +1,7 @@
 .data-table-example-card {
     padding: 1rem;
-    background: #ffffff;
-    border: 1px solid #d7dce2;
+    background: var(--sierra-surface-raised);
+    border: 1px solid var(--sierra-border);
     border-radius: 0.5rem;
 }
 
@@ -11,4 +11,50 @@
 
 .app-data-table {
     width: 100%;
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border-color: var(--sierra-border);
+}
+
+.app-data-table .ui-datatable-header,
+.app-data-table .ui-datatable-footer {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border-color: var(--sierra-border);
+}
+
+.app-data-table thead > tr > th {
+    color: var(--sierra-text-muted);
+    background: var(--sierra-surface-subtle);
+    border-color: var(--sierra-border);
+}
+
+.app-data-table tbody > tr,
+.app-data-table tbody > tr.ui-datatable-odd {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+}
+
+.app-data-table tbody > tr.ui-datatable-odd {
+    background: var(--sierra-surface);
+}
+
+.app-data-table tbody > tr > td,
+.app-data-table .ui-paginator {
+    color: var(--sierra-text);
+    background: transparent;
+    border-color: var(--sierra-border);
+}
+
+.app-data-table .ui-paginator .ui-paginator-element {
+    color: var(--sierra-text-muted);
+    background: transparent;
+    border-color: transparent;
+}
+
+.app-data-table .ui-paginator .ui-paginator-element:hover,
+.app-data-table .ui-paginator .ui-paginator-element.ui-state-active {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+    border-color: var(--sierra-border);
 }

@@ -6,8 +6,8 @@
 
 .menu-example-card {
     padding: 1rem;
-    background: #ffffff;
-    border: 1px solid #d7dce2;
+    background: var(--sierra-surface-raised);
+    border: 1px solid var(--sierra-border);
     border-radius: 0.5rem;
 }
 
@@ -15,16 +15,46 @@
     margin: 0 0 1rem;
 }
 
-.app-menu {
+body .app-menu.ui-menu {
     width: 100%;
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border-color: var(--sierra-border);
 }
 
 .app-menu-trigger {
     display: inline-block;
 }
 
-.app-menu.ui-menu-dynamic {
+body .app-menu.ui-menu-dynamic {
     width: auto;
     min-width: 14rem;
     max-width: 20rem;
+    box-shadow: 0 0.8rem 2rem var(--sierra-shadow-color);
+}
+
+.app-menu .ui-menu-list,
+.app-menu .ui-menuitem,
+.app-menu .ui-menuitem-link {
+    background: transparent;
+}
+
+.app-menu .ui-menuitem-link {
+    color: var(--sierra-text);
+}
+
+body .app-menu.ui-widget .ui-menu-list .ui-menuitem .ui-menuitem-link .ui-menuitem-icon,
+body .app-menu.ui-widget .ui-menu-list .ui-menuitem .ui-menuitem-link .ui-menuitem-text {
+    color: inherit;
+}
+
+.app-menu .ui-menuitem-link:hover,
+.app-menu .ui-menuitem-link.ui-state-hover,
+.app-menu .ui-menuitem-link.ui-state-active {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+}
+
+.app-menu .ui-menu-separator {
+    border-color: var(--sierra-border);
 }

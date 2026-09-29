@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="jakarta.faces.composite"
+      xmlns:h="jakarta.faces.html"
+      xmlns:ui="jakarta.faces.facelets">
+    <cc:interface>
+        <cc:attribute name="inputId" required="true"/>
+        <cc:attribute name="name" required="true"/>
+        <cc:attribute name="label" required="true"/>
+        <cc:attribute name="type" default="text"/>
+        <cc:attribute name="autocomplete"/>
+        <cc:attribute name="placeholder"/>
+        <cc:attribute name="autofocus" default="false"/>
+        <cc:attribute name="styleClass"/>
+    </cc:interface>
+
+    <cc:implementation>
+        <h:outputStylesheet library="inputText" name="inputText.css"/>
+
+        <div class="app-input-text #{cc.attrs.styleClass}">
+            <label for="#{cc.attrs.inputId}">#{cc.attrs.label}</label>
+
+            <!-- A native input keeps names such as j_username unchanged for GlassFish. -->
+            <ui:fragment rendered="#{cc.attrs.autofocus}">
+                <input id="#{cc.attrs.inputId}"
+                       name="#{cc.attrs.name}"
+                       type="#{cc.attrs.type}"
+                       autocomplete="#{cc.attrs.autocomplete}"
+                       placeholder="#{cc.attrs.placeholder}"
+                       required="required"
+                       autofocus="autofocus"/>
+            </ui:fragment>
+            <ui:fragment rendered="#{not cc.attrs.autofocus}">
+                <input id="#{cc.attrs.inputId}"
+                       name="#{cc.attrs.name}"
+                       type="#{cc.attrs.type}"
+                       autocomplete="#{cc.attrs.autocomplete}"
+                       placeholder="#{cc.attrs.placeholder}"
+                       required="required"/>
+            </ui:fragment>
+        </div>
+    </cc:implementation>
+</html>

@@ -2,7 +2,10 @@ package sierra.tms.web;
 
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -10,15 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.ToDoubleFunction;
 import sierra.tms.dto.ContractDto;
-import sierra.tms.dto.PersonDto;
 import sierra.tms.dto.TimesheetDto;
 import sierra.tms.dto.TimesheetEntryDto;
+import sierra.tms.i18n.UiMessages;
 import sierra.tms.services.ContractService;
-import sierra.tms.services.PersonService;
 import sierra.tms.services.TimesheetService;
 import sierra.tms.utils.enums.ContractStatus;
 import sierra.tms.utils.enums.ReportType;
-import sierra.tms.utils.enums.RoleType;
 import sierra.tms.utils.enums.TimeSheetStatus;
 
 @Named
@@ -33,12 +34,10 @@ public class StatisticsBean implements Serializable {
     @EJB
     private TimesheetService timesheetService;
 
-    @EJB
-    private PersonService personService;
+    @Inject
+    private FeatureAccessBean featureAccess;
 
     private List<ContractSummary> summaries;
-
-    private List<RoleType> roles;
 
     public void load() {
         try {
@@ -47,8 +46,10 @@ public class StatisticsBean implements Serializable {
                 summaries.add(new ContractSummary(contract,
                         timesheetService.findByContractId(contract.getId())));
             }
-        } catch (EJBException exception) {
+        } catch (RuntimeException exception) {
             summaries = null;
+            WebExceptionHandler.handle(getClass(), "load statistics",
+                    "statistics.message.loadFailed", exception);
         }
     }
 
@@ -57,24 +58,11 @@ public class StatisticsBean implements Serializable {
     }
 
     public boolean isEmployee() {
-        return hasRole(RoleType.EMPLOYEE);
+        return featureAccess.isReportWork();
     }
 
     public boolean isSupervisor() {
-        return hasRole(RoleType.SUPERVISOR);
-    }
-
-    private boolean hasRole(RoleType role) {
-        if (roles == null) {
-            try {
-                PersonDto person = personService.getCurrentPerson();
-                roles = person == null || person.getRoles() == null
-                        ? List.of() : person.getRoles();
-            } catch (EJBException exception) {
-                roles = List.of();
-            }
-        }
-        return roles.contains(role);
+        return featureAccess.isCountersignTimesheet();
     }
 
     public double getHoursDue() {
@@ -110,12 +98,7 @@ public class StatisticsBean implements Serializable {
     }
 
     public String statusLabel(ContractStatus status) {
-        return switch (status) {
-            case PREPARED -> "Prepared";
-            case STARTED -> "Started";
-            case TERMINATED -> "Terminated";
-            case ARCHIVED -> "Archived";
-        };
+        return UiMessages.get("contract.status." + status.name().toLowerCase());
     }
 
     public String statusStyleClass(ContractStatus status) {

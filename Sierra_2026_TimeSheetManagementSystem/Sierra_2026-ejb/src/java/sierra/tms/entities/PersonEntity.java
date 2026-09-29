@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import sierra.tms.i18n.LanguageResolver;
 
 @Entity
 @Table(name = "Person")
@@ -48,7 +49,8 @@ public class PersonEntity implements Serializable {
 
 
     @Column(name = "preferred_language", nullable = false, length = 10)
-    private String preferredLanguage = "en";
+    private String preferredLanguage =
+            LanguageResolver.DEFAULT_LANGUAGE_CODE;
 
 
     @Column(name = "university_staff", nullable = false)
@@ -168,11 +170,17 @@ public class PersonEntity implements Serializable {
 
 
     public void setRoles(List<RoleEntity> roles) {
+        if (roles != null && roles.size() > 1) {
+            throw new IllegalArgumentException("A person must have exactly one role.");
+        }
         this.roles = roles;
     }
 
 
     public void addRole(RoleEntity role) {
+        if (!roles.isEmpty()) {
+            throw new IllegalStateException("A person must have exactly one role.");
+        }
         roles.add(role);
         role.setPerson(this);
     }

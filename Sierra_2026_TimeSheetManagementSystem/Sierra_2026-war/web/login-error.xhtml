@@ -1,13 +1,19 @@
-<?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html">
-    <h:head>
-        <title>Login Failed</title>
-    </h:head>
-    <h:body>
-        <h1>Login Failed</h1>
-        <p>The email address or password was not accepted.</p>
-        <h:link outcome="/login" value="Try again"/>
-    </h:body>
-</html>
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/templates/auth-layout.xhtml">
+    <ui:define name="title">#{msg['login.error.page.title']}</ui:define>
+
+    <ui:define name="content">
+        <div class="sierra-auth-error__icon" aria-hidden="true">!</div>
+        <h1 id="auth-card-title">#{msg['login.error.title']}</h1>
+        <p class="sierra-auth__card-description">#{msg['login.error.description']}</p>
+
+        <h:link outcome="/login"
+                value="#{msg['login.error.retry']}"
+                styleClass="sierra-auth-error__retry"/>
+
+        <p class="sierra-auth__support">#{msg['login.support']}</p>
+    </ui:define>
+</ui:composition>
