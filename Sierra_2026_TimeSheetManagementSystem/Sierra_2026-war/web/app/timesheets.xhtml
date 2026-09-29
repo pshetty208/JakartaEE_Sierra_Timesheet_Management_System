@@ -7,7 +7,7 @@
                 xmlns:ui="jakarta.faces.facelets"
                 template="/WEB-INF/templates/app-layout.xhtml">
 
-    <ui:define name="title">My timesheets</ui:define>
+    <ui:define name="title">#{msg['timesheet.page.title']}</ui:define>
 
     <ui:define name="content">
         <h:outputStylesheet library="timesheets" name="timesheets.css"/>
@@ -15,9 +15,9 @@
         <section class="timesheet-overview" aria-labelledby="timesheet-overview-title">
             <header class="timesheet-overview__heading">
                 <div>
-                    <span class="timesheet-overview__eyebrow">My timesheets</span>
-                    <h1 id="timesheet-overview-title">Timesheets</h1>
-                    <p>Review your reported time and add entries to Time Sheets you work on.</p>
+                    <span class="timesheet-overview__eyebrow">#{msg['timesheet.eyebrow']}</span>
+                    <h1 id="timesheet-overview-title">#{msg['timesheet.title']}</h1>
+                    <p>#{msg['timesheet.description']}</p>
                 </div>
             </header>
 
@@ -25,48 +25,49 @@
                 <p:messages id="messages" showDetail="false" closable="true"
                             styleClass="timesheet-overview__messages"/>
 
-                <p:panel header="Add entry" toggleable="true" collapsed="true"
+                <p:panel header="#{msg['timesheet.entry.add']}" toggleable="true" collapsed="true"
                          rendered="#{featureAccess.reportWork and not empty timesheetBean.entryManageableTimesheets}"
                          styleClass="timesheet-entry-form">
-                    <p class="timesheet-entry-form__hint">Choose a Time Sheet that is in progress, then record the time worked.</p>
+                    <p class="timesheet-entry-form__hint">#{msg['timesheet.entry.hint']}</p>
                     <div class="timesheet-entry-form__grid">
                         <div class="timesheet-entry-form__field timesheet-entry-form__field--wide">
-                            <p:outputLabel for="timesheet" value="Timesheet"/>
+                            <p:outputLabel for="timesheet" value="#{msg['timesheet.label']}"/>
                             <p:selectOneMenu id="timesheet" value="#{timesheetBean.selectedTimesheetId}"
                                              panelStyleClass="timesheet-entry-form__select-panel">
-                                <f:selectItem itemLabel="Choose a timesheet" itemValue="#{null}"/>
+                                <f:selectItem itemLabel="#{msg['timesheet.select']}" itemValue="#{null}"/>
                                 <f:selectItems value="#{timesheetBean.entryManageableTimesheets}" var="ts"
                                                itemValue="#{ts.id}"
-                                               itemLabel="Timesheet ##{ts.id} · #{ts.startDate} to #{ts.endDate}"/>
+                                               itemLabel="#{msg['timesheet.label']} ##{ts.id} · #{ts.startDate} #{msg['common.to']} #{ts.endDate}"/>
                             </p:selectOneMenu>
                         </div>
                         <div class="timesheet-entry-form__field">
-                            <p:outputLabel for="entryType" value="Type"/>
+                            <p:outputLabel for="entryType" value="#{msg['common.type']}"/>
                             <p:selectOneMenu id="entryType" value="#{timesheetBean.entryType}"
                                              panelStyleClass="timesheet-entry-form__select-panel">
-                                <f:selectItems value="#{timesheetBean.reportTypes}"/>
+                                <f:selectItems value="#{timesheetBean.reportTypes}" var="reportType"
+                                               itemValue="#{reportType}" itemLabel="#{timesheetBean.reportTypeLabel(reportType)}"/>
                             </p:selectOneMenu>
                         </div>
                         <div class="timesheet-entry-form__field">
-                            <p:outputLabel for="entryDate" value="Date"/>
+                            <p:outputLabel for="entryDate" value="#{msg['common.date']}"/>
                             <p:inputText id="entryDate" value="#{timesheetBean.entryDate}" placeholder="YYYY-MM-DD"/>
                         </div>
                         <div class="timesheet-entry-form__field">
-                            <p:outputLabel for="startTime" value="Start time"/>
+                            <p:outputLabel for="startTime" value="#{msg['timesheet.entry.startTime']}"/>
                             <p:inputText id="startTime" value="#{timesheetBean.startTime}" placeholder="09:00"/>
                         </div>
                         <div class="timesheet-entry-form__field">
-                            <p:outputLabel for="endTime" value="End time"/>
+                            <p:outputLabel for="endTime" value="#{msg['timesheet.entry.endTime']}"/>
                             <p:inputText id="endTime" value="#{timesheetBean.endTime}" placeholder="17:00"/>
                         </div>
                         <div class="timesheet-entry-form__field timesheet-entry-form__field--wide">
-                            <p:outputLabel for="description" value="Description"/>
+                            <p:outputLabel for="description" value="#{msg['common.description']}"/>
                             <p:inputText id="description" value="#{timesheetBean.description}"
-                                         placeholder="What did you work on?"/>
+                                         placeholder="#{msg['timesheet.entry.description.placeholder']}"/>
                         </div>
                     </div>
                     <div class="timesheet-entry-form__actions">
-                        <p:commandButton value="Add entry" icon="pi pi-plus"
+                        <p:commandButton value="#{msg['timesheet.entry.add']}" icon="pi pi-plus"
                                          action="#{timesheetBean.addEntry}"
                                          process="@form"
                                          update="timesheetsForm"
@@ -78,7 +79,7 @@
                     <article class="timesheet-card">
                         <header class="timesheet-card__summary">
                             <div>
-                                <span class="timesheet-card__eyebrow">Timesheet ##{timesheet.id}</span>
+                                <span class="timesheet-card__eyebrow">#{msg['timesheet.label']} ##{timesheet.id}</span>
                                 <h2>
                                     <h:outputText value="#{timesheet.startDate}">
                                         <f:convertDateTime type="localDate" pattern="dd MMM yyyy"/>
@@ -88,10 +89,10 @@
                                         <f:convertDateTime type="localDate" pattern="dd MMM yyyy"/>
                                     </h:outputText>
                                 </h2>
-                                <p>Contract ##{timesheet.contractId}</p>
+                                <p>#{msg['contract.label']} ##{timesheet.contractId}</p>
                             </div>
                             <span class="timesheet-card__status timesheet-card__status--#{timesheet.status}">
-                                <h:outputText value="#{timesheet.status}"/>
+                                <h:outputText value="#{timesheetBean.statusLabel(timesheet.status)}"/>
                             </span>
                         </header>
 
@@ -99,135 +100,135 @@
                             <div class="timesheet-card__change-request" role="status">
                                 <i class="pi pi-info-circle" aria-hidden="true"></i>
                                 <div>
-                                    <strong>Changes requested</strong>
-                                    <span>A supervisor or assistant returned this timesheet. Review and update it, then sign it again.</span>
+                                    <strong>#{msg['timesheet.changesRequested.title']}</strong>
+                                    <span>#{msg['timesheet.changesRequested.description']}</span>
                                 </div>
                             </div>
                         </ui:fragment>
 
                         <dl class="timesheet-card__metrics">
-                            <div><dt>Entries reported</dt><dd>#{timesheet.entries.size()}</dd></div>
+                            <div><dt>#{msg['timesheet.entriesReported']}</dt><dd>#{timesheet.entries.size()}</dd></div>
                             <div>
-                                <dt>Employee signature</dt>
+                                <dt>#{msg['timesheet.employeeSignature']}</dt>
                                 <dd>
                                     <h:outputText value="#{timesheet.signedByEmployee}"
                                                   rendered="#{not empty timesheet.signedByEmployee}">
                                         <f:convertDateTime type="localDate" pattern="dd MMM yyyy"/>
                                     </h:outputText>
-                                    <h:outputText value="Pending" rendered="#{empty timesheet.signedByEmployee}"/>
+                                    <h:outputText value="#{msg['common.pending']}" rendered="#{empty timesheet.signedByEmployee}"/>
                                 </dd>
                             </div>
                             <div>
-                                <dt>Supervisor signature</dt>
+                                <dt>#{msg['timesheet.supervisorSignature']}</dt>
                                 <dd>
                                     <h:outputText value="#{timesheet.signedBySupervisor}"
                                                   rendered="#{not empty timesheet.signedBySupervisor}">
                                         <f:convertDateTime type="localDate" pattern="dd MMM yyyy"/>
                                     </h:outputText>
-                                    <h:outputText value="Pending" rendered="#{empty timesheet.signedBySupervisor}"/>
+                                    <h:outputText value="#{msg['common.pending']}" rendered="#{empty timesheet.signedBySupervisor}"/>
                                 </dd>
                             </div>
                         </dl>
 
                         <div class="timesheet-card__actions">
-                            <p:commandButton value="Sign timesheet" icon="pi pi-pencil"
+                            <p:commandButton value="#{msg['timesheet.sign.action']}" icon="pi pi-pencil"
                                              action="#{timesheetBean.signTimesheet(timesheet.id)}"
                                              process="@this"
                                              update="timesheetsForm"
                                              styleClass="timesheet-card__sign"
                                              rendered="#{featureAccess.signTimesheet and timesheetBean.canSignTimesheet(timesheet.id)}">
-                                <p:confirm header="Sign timesheet"
-                                           message="I confirm that this timesheet is complete and accurate. Once signed, its entries cannot be changed."
+                                <p:confirm header="#{msg['timesheet.sign.action']}"
+                                           message="#{msg['timesheet.sign.confirm']}"
                                            icon="pi pi-exclamation-triangle"/>
                             </p:commandButton>
-                            <p:commandButton value="Revoke signature" icon="pi pi-undo"
+                            <p:commandButton value="#{msg['timesheet.revoke.action']}" icon="pi pi-undo"
                                              action="#{timesheetBean.revokeSignature(timesheet.id)}"
                                              process="@this"
                                              update="timesheetsForm"
                                              styleClass="timesheet-card__revoke"
                                              rendered="#{featureAccess.signTimesheet and timesheetBean.canRevokeSignature(timesheet.id)}">
-                                <p:confirm header="Revoke employee signature"
-                                           message="This reopens the timesheet. You can add or remove entries and sign it again."
+                                <p:confirm header="#{msg['timesheet.revoke.confirm.title']}"
+                                           message="#{msg['timesheet.revoke.confirm.description']}"
                                            icon="pi pi-exclamation-triangle"/>
                             </p:commandButton>
-                            <p:commandButton value="Sign as supervisor" icon="pi pi-check-circle"
+                            <p:commandButton value="#{msg['timesheet.supervisorSign.action']}" icon="pi pi-check-circle"
                                              action="#{timesheetBean.signAsSupervisor(timesheet.id)}"
                                              process="@this"
                                              update="timesheetsForm"
                                              styleClass="timesheet-card__supervisor-sign"
                                              rendered="#{featureAccess.countersignTimesheet and timesheetBean.canSignAsSupervisor(timesheet.id)}">
-                                <p:confirm header="Sign timesheet as supervisor"
-                                           message="I confirm that this timesheet is complete and accurate. Once signed, it is ready for archiving."
+                                <p:confirm header="#{msg['timesheet.supervisorSign.confirm.title']}"
+                                           message="#{msg['timesheet.supervisorSign.confirm.description']}"
                                            icon="pi pi-exclamation-triangle"/>
                             </p:commandButton>
-                            <p:commandButton value="Request changes" icon="pi pi-replay"
+                            <p:commandButton value="#{msg['timesheet.requestChanges.action']}" icon="pi pi-replay"
                                              action="#{timesheetBean.requestChanges(timesheet.id)}"
                                              process="@this"
                                              update="timesheetsForm"
                                              styleClass="timesheet-card__request-changes"
                                              rendered="#{featureAccess.requestTimesheetChanges and timesheetBean.canRequestChanges(timesheet.id)}">
-                                <p:confirm header="Request changes"
-                                           message="This removes the employee signature and reopens the timesheet for editing."
+                                <p:confirm header="#{msg['timesheet.requestChanges.action']}"
+                                           message="#{msg['timesheet.requestChanges.confirm']}"
                                            icon="pi pi-exclamation-triangle"/>
                             </p:commandButton>
                             <h:link outcome="/app/timesheet-print"
                                     styleClass="timesheet-card__print-link"
                                     rendered="#{featureAccess.printTimesheet}">
                                 <span class="pi pi-print" aria-hidden="true"></span>
-                                <span>Print</span>
+                                <span>#{msg['common.print']}</span>
                                 <f:param name="id" value="#{timesheet.id}"/>
                             </h:link>
-                            <p:commandButton value="Archive" icon="pi pi-folder"
+                            <p:commandButton value="#{msg['common.archive']}" icon="pi pi-folder"
                                              action="#{timesheetBean.archiveTimesheet(timesheet.id)}"
                                              process="@this"
                                              update="timesheetsForm"
                                              styleClass="timesheet-card__archive"
                                              rendered="#{featureAccess.archiveTimesheet and timesheetBean.canArchive(timesheet)}">
-                                <p:confirm header="Archive timesheet"
-                                           message="Archive this approved timesheet?"
+                                <p:confirm header="#{msg['timesheet.archive.confirm.title']}"
+                                           message="#{msg['timesheet.archive.confirm.description']}"
                                            icon="pi pi-exclamation-triangle"/>
                             </p:commandButton>
                         </div>
 
                         <section class="timesheet-card__entries" aria-labelledby="timesheet-#{timesheet.id}-entries">
                             <header class="timesheet-card__entries-heading">
-                                <h3 id="timesheet-#{timesheet.id}-entries">Entries</h3>
+                                <h3 id="timesheet-#{timesheet.id}-entries">#{msg['common.entries']}</h3>
                                 <ui:fragment rendered="#{featureAccess.reportWork and timesheetBean.canManageEntries(timesheet.id)}">
-                                    <span>Editable</span>
+                                    <span>#{msg['common.editable']}</span>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{not featureAccess.reportWork or not timesheetBean.canManageEntries(timesheet.id)}">
-                                    <span>Read-only</span>
+                                    <span>#{msg['common.readOnly']}</span>
                                 </ui:fragment>
                             </header>
                             <p:dataTable value="#{timesheet.entries}" var="entry" paginator="false" reflow="true"
-                                         emptyMessage="No entries have been reported for this Time Sheet."
+                                         emptyMessage="#{msg['timesheet.entries.empty']}"
                                          styleClass="timesheet-card__table">
-                                <p:column headerText="Date" styleClass="timesheet-card__date">
+                                <p:column headerText="#{msg['common.date']}" styleClass="timesheet-card__date">
                                     <h:outputText value="#{entry.entryDate}">
                                         <f:convertDateTime type="localDate" pattern="EEE, dd MMM"/>
                                     </h:outputText>
                                 </p:column>
-                                <p:column headerText="Start">
+                                <p:column headerText="#{msg['common.start']}">
                                     <h:outputText value="#{entry.startTime}">
                                         <f:convertDateTime type="localTime" pattern="HH:mm"/>
                                     </h:outputText>
                                 </p:column>
-                                <p:column headerText="End">
+                                <p:column headerText="#{msg['common.end']}">
                                     <h:outputText value="#{entry.endTime}">
                                         <f:convertDateTime type="localTime" pattern="HH:mm"/>
                                     </h:outputText>
                                 </p:column>
-                                <p:column headerText="Hours">
+                                <p:column headerText="#{msg['common.hours']}">
                                     <h:outputText value="#{entry.hours}">
                                         <f:convertNumber minFractionDigits="1" maxFractionDigits="2"/>
                                     </h:outputText>
                                 </p:column>
-                                <p:column headerText="Description" styleClass="timesheet-card__description">
+                                <p:column headerText="#{msg['common.description']}" styleClass="timesheet-card__description">
                                     <h:outputText value="#{entry.description}"/>
                                 </p:column>
-                                <p:column headerText="Type"><span class="timesheet-card__type">#{entry.type}</span></p:column>
-                                <p:column headerText="Action" styleClass="timesheet-card__action">
-                                    <p:commandButton value="Delete" icon="pi pi-trash"
+                                <p:column headerText="#{msg['common.type']}"><span class="timesheet-card__type">#{timesheetBean.reportTypeLabel(entry.type)}</span></p:column>
+                                <p:column headerText="#{msg['common.action']}" styleClass="timesheet-card__action">
+                                    <p:commandButton value="#{msg['common.delete']}" icon="pi pi-trash"
                                                      action="#{timesheetBean.deleteEntry(entry.id)}"
                                                      process="@this"
                                                      update="timesheetsForm"
@@ -241,11 +242,11 @@
 
                 <p:confirmDialog global="true" showEffect="fade" hideEffect="fade"
                                  styleClass="timesheet-confirm-dialog">
-                    <p:commandButton value="Cancel"
+                    <p:commandButton value="#{msg['common.cancel']}"
                                      type="button"
                                      icon="pi pi-times"
                                      styleClass="ui-confirmdialog-no p-button-outlined"/>
-                    <p:commandButton value="Confirm"
+                    <p:commandButton value="#{msg['common.confirm']}"
                                      type="button"
                                      icon="pi pi-check"
                                      styleClass="ui-confirmdialog-yes"/>
@@ -254,7 +255,7 @@
                 <h:panelGroup layout="block" rendered="#{empty timesheetBean.timesheets}"
                               styleClass="timesheet-overview__empty">
                     <span class="pi pi-clock" aria-hidden="true"></span>
-                    <div><h2>No timesheets are available</h2><p>There are no Time Sheets you can view at this time.</p></div>
+                    <div><h2>#{msg['timesheet.empty.title']}</h2><p>#{msg['timesheet.empty.description']}</p></div>
                 </h:panelGroup>
             </h:form>
         </section>

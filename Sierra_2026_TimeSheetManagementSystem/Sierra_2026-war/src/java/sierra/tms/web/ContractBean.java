@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import sierra.tms.dto.ContractDto;
 import sierra.tms.exceptions.TerminationWarning;
+import sierra.tms.i18n.UiMessages;
 import sierra.tms.services.ContractService;
 import sierra.tms.utils.enums.ContractStatus;
 import sierra.tms.utils.enums.Frequency;
@@ -58,7 +59,7 @@ public class ContractBean implements Serializable {
             contract = null;
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Contract details are temporarily unavailable.",
+                            UiMessages.get("contract.message.detailsUnavailable"),
                             null));
         }
     }
@@ -71,7 +72,7 @@ public class ContractBean implements Serializable {
             contract = null;
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "The printable contract is temporarily unavailable.",
+                            UiMessages.get("contract.message.printUnavailable"),
                             null));
         }
     }
@@ -94,7 +95,7 @@ public class ContractBean implements Serializable {
         } catch (EJBException e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "The contract could not be started.", null));
+                            UiMessages.get("contract.message.startFailed"), null));
         }
     }
 
@@ -107,11 +108,11 @@ public class ContractBean implements Serializable {
                 terminationWarningActive = true;
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_WARN,
-                                tw.getMessage(), null));
+                                UiMessages.get("contract.message.terminationWarning"), null));
             } else {
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                                "The contract could not be terminated.", null));
+                                UiMessages.get("contract.message.terminateFailed"), null));
             }
         }
     }
@@ -125,7 +126,7 @@ public class ContractBean implements Serializable {
             terminationWarningActive = false;
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "The contract could not be terminated.", null));
+                            UiMessages.get("contract.message.terminateFailed"), null));
         }
     }
 
@@ -161,19 +162,11 @@ public class ContractBean implements Serializable {
     }
 
     public String frequencyLabel(Frequency frequency) {
-        return switch (frequency) {
-            case WEEKLY -> "Weekly";
-            case MONTHLY -> "Monthly";
-        };
+        return UiMessages.get("frequency." + frequency.name().toLowerCase());
     }
 
     public String statusLabel(ContractStatus status) {
-        return switch (status) {
-            case PREPARED -> "Prepared";
-            case STARTED -> "Started";
-            case TERMINATED -> "Terminated";
-            case ARCHIVED -> "Archived";
-        };
+        return UiMessages.get("contract.status." + status.name().toLowerCase());
     }
 
     public String statusStyleClass(ContractStatus status) {

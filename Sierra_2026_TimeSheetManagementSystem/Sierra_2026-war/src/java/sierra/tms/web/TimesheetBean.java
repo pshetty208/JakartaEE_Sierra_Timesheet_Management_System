@@ -3,6 +3,7 @@ package sierra.tms.web;
 import sierra.tms.dto.TimesheetDto;
 import sierra.tms.dto.TimesheetEntryDto;
 import sierra.tms.exceptions.TimesheetEntryOverlapException;
+import sierra.tms.i18n.UiMessages;
 import sierra.tms.services.TimesheetService;
 import sierra.tms.utils.enums.ReportType;
 import sierra.tms.utils.enums.TimeSheetStatus;
@@ -45,7 +46,7 @@ public class TimesheetBean implements Serializable {
     public void addEntry() {
 
         if (selectedTimesheetId == null) {
-            error("Pick a timesheet first.");
+            error(UiMessages.get("timesheet.message.selectFirst"));
             return;
         }
 
@@ -58,14 +59,14 @@ public class TimesheetBean implements Serializable {
             dto.setEndTime(LocalTime.parse(endTime.trim()));
 
             if (!dto.getEndTime().isAfter(dto.getStartTime())) {
-                error("End time must be after start time.");
+                error(UiMessages.get("timesheet.message.endAfterStart"));
                 return;
             }
 
             Long id = service.addEntry(selectedTimesheetId, dto);
 
             if (id == null) {
-                error("Timesheet " + selectedTimesheetId + " not found.");
+                error(UiMessages.get("timesheet.message.notFound", selectedTimesheetId));
                 return;
             }
 
@@ -76,17 +77,17 @@ public class TimesheetBean implements Serializable {
             endTime = "";
 
         } catch (DateTimeParseException e) {
-            error("Date must be like 2026-07-06, times like 11:00.");
+            error(UiMessages.get("timesheet.message.invalidDateTime"));
         } catch (EJBAccessException e) {
-            error("You may manage entries only for your own Contract's Timesheets.");
+            error(UiMessages.get("timesheet.message.ownEntriesOnly"));
         } catch (EJBException e) {
             if (e.getCause() instanceof TimesheetEntryOverlapException) {
-                error(e.getCause().getMessage());
+                error(UiMessages.get("timesheet.message.entryOverlap"));
                 return;
             }
             throw e;
         } catch (IllegalStateException e) {
-            error(e.getMessage());
+            error(UiMessages.get("timesheet.message.entryUnavailable"));
         }
     }
 
@@ -95,7 +96,7 @@ public class TimesheetBean implements Serializable {
             service.deleteEntry(id);
             refreshTimesheets();
         } catch (EJBAccessException e) {
-            error("You may manage entries only for your own Contract's Timesheets.");
+            error(UiMessages.get("timesheet.message.ownEntriesOnly"));
         }
     }
 
@@ -103,11 +104,11 @@ public class TimesheetBean implements Serializable {
         try {
             service.signTimesheet(id);
             refreshTimesheets();
-            success("Timesheet signed successfully.");
+            success(UiMessages.get("timesheet.message.signed"));
         } catch (EJBAccessException e) {
-            error("Only the assigned employee may sign this timesheet.");
+            error(UiMessages.get("timesheet.message.employeeSignOnly"));
         } catch (IllegalStateException e) {
-            error(e.getMessage());
+            error(UiMessages.get("timesheet.message.signUnavailable"));
         }
     }
 
@@ -115,11 +116,11 @@ public class TimesheetBean implements Serializable {
         try {
             service.revokeSignature(id);
             refreshTimesheets();
-            success("Employee signature revoked. You can manage entries again.");
+            success(UiMessages.get("timesheet.message.signatureRevoked"));
         } catch (EJBAccessException e) {
-            error("Only the assigned employee may revoke this timesheet signature.");
+            error(UiMessages.get("timesheet.message.employeeRevokeOnly"));
         } catch (IllegalStateException e) {
-            error(e.getMessage());
+            error(UiMessages.get("timesheet.message.revokeUnavailable"));
         }
     }
 
@@ -127,11 +128,11 @@ public class TimesheetBean implements Serializable {
         try {
             service.signAsSupervisor(id);
             refreshTimesheets();
-            success("Timesheet signed successfully as supervisor.");
+            success(UiMessages.get("timesheet.message.supervisorSigned"));
         } catch (EJBAccessException e) {
-            error("Only the assigned supervisor may sign this timesheet.");
+            error(UiMessages.get("timesheet.message.supervisorSignOnly"));
         } catch (IllegalStateException e) {
-            error(e.getMessage());
+            error(UiMessages.get("timesheet.message.supervisorSignUnavailable"));
         }
     }
 
@@ -139,11 +140,11 @@ public class TimesheetBean implements Serializable {
         try {
             service.requestChanges(id);
             refreshTimesheets();
-            success("Changes requested. The employee can update the timesheet again.");
+            success(UiMessages.get("timesheet.message.changesRequested"));
         } catch (EJBAccessException e) {
-            error("Only the assigned supervisor or assistant may request changes to this timesheet.");
+            error(UiMessages.get("timesheet.message.requestChangesOnly"));
         } catch (IllegalStateException e) {
-            error(e.getMessage());
+            error(UiMessages.get("timesheet.message.requestChangesUnavailable"));
         }
     }
 
@@ -151,11 +152,11 @@ public class TimesheetBean implements Serializable {
         try {
             service.archiveTimesheet(id);
             refreshTimesheets();
-            success("Timesheet archived successfully.");
+            success(UiMessages.get("timesheet.message.archived"));
         } catch (EJBAccessException e) {
-            error("Only an assigned secretary may archive this timesheet.");
+            error(UiMessages.get("timesheet.message.archiveOnly"));
         } catch (IllegalStateException e) {
-            error(e.getMessage());
+            error(UiMessages.get("timesheet.message.archiveUnavailable"));
         }
     }
 
@@ -166,7 +167,7 @@ public class TimesheetBean implements Serializable {
             timesheetForPrinting = null;
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "The printable timesheet is temporarily unavailable.",
+                            UiMessages.get("timesheet.message.printUnavailable"),
                             null));
         }
     }
@@ -259,6 +260,14 @@ public class TimesheetBean implements Serializable {
 
     public ReportType[] getReportTypes() {
         return ReportType.values();
+    }
+
+    public String reportTypeLabel(ReportType reportType) {
+        return UiMessages.get(reportType.name());
+    }
+
+    public String statusLabel(TimeSheetStatus status) {
+        return UiMessages.get(status.name());
     }
 
     private void error(String message) {

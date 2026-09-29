@@ -6,22 +6,21 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:ui="jakarta.faces.facelets"
                 template="/WEB-INF/templates/app-layout.xhtml">
-    <!-- TODO: Internationalization -->
     <ui:define name="metadata">
         <f:metadata>
             <f:viewAction action="#{statisticsBean.load}" onPostback="false"/>
         </f:metadata>
     </ui:define>
 
-    <ui:define name="title">Statistics</ui:define>
+    <ui:define name="title">#{msg['statistics.page.title']}</ui:define>
 
     <ui:define name="content">
         <h:outputStylesheet library="statistics" name="statistics.css"/>
 
         <section class="contract-statistics" aria-labelledby="contract-statistics-title">
             <header class="contract-statistics__heading">
-                <h1 id="contract-statistics-title">Statistics</h1>
-                <p>Where your reported hours stand across every contract assigned to you.</p>
+                <h1 id="contract-statistics-title">#{msg['statistics.title']}</h1>
+                <p>#{msg['statistics.description']}</p>
             </header>
 
             <p:messages id="messages" showDetail="false" closable="true"
@@ -32,32 +31,32 @@
 
                 <div class="contract-statistics__totals">
                     <div class="contract-statistics__total">
-                        <span>Hours due</span>
+                        <span>#{msg['statistics.hoursDue']}</span>
                         <strong><h:outputText value="#{statisticsBean.hoursDue}">
                             <f:convertNumber maxFractionDigits="1"/>
                         </h:outputText></strong>
                     </div>
                     <div class="contract-statistics__total">
-                        <span>Reported</span>
+                        <span>#{msg['statistics.reported']}</span>
                         <strong><h:outputText value="#{statisticsBean.hoursReported}">
                             <f:convertNumber maxFractionDigits="1"/>
                         </h:outputText></strong>
                     </div>
                     <div class="contract-statistics__total">
-                        <span>Balance</span>
+                        <span>#{msg['statistics.balance']}</span>
                         <strong><h:outputText value="#{statisticsBean.balance}">
                             <f:convertNumber maxFractionDigits="1"/>
                         </h:outputText></strong>
                     </div>
                     <div class="contract-statistics__total">
-                        <span>Vacation used</span>
+                        <span>#{msg['statistics.vacationUsed']}</span>
                         <strong>
                             <h:outputText value="#{statisticsBean.vacationUsed}">
                                 <f:convertNumber maxFractionDigits="1"/>
                             </h:outputText>
-                            <small>of <h:outputText value="#{statisticsBean.vacationAllowed}">
+                            <small>#{msg['common.of']} <h:outputText value="#{statisticsBean.vacationAllowed}">
                                 <f:convertNumber maxFractionDigits="1"/>
-                            </h:outputText> h</small>
+                            </h:outputText> #{msg['common.hours.short']}</small>
                         </strong>
                     </div>
                 </div>
@@ -67,20 +66,20 @@
                               styleClass="contract-statistics__attention">
                     <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
                     <div>
-                        <h2>Needs your attention</h2>
+                        <h2>#{msg['statistics.attention.title']}</h2>
                         <ul>
                             <li>
                                 <h:panelGroup rendered="#{statisticsBean.employee and statisticsBean.overdueCount gt 0}">
                                     <strong>#{statisticsBean.overdueCount}</strong>
-                                    timesheets are past their period and still in progress.
-                                    <h:link value="Report the hours" outcome="/app/timesheets"/>
+                                    #{msg['statistics.attention.overdue']}
+                                    <h:link value="#{msg['statistics.attention.report']}" outcome="/app/timesheets"/>
                                 </h:panelGroup>
                             </li>
                             <li>
                                 <h:panelGroup rendered="#{statisticsBean.supervisor and statisticsBean.awaitingSignatureCount gt 0}">
                                     <strong>#{statisticsBean.awaitingSignatureCount}</strong>
-                                    timesheets are waiting for your countersignature.
-                                    <h:link value="Review them" outcome="/app/timesheets"/>
+                                    #{msg['statistics.attention.awaiting']}
+                                    <h:link value="#{msg['statistics.attention.review']}" outcome="/app/timesheets"/>
                                 </h:panelGroup>
                             </li>
                         </ul>
@@ -103,7 +102,7 @@
                                     <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
                                 </h:outputText>
                             </span>
-                            <h:link value="View contract" outcome="/contracts/detail"
+                            <h:link value="#{msg['statistics.viewContract']}" outcome="/contracts/detail"
                                     styleClass="contract-statistics__link">
                                 <f:param name="id" value="#{summary.contract.id}"/>
                             </h:link>
@@ -112,14 +111,14 @@
                         <div class="contract-statistics__bars">
                             <div>
                                 <div class="contract-statistics__bar-label">
-                                    <span>Hours reported</span>
+                                    <span>#{msg['statistics.hoursReported']}</span>
                                     <span>
                                         <strong><h:outputText value="#{summary.hoursReported}">
                                             <f:convertNumber maxFractionDigits="1"/>
                                         </h:outputText></strong>
-                                        of <h:outputText value="#{summary.hoursDue}">
+                                        #{msg['common.of']} <h:outputText value="#{summary.hoursDue}">
                                             <f:convertNumber maxFractionDigits="1"/>
-                                        </h:outputText> h
+                                        </h:outputText> #{msg['common.hours.short']}
                                     </span>
                                 </div>
                                 <p:progressBar value="#{summary.hoursPercent}" displayOnly="true"
@@ -127,14 +126,14 @@
                             </div>
                             <div>
                                 <div class="contract-statistics__bar-label">
-                                    <span>Vacation used</span>
+                                    <span>#{msg['statistics.vacationUsed']}</span>
                                     <span>
                                         <strong><h:outputText value="#{summary.vacationUsed}">
                                             <f:convertNumber maxFractionDigits="1"/>
                                         </h:outputText></strong>
-                                        of <h:outputText value="#{summary.vacationAllowed}">
+                                        #{msg['common.of']} <h:outputText value="#{summary.vacationAllowed}">
                                             <f:convertNumber maxFractionDigits="1"/>
-                                        </h:outputText> h
+                                        </h:outputText> #{msg['common.hours.short']}
                                     </span>
                                 </div>
                                 <p:progressBar value="#{summary.vacationPercent}" displayOnly="true"
@@ -143,8 +142,8 @@
                         </div>
 
                         <div class="contract-statistics__pipeline-label">
-                            <span>Timesheets</span>
-                            <span>#{summary.timesheetCount} in total</span>
+                            <span>#{msg['navigation.timesheets']}</span>
+                            <span>#{summary.timesheetCount} #{msg['statistics.inTotal']}</span>
                         </div>
                         <div class="contract-statistics__pipeline">
                             <span class="contract-statistics__segment contract-statistics__segment--progress"
@@ -157,10 +156,10 @@
                                   style="width: #{summary.archivedPercent}%">#{summary.archived}</span>
                         </div>
                         <div class="contract-statistics__legend">
-                            <span><i class="contract-statistics__key contract-statistics__key--progress"></i>In progress</span>
-                            <span><i class="contract-statistics__key contract-statistics__key--employee"></i>Signed by employee</span>
-                            <span><i class="contract-statistics__key contract-statistics__key--supervisor"></i>Countersigned</span>
-                            <span><i class="contract-statistics__key contract-statistics__key--archived"></i>Archived</span>
+                            <span><i class="contract-statistics__key contract-statistics__key--progress"></i>#{msg['IN_PROGRESS']}</span>
+                            <span><i class="contract-statistics__key contract-statistics__key--employee"></i>#{msg['SIGNED_BY_EMPLOYEE']}</span>
+                            <span><i class="contract-statistics__key contract-statistics__key--supervisor"></i>#{msg['SIGNED_BY_SUPERVISOR']}</span>
+                            <span><i class="contract-statistics__key contract-statistics__key--archived"></i>#{msg['ARCHIVED']}</span>
                         </div>
                     </p:panel>
                 </ui:repeat>
