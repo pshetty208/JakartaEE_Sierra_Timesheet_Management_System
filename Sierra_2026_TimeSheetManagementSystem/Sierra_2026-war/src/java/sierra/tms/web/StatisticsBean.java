@@ -14,6 +14,7 @@ import java.util.function.ToDoubleFunction;
 import sierra.tms.dto.ContractDto;
 import sierra.tms.dto.TimesheetDto;
 import sierra.tms.dto.TimesheetEntryDto;
+import sierra.tms.i18n.UiMessages;
 import sierra.tms.services.ContractService;
 import sierra.tms.services.FeatureAccessService;
 import sierra.tms.services.TimesheetService;
@@ -49,7 +50,7 @@ public class StatisticsBean implements Serializable {
             summaries = null;
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "The statistics could not be loaded.", null));
+                            UiMessages.get("statistics.message.loadFailed"), null));
         }
     }
 
@@ -98,12 +99,7 @@ public class StatisticsBean implements Serializable {
     }
 
     public String statusLabel(ContractStatus status) {
-        return switch (status) {
-            case PREPARED -> "Prepared";
-            case STARTED -> "Started";
-            case TERMINATED -> "Terminated";
-            case ARCHIVED -> "Archived";
-        };
+        return UiMessages.get("contract.status." + status.name().toLowerCase());
     }
 
     public String statusStyleClass(ContractStatus status) {

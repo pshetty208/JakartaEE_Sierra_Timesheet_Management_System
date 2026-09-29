@@ -7,16 +7,15 @@
       xmlns:appButton="jakarta.faces.composite/appButton"
                 xmlns:ui="jakarta.faces.facelets"
                 template="/WEB-INF/templates/app-layout.xhtml">
-    <!-- TODO: Internationalization -->
     <ui:define name="metadata">
         <f:metadata>
             <f:viewParam id="contractId"
                          name="id"
                          value="#{contractBean.contractDetailId}"
                          required="true"
-                         requiredMessage="A contract ID is required."
-                         converterMessage="The contract ID must be a number."
-                         validatorMessage="The contract ID must be positive.">
+                         requiredMessage="#{msg['contract.validation.id.required']}"
+                         converterMessage="#{msg['contract.validation.id.number']}"
+                         validatorMessage="#{msg['contract.validation.id.positive']}">
                 <f:validateLongRange minimum="1"/>
             </f:viewParam>
             <f:viewAction action="#{contractBean.loadContractForPrinting}"
@@ -25,7 +24,7 @@
         </f:metadata>
     </ui:define>
 
-    <ui:define name="title">Print contract</ui:define>
+    <ui:define name="title">#{msg['contract.print.page.title']}</ui:define>
 
     <ui:define name="content">
         <h:outputStylesheet library="contracts" name="contract-print.css"/>
@@ -36,10 +35,10 @@
                     <h:link outcome="/contracts/detail"
                             styleClass="contract-print__back">
                         <span class="pi pi-arrow-left" aria-hidden="true"></span>
-                        <span>Back to details</span>
+                        <span>#{msg['contract.backToDetails']}</span>
                         <f:param name="id" value="#{contractBean.contractDetailId}"/>
                     </h:link>
-                    <appButton:appButton value="Print"
+                    <appButton:appButton value="#{msg['common.print']}"
                                                type="button"
                                                icon="pi pi-print"
                                                onclick="window.print(); return false;"
@@ -56,48 +55,48 @@
                 <ui:fragment rendered="#{not empty contractBean.contract.id}">
                     <article class="contract-print__sheet">
                         <header class="contract-print__header">
-                            <div class="contract-print__brand" aria-label="Time Sheet System">
+                            <div class="contract-print__brand" aria-label="#{msg['product.fullName']}">
                                 <span class="contract-print__brand-mark">Sierra TSS</span>
-                                <span>Sierra Time Sheet System</span>
+                                <span>#{msg['product.fullName']}</span>
                             </div>
                             <div class="contract-print__document-type">
-                                <span>Archive cover sheet</span>
-                                <strong>Contract</strong>
+                                <span>#{msg['print.archiveCover']}</span>
+                                <strong>#{msg['contract.label']}</strong>
                             </div>
                         </header>
 
                         <div class="contract-print__title-row">
                             <div>
-                                <span class="contract-print__eyebrow">Contract name</span>
+                                <span class="contract-print__eyebrow">#{msg['contract.name']}</span>
                                 <h1 id="contract-print-title">
                                     <h:outputText value="#{contractBean.contract.name}"/>
                                 </h1>
                             </div>
                             <div class="contract-print__identity">
-                                <span>Contract ID</span>
+                                <span>#{msg['contract.id']}</span>
                                 <strong><h:outputText value="#{contractBean.contract.id}"/></strong>
                             </div>
                         </div>
 
                         <section class="contract-print__section" aria-labelledby="contract-print-parties">
-                            <h2 id="contract-print-parties">Parties</h2>
+                            <h2 id="contract-print-parties">#{msg['contract.print.parties']}</h2>
                             <dl class="contract-print__fields contract-print__fields--two">
                                 <div>
-                                    <dt>Employee ID</dt>
+                                    <dt>#{msg['contract.employeeId']}</dt>
                                     <dd><h:outputText value="#{contractBean.contract.employeeId}"/></dd>
                                 </div>
                                 <div>
-                                    <dt>Supervisor ID</dt>
+                                    <dt>#{msg['contract.supervisorId']}</dt>
                                     <dd><h:outputText value="#{contractBean.contract.supervisorId}"/></dd>
                                 </div>
                             </dl>
                         </section>
 
                         <section class="contract-print__section" aria-labelledby="contract-print-term">
-                            <h2 id="contract-print-term">Contract term</h2>
+                            <h2 id="contract-print-term">#{msg['contract.print.term']}</h2>
                             <dl class="contract-print__fields contract-print__fields--three">
                                 <div>
-                                    <dt>Start date</dt>
+                                    <dt>#{msg['contract.startDate']}</dt>
                                     <dd>
                                         <h:outputText value="#{contractBean.contract.startDate}">
                                             <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
@@ -105,7 +104,7 @@
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt>End date</dt>
+                                    <dt>#{msg['contract.endDate']}</dt>
                                     <dd>
                                         <h:outputText value="#{contractBean.contract.endDate}">
                                             <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
@@ -113,49 +112,49 @@
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt>Status</dt>
+                                    <dt>#{msg['common.status']}</dt>
                                     <dd class="contract-print__status">
                                         <h:outputText value="#{contractBean.statusLabel(contractBean.contract.status)}"/>
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt>Termination date</dt>
+                                    <dt>#{msg['contract.terminationDate']}</dt>
                                     <dd>
                                         <h:outputText value="#{contractBean.contract.terminationDate}"
                                                       rendered="#{not empty contractBean.contract.terminationDate}">
                                             <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
                                         </h:outputText>
-                                        <h:outputText value="Not terminated"
+                                        <h:outputText value="#{msg['contract.notTerminated']}"
                                                       rendered="#{empty contractBean.contract.terminationDate}"/>
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt>Timesheet frequency</dt>
+                                    <dt>#{msg['contract.frequency']}</dt>
                                     <dd><h:outputText value="#{contractBean.frequencyLabel(contractBean.contract.frequency)}"/></dd>
                                 </div>
                                 <div>
-                                    <dt>Archive duration</dt>
+                                    <dt>#{msg['contract.archiveDuration']}</dt>
                                     <dd>
                                         <h:outputText value="#{contractBean.contract.archiveDuration}"/>
-                                        <span> months</span>
+                                        <span> #{msg['common.months']}</span>
                                     </dd>
                                 </div>
                             </dl>
                         </section>
 
                         <section class="contract-print__section" aria-labelledby="contract-print-workload">
-                            <h2 id="contract-print-workload">Workload and leave</h2>
+                            <h2 id="contract-print-workload">#{msg['contract.print.workload']}</h2>
                             <dl class="contract-print__fields contract-print__fields--three">
                                 <div>
-                                    <dt>Hours per week</dt>
+                                    <dt>#{msg['contract.hoursPerWeek']}</dt>
                                     <dd><h:outputText value="#{contractBean.contract.hoursPerWeek}"/></dd>
                                 </div>
                                 <div>
-                                    <dt>Working days per week</dt>
+                                    <dt>#{msg['contract.workingDaysPerWeek']}</dt>
                                     <dd><h:outputText value="#{contractBean.contract.workingDaysPerWeek}"/></dd>
                                 </div>
                                 <div>
-                                    <dt>Vacation days per year</dt>
+                                    <dt>#{msg['contract.vacationDaysPerYear']}</dt>
                                     <dd><h:outputText value="#{contractBean.contract.vacationDaysPerYear}"/></dd>
                                 </div>
                             </dl>
@@ -163,41 +162,41 @@
 
                         <section class="contract-print__section contract-print__section--summary"
                                  aria-labelledby="contract-print-summary">
-                            <h2 id="contract-print-summary">Contract totals</h2>
+                            <h2 id="contract-print-summary">#{msg['contract.print.totals']}</h2>
                             <dl class="contract-print__totals">
                                 <div>
-                                    <dt>Vacation hours</dt>
+                                    <dt>#{msg['contract.vacationHours']}</dt>
                                     <dd>
                                         <h:outputText value="#{contractBean.contract.vacationHours}">
                                             <f:convertNumber minFractionDigits="0" maxFractionDigits="2"/>
                                         </h:outputText>
-                                        <span> h</span>
+                                        <span> #{msg['common.hours.short']}</span>
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt>Total hours due</dt>
+                                    <dt>#{msg['contract.totalHoursDue']}</dt>
                                     <dd>
                                         <h:outputText value="#{contractBean.contract.totalHoursDue}">
                                             <f:convertNumber minFractionDigits="0" maxFractionDigits="2"/>
                                         </h:outputText>
-                                        <span> h</span>
+                                        <span> #{msg['common.hours.short']}</span>
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt>Remaining hours</dt>
+                                    <dt>#{msg['contract.remainingHours']}</dt>
                                     <dd>
                                         <h:outputText value="#{contractBean.contract.remainingHours}">
                                             <f:convertNumber minFractionDigits="0" maxFractionDigits="2"/>
                                         </h:outputText>
-                                        <span> h</span>
+                                        <span> #{msg['common.hours.short']}</span>
                                     </dd>
                                 </div>
                             </dl>
                         </section>
 
                         <footer class="contract-print__footer">
-                            <span>Paper archive cover sheet</span>
-                            <span>Contract <h:outputText value="#{contractBean.contract.id}"/></span>
+                            <span>#{msg['print.paperArchiveCover']}</span>
+                            <span>#{msg['contract.label']} <h:outputText value="#{contractBean.contract.id}"/></span>
                         </footer>
                     </article>
                 </ui:fragment>
@@ -208,8 +207,8 @@
                               role="alert">
                     <span class="pi pi-link" aria-hidden="true"></span>
                     <div>
-                        <h2>Check the contract link</h2>
-                        <p>A valid positive contract ID is required to open this print view.</p>
+                        <h2>#{msg['contract.invalidLink.title']}</h2>
+                        <p>#{msg['contract.print.invalidLink.description']}</p>
                     </div>
                 </h:panelGroup>
 
@@ -219,8 +218,8 @@
                               role="status">
                     <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
                     <div>
-                        <h2>Printable contract unavailable</h2>
-                        <p>The contract could not be loaded for printing. Return to its details and try again.</p>
+                        <h2>#{msg['contract.print.unavailable.title']}</h2>
+                        <p>#{msg['contract.print.unavailable.description']}</p>
                     </div>
                 </h:panelGroup>
             </h:form>

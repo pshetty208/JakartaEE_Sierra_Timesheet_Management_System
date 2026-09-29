@@ -6,16 +6,15 @@
                 xmlns:p="http://primefaces.org/ui"
                 xmlns:ui="jakarta.faces.facelets"
                 template="/WEB-INF/templates/app-layout.xhtml">
-    <!-- TODO: Internationalization -->
     <ui:define name="metadata">
         <f:metadata>
             <f:viewParam id="contractId"
                          name="id"
                          value="#{contractBean.contractDetailId}"
                          required="true"
-                         requiredMessage="A contract ID is required."
-                         converterMessage="The contract ID must be a number."
-                         validatorMessage="The contract ID must be positive.">
+                         requiredMessage="#{msg['contract.validation.id.required']}"
+                         converterMessage="#{msg['contract.validation.id.number']}"
+                         validatorMessage="#{msg['contract.validation.id.positive']}">
                 <f:validateLongRange minimum="1"/>
             </f:viewParam>
             <f:viewAction action="#{contractBean.loadContractDetails}"
@@ -24,7 +23,7 @@
         </f:metadata>
     </ui:define>
 
-    <ui:define name="title">Contract details</ui:define>
+    <ui:define name="title">#{msg['contract.detail.page.title']}</ui:define>
 
     <ui:define name="content">
         <h:outputStylesheet library="contracts" name="contracts.css"/>
@@ -33,18 +32,18 @@
             <header class="contract-detail__heading">
                 <h:link outcome="/contracts/index"
                         styleClass="contract-detail__back"
-                        aria-label="Back to contracts">
+                        aria-label="#{msg['contract.backToContracts']}">
                     <span class="pi pi-arrow-left" aria-hidden="true"></span>
                 </h:link>
                 <div class="contract-detail__heading-copy">
-                    <h1 id="contract-detail-title">Contract details</h1>
-                    <p>Review the contract terms and current status.</p>
+                    <h1 id="contract-detail-title">#{msg['contract.detail.title']}</h1>
+                    <p>#{msg['contract.detail.description']}</p>
                 </div>
                 <h:link outcome="/contracts/print"
                         styleClass="contract-detail__print-link"
                         rendered="#{not empty contractBean.contract.id and featureAccess.printContract}">
                     <span class="pi pi-print" aria-hidden="true"></span>
-                    <span>Print contract</span>
+                    <span>#{msg['contract.print.action']}</span>
                     <f:param name="id" value="#{contractBean.contract.id}"/>
                 </h:link>
             </header>
@@ -60,7 +59,7 @@
                     <article class="contract-detail__card">
                         <header class="contract-detail__summary">
                             <div>
-                                <span class="contract-detail__eyebrow">Contract</span>
+                                <span class="contract-detail__eyebrow">#{msg['contract.label']}</span>
                                 <h2><h:outputText value="#{contractBean.contract.name}"/></h2>
                             </div>
                             <span class="contract-overview__status #{contractBean.statusStyleClass(contractBean.contract.status)}">
@@ -70,19 +69,19 @@
 
                         <dl class="contract-detail__grid">
                             <div class="contract-detail__item">
-                                <dt>Contract ID</dt>
+                                <dt>#{msg['contract.id']}</dt>
                                 <dd><h:outputText value="#{contractBean.contract.id}"/></dd>
                             </div>
                             <div class="contract-detail__item">
-                                <dt>Employee ID</dt>
+                                <dt>#{msg['contract.employeeId']}</dt>
                                 <dd><h:outputText value="#{contractBean.contract.employeeId}"/></dd>
                             </div>
                             <div class="contract-detail__item">
-                                <dt>Supervisor ID</dt>
+                                <dt>#{msg['contract.supervisorId']}</dt>
                                 <dd><h:outputText value="#{contractBean.contract.supervisorId}"/></dd>
                             </div>
                             <div class="contract-detail__item">
-                                <dt>Start date</dt>
+                                <dt>#{msg['contract.startDate']}</dt>
                                 <dd>
                                     <h:outputText value="#{contractBean.contract.startDate}">
                                         <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
@@ -90,7 +89,7 @@
                                 </dd>
                             </div>
                             <div class="contract-detail__item">
-                                <dt>End date</dt>
+                                <dt>#{msg['contract.endDate']}</dt>
                                 <dd>
                                     <h:outputText value="#{contractBean.contract.endDate}">
                                         <f:convertDateTime type="localDate" pattern="dd.MM.yyyy"/>
@@ -98,23 +97,23 @@
                                 </dd>
                             </div>
                             <div class="contract-detail__item">
-                                <dt>Frequency</dt>
+                                <dt>#{msg['contract.frequency.short']}</dt>
                                 <dd><h:outputText value="#{contractBean.frequencyLabel(contractBean.contract.frequency)}"/></dd>
                             </div>
                             <div class="contract-detail__item">
-                                <dt>Hours per week</dt>
+                                <dt>#{msg['contract.hoursPerWeek']}</dt>
                                 <dd><h:outputText value="#{contractBean.contract.hoursPerWeek}"/></dd>
                             </div>
                             <div class="contract-detail__item">
-                                <dt>Working days per week</dt>
+                                <dt>#{msg['contract.workingDaysPerWeek']}</dt>
                                 <dd><h:outputText value="#{contractBean.contract.workingDaysPerWeek}"/></dd>
                             </div>
                             <div class="contract-detail__item">
-                                <dt>Vacation days per year</dt>
+                                <dt>#{msg['contract.vacationDaysPerYear']}</dt>
                                 <dd><h:outputText value="#{contractBean.contract.vacationDaysPerYear}"/></dd>
                             </div>
                             <div class="contract-detail__item">
-                                <dt>Vacation hours</dt>
+                                <dt>#{msg['contract.vacationHours']}</dt>
                                 <dd>
                                     <h:outputText value="#{contractBean.contract.vacationHours}">
                                         <f:convertNumber minFractionDigits="0" maxFractionDigits="2"/>
@@ -122,7 +121,7 @@
                                 </dd>
                             </div>
                             <div class="contract-detail__item">
-                                <dt>Total hours due</dt>
+                                <dt>#{msg['contract.totalHoursDue']}</dt>
                                 <dd>
                                     <h:outputText value="#{contractBean.contract.totalHoursDue}">
                                         <f:convertNumber minFractionDigits="0" maxFractionDigits="2"/>
@@ -130,7 +129,7 @@
                                 </dd>
                             </div>
                             <div class="contract-detail__item">
-                                <dt>Remaining hours</dt>
+                                <dt>#{msg['contract.remainingHours']}</dt>
                                 <dd>
                                     <h:outputText value="#{contractBean.contract.remainingHours}">
                                         <f:convertNumber minFractionDigits="0" maxFractionDigits="2"/>
@@ -138,7 +137,7 @@
                                 </dd>
                             </div>
                             <div class="contract-detail__item">
-                                <dt>Termination date</dt>
+                                <dt>#{msg['contract.terminationDate']}</dt>
                                 <dd>
                                     <h:outputText value="#{contractBean.contract.terminationDate}"
                                                   rendered="#{not empty contractBean.contract.terminationDate}">
@@ -149,13 +148,13 @@
                                 </dd>
                             </div>
                             <div class="contract-detail__item">
-                                <dt>Archive duration (months)</dt>
+                                <dt>#{msg['contract.archiveDurationMonths']}</dt>
                                 <dd><h:outputText value="#{contractBean.contract.archiveDuration}"/></dd>
                             </div>
                         </dl>
                     </article>
                     <div class="contract-detail__actions">
-                        <p:commandButton value="Start contract"
+                        <p:commandButton value="#{msg['contract.start.action']}"
                                          action="#{contractBean.startContract}"
                                          icon="pi pi-play"
                                          styleClass="contract-detail__action-button"
@@ -165,7 +164,7 @@
                                                      and featureAccess.startContract}">
                             <f:param name="id" value="#{contractBean.contractDetailId}"/>
                         </p:commandButton>
-                        <p:commandButton value="Terminate contract"
+                        <p:commandButton value="#{msg['contract.terminate.action']}"
                                          action="#{contractBean.terminateContract}"
                                          icon="pi pi-stop"
                                          styleClass="contract-detail__action-button"
@@ -173,18 +172,18 @@
                                          update="contractDetailForm"
                                          rendered="#{contractBean.isStarted()
                                                      and featureAccess.terminateContract}">
-                            <p:confirm header="Terminate contract"
-                                       message="Are you sure you want to terminate this contract? This action cannot be undone."
+                            <p:confirm header="#{msg['contract.terminate.action']}"
+                                       message="#{msg['contract.terminate.confirm']}"
                                        icon="pi pi-exclamation-triangle"/>
                             <f:param name="id" value="#{contractBean.contractDetailId}"/>
                         </p:commandButton>
                         <p:confirmDialog global="true" showEffect="fade" hideEffect="fade"
                                          styleClass="contract-confirm-dialog">
-                            <p:commandButton value="Cancel"
+                            <p:commandButton value="#{msg['common.cancel']}"
                                              type="button"
                                              icon="pi pi-times"
                                              styleClass="ui-confirmdialog-no p-button-outlined"/>
-                            <p:commandButton value="Terminate"
+                            <p:commandButton value="#{msg['contract.terminate.button']}"
                                              icon="pi pi-stop"
                                              styleClass="ui-confirmdialog-yes"/>
                         </p:confirmDialog>
@@ -196,18 +195,18 @@
                                   role="alert">
                         <span class="pi pi-exclamation-triangle" aria-hidden="true"></span>
                         <div>
-                            <h2>Confirm termination</h2>
-                            <p>This contract has IN_PROGRESS timesheets with entries. Terminating will permanently delete them.</p>
+                            <h2>#{msg['contract.terminate.warning.title']}</h2>
+                            <p>#{msg['contract.terminate.warning.description']}</p>
                         </div>
                         <div class="contract-detail__warning-actions">
-                            <p:commandButton value="Confirm"
+                            <p:commandButton value="#{msg['common.confirm']}"
                                              action="#{contractBean.confirmTerminate}"
                                              icon="pi pi-check"
                                              process="@this"
                                              update="contractDetailForm">
                                 <f:param name="id" value="#{contractBean.contractDetailId}"/>
                             </p:commandButton>
-                            <p:commandButton value="Cancel"
+                            <p:commandButton value="#{msg['common.cancel']}"
                                              action="#{contractBean.cancelTerminate}"
                                              icon="pi pi-times"
                                              process="@this"
@@ -224,8 +223,8 @@
                               role="alert">
                     <span class="pi pi-link" aria-hidden="true"></span>
                     <div>
-                        <h2>Check the contract link</h2>
-                        <p>A valid positive contract ID is required to open this page.</p>
+                        <h2>#{msg['contract.invalidLink.title']}</h2>
+                        <p>#{msg['contract.invalidLink.description']}</p>
                     </div>
                 </h:panelGroup>
 
@@ -235,8 +234,8 @@
                               role="status">
                     <span class="pi pi-exclamation-circle" aria-hidden="true"></span>
                     <div>
-                        <h2>Contract details are unavailable</h2>
-                        <p>The contract could not be loaded. Return to the overview and try again later.</p>
+                        <h2>#{msg['contract.detail.unavailable.title']}</h2>
+                        <p>#{msg['contract.detail.unavailable.description']}</p>
                     </div>
                 </h:panelGroup>
             </h:form>

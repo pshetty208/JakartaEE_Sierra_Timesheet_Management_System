@@ -100,7 +100,13 @@ body.sierra-shell {
 }
 
 .sierra-shell__navigation {
+    position: sticky;
+    top: var(--sierra-header-height);
+    align-self: start;
+    height: calc(100vh - var(--sierra-header-height));
+    height: calc(100dvh - var(--sierra-header-height));
     padding: 1.25rem 0;
+    overflow-y: auto;
     background: var(--sierra-surface);
     border-right: 1px solid var(--sierra-border);
 }

@@ -15,7 +15,7 @@
     <ui:insert name="metadata"/>
 
     <h:head>
-        <title><ui:insert name="title">Sierra TMS</ui:insert></title>
+        <title><ui:insert name="title">#{msg['page.title']}</ui:insert></title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <h:outputStylesheet library="appTheme" name="appTheme.css"/>
         <h:outputStylesheet library="appLayout" name="appLayout.css"/>
@@ -54,7 +54,7 @@
         </h:form>
 
         <div class="sierra-shell__body">
-            <aside class="sierra-shell__navigation" aria-label="Primary navigation">
+            <aside class="sierra-shell__navigation" aria-label="#{msg['navigation.primary']}">
                 <ui:insert name="navigation">
                     <h:form id="navigationForm">
                         <span class="sierra-shell__navigation-label">#{msg['navigation.workspace']}</span>
