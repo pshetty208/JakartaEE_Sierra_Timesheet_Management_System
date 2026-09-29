@@ -47,7 +47,7 @@
 
                     <div class="contract-create__field">
                         <p:outputLabel for="employee" value="Employee"/>
-                        <p:selectOneMenu id="employee">
+                        <p:selectOneMenu id="employee" panelStyleClass="contract-create__select-panel">
                             <f:selectItem itemLabel="Select employee"
                                           itemValue="#{null}"
                                           noSelectionOption="true"/>
@@ -56,7 +56,7 @@
 
                     <div class="contract-create__field">
                         <p:outputLabel for="supervisor" value="Supervisor"/>
-                        <p:selectOneMenu id="supervisor">
+                        <p:selectOneMenu id="supervisor" panelStyleClass="contract-create__select-panel">
                             <f:selectItem itemLabel="Select supervisor"
                                           itemValue="#{null}"
                                           noSelectionOption="true"/>
@@ -71,6 +71,7 @@
                                       placeholder="dd.mm.yyyy"
                                       pattern="dd.MM.yyyy"
                                       showIcon="true"
+                                      panelStyleClass="contract-create__date-panel"
                                       required="true"
                                       requiredMessage="Start date is required."
                                       converterMessage="Start date must use the format dd.mm.yyyy."/>
@@ -84,6 +85,7 @@
                                       placeholder="dd.mm.yyyy"
                                       pattern="dd.MM.yyyy"
                                       showIcon="true"
+                                      panelStyleClass="contract-create__date-panel"
                                       required="true"
                                       requiredMessage="End date is required."
                                       converterMessage="End date must use the format dd.mm.yyyy."/>
@@ -93,6 +95,7 @@
                     <div class="contract-create__field">
                         <p:outputLabel for="frequency" value="Timesheet frequency"/>
                         <p:selectOneMenu id="frequency"
+                                         panelStyleClass="contract-create__select-panel"
                                          value="#{contractBean.contract.frequency}"
                                          required="true"
                                          requiredMessage="Timesheet frequency is required.">
@@ -152,7 +155,7 @@
 
                     <div class="contract-create__field">
                         <p:outputLabel for="federalState" value="Federal state (holidays)"/>
-                        <p:selectOneMenu id="federalState">
+                        <p:selectOneMenu id="federalState" panelStyleClass="contract-create__select-panel">
                             <f:selectItem itemLabel="Rhineland-Palatinate (RP)"
                                           itemValue="RP"/>
                         </p:selectOneMenu>

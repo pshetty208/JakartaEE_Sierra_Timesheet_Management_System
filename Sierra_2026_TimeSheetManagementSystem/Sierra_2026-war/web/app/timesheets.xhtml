@@ -26,7 +26,7 @@
                             styleClass="timesheet-overview__messages"/>
 
                 <p:panel header="Add entry" toggleable="true" collapsed="true"
-                         rendered="#{not empty timesheetBean.entryManageableTimesheets}"
+                         rendered="#{featureAccess.reportWork and not empty timesheetBean.entryManageableTimesheets}"
                          styleClass="timesheet-entry-form">
                     <p class="timesheet-entry-form__hint">Choose a Time Sheet that is in progress, then record the time worked.</p>
                     <div class="timesheet-entry-form__grid">
@@ -135,7 +135,7 @@
                                              process="@this"
                                              update="timesheetsForm"
                                              styleClass="timesheet-card__sign"
-                                             rendered="#{timesheetBean.canSignTimesheet(timesheet.id)}">
+                                             rendered="#{featureAccess.signTimesheet and timesheetBean.canSignTimesheet(timesheet.id)}">
                                 <p:confirm header="Sign timesheet"
                                            message="I confirm that this timesheet is complete and accurate. Once signed, its entries cannot be changed."
                                            icon="pi pi-exclamation-triangle"/>
@@ -145,7 +145,7 @@
                                              process="@this"
                                              update="timesheetsForm"
                                              styleClass="timesheet-card__revoke"
-                                             rendered="#{timesheetBean.canRevokeSignature(timesheet.id)}">
+                                             rendered="#{featureAccess.signTimesheet and timesheetBean.canRevokeSignature(timesheet.id)}">
                                 <p:confirm header="Revoke employee signature"
                                            message="This reopens the timesheet. You can add or remove entries and sign it again."
                                            icon="pi pi-exclamation-triangle"/>
@@ -155,7 +155,7 @@
                                              process="@this"
                                              update="timesheetsForm"
                                              styleClass="timesheet-card__supervisor-sign"
-                                             rendered="#{timesheetBean.canSignAsSupervisor(timesheet.id)}">
+                                             rendered="#{featureAccess.countersignTimesheet and timesheetBean.canSignAsSupervisor(timesheet.id)}">
                                 <p:confirm header="Sign timesheet as supervisor"
                                            message="I confirm that this timesheet is complete and accurate. Once signed, it is ready for archiving."
                                            icon="pi pi-exclamation-triangle"/>
@@ -165,27 +165,37 @@
                                              process="@this"
                                              update="timesheetsForm"
                                              styleClass="timesheet-card__request-changes"
-                                             rendered="#{timesheetBean.canRequestChanges(timesheet.id)}">
+                                             rendered="#{featureAccess.requestTimesheetChanges and timesheetBean.canRequestChanges(timesheet.id)}">
                                 <p:confirm header="Request changes"
                                            message="This removes the employee signature and reopens the timesheet for editing."
                                            icon="pi pi-exclamation-triangle"/>
                             </p:commandButton>
                             <h:link outcome="/app/timesheet-print"
                                     styleClass="timesheet-card__print-link"
-                                    rendered="#{request.isUserInRole('SECRETARY')}">
+                                    rendered="#{featureAccess.printTimesheet}">
                                 <span class="pi pi-print" aria-hidden="true"></span>
                                 <span>Print</span>
                                 <f:param name="id" value="#{timesheet.id}"/>
                             </h:link>
+                            <p:commandButton value="Archive" icon="pi pi-folder"
+                                             action="#{timesheetBean.archiveTimesheet(timesheet.id)}"
+                                             process="@this"
+                                             update="timesheetsForm"
+                                             styleClass="timesheet-card__archive"
+                                             rendered="#{featureAccess.archiveTimesheet and timesheetBean.canArchive(timesheet)}">
+                                <p:confirm header="Archive timesheet"
+                                           message="Archive this approved timesheet?"
+                                           icon="pi pi-exclamation-triangle"/>
+                            </p:commandButton>
                         </div>
 
                         <section class="timesheet-card__entries" aria-labelledby="timesheet-#{timesheet.id}-entries">
                             <header class="timesheet-card__entries-heading">
                                 <h3 id="timesheet-#{timesheet.id}-entries">Entries</h3>
-                                <ui:fragment rendered="#{timesheetBean.canManageEntries(timesheet.id)}">
+                                <ui:fragment rendered="#{featureAccess.reportWork and timesheetBean.canManageEntries(timesheet.id)}">
                                     <span>Editable</span>
                                 </ui:fragment>
-                                <ui:fragment rendered="#{not timesheetBean.canManageEntries(timesheet.id)}">
+                                <ui:fragment rendered="#{not featureAccess.reportWork or not timesheetBean.canManageEntries(timesheet.id)}">
                                     <span>Read-only</span>
                                 </ui:fragment>
                             </header>
@@ -222,14 +232,15 @@
                                                      process="@this"
                                                      update="timesheetsForm"
                                                      styleClass="timesheet-card__delete"
-                                                     rendered="#{timesheetBean.canManageEntries(entry.timesheetId)}"/>
+                                                     rendered="#{featureAccess.reportWork and timesheetBean.canManageEntries(entry.timesheetId)}"/>
                                 </p:column>
                             </p:dataTable>
                         </section>
                     </article>
                 </ui:repeat>
 
-                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade"
+                                 styleClass="timesheet-confirm-dialog">
                     <p:commandButton value="Cancel"
                                      type="button"
                                      icon="pi pi-times"

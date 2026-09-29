@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:dashboardMetric="jakarta.faces.composite/dashboardMetric">
+    <section class="dashboard" aria-labelledby="dashboard-title">
+        <header class="dashboard__heading">
+            <div>
+                <span class="dashboard__eyebrow">#{msg['dashboard.administrator.eyebrow']}</span>
+                <h1 id="dashboard-title">#{msg['dashboard.administrator.title']}</h1>
+                <p>#{msg['dashboard.administrator.description']}</p>
+            </div>
+            <h:link outcome="/app/statistics" styleClass="dashboard__heading-action">
+                <span class="pi pi-chart-bar" aria-hidden="true"></span>
+                <span>#{msg['dashboard.administrator.action']}</span>
+            </h:link>
+        </header>
+
+        <div class="dashboard__metrics">
+            <dashboardMetric:dashboardMetric label="#{msg['dashboard.administrator.metric.timesheets']}"
+                                             value="#{dashboardBean.timesheetCount}"
+                                             icon="pi pi-clock" tone="accent"/>
+            <dashboardMetric:dashboardMetric label="#{msg['dashboard.metric.contracts']}"
+                                             value="#{dashboardBean.activeContractCount}"
+                                             icon="pi pi-file" tone="positive"/>
+            <dashboardMetric:dashboardMetric label="#{msg['dashboard.administrator.metric.people']}"
+                                             value="#{dashboardBean.peopleCount}"
+                                             icon="pi pi-users"/>
+            <dashboardMetric:dashboardMetric label="#{msg['dashboard.administrator.metric.archived']}"
+                                             value="#{dashboardBean.archivedCount}"
+                                             icon="pi pi-folder"/>
+        </div>
+
+        <ui:include src="/WEB-INF/dashboard/timesheet-panel.xhtml">
+            <ui:param name="panelId" value="administrator-activity-title"/>
+            <ui:param name="title" value="#{msg['dashboard.administrator.activity.title']}"/>
+            <ui:param name="description" value="#{msg['dashboard.administrator.activity.description']}"/>
+            <ui:param name="rows" value="#{dashboardBean.recentTimesheets}"/>
+            <ui:param name="showEmployee" value="true"/>
+            <ui:param name="showStatus" value="true"/>
+            <ui:param name="emptyIcon" value="pi pi-history"/>
+            <ui:param name="emptyTitle" value="#{msg['dashboard.administrator.activity.empty.title']}"/>
+            <ui:param name="emptyDescription" value="#{msg['dashboard.administrator.activity.empty.description']}"/>
+        </ui:include>
+
+        <ui:include src="/WEB-INF/dashboard/timesheet-panel.xhtml">
+            <ui:param name="panelId" value="administrator-pending-title"/>
+            <ui:param name="title" value="#{msg['dashboard.administrator.pending.title']}"/>
+            <ui:param name="description" value="#{msg['dashboard.administrator.pending.description']}"/>
+            <ui:param name="rows" value="#{dashboardBean.pendingTimesheets}"/>
+            <ui:param name="count" value="#{dashboardBean.pendingApprovalCount}"/>
+            <ui:param name="showCount" value="true"/>
+            <ui:param name="showEmployee" value="true"/>
+            <ui:param name="showSigned" value="true"/>
+            <ui:param name="showStatus" value="true"/>
+            <ui:param name="emptyIcon" value="pi pi-check-circle"/>
+            <ui:param name="emptyTitle" value="#{msg['dashboard.administrator.pending.empty.title']}"/>
+            <ui:param name="emptyDescription" value="#{msg['dashboard.administrator.pending.empty.description']}"/>
+        </ui:include>
+    </section>
+</ui:composition>

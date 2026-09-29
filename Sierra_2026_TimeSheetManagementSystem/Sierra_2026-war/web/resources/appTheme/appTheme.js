@@ -4,16 +4,24 @@
     const STORAGE_KEY = "sierra-theme";
     const DARK = "dark";
     const LIGHT = "light";
+    const systemPreference = window.matchMedia("(prefers-color-scheme: dark)");
+
+    function savedTheme() {
+        try {
+            const theme = localStorage.getItem(STORAGE_KEY);
+            return theme === DARK || theme === LIGHT ? theme : null;
+        } catch (error) {
+            return null;
+        }
+    }
 
     function preferredTheme() {
-        const savedTheme = localStorage.getItem(STORAGE_KEY);
-
-        if (savedTheme === DARK || savedTheme === LIGHT) {
-            return savedTheme;
+        const saved = savedTheme();
+        if (saved) {
+            return saved;
         }
 
-        return window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? DARK : LIGHT;
+        return systemPreference.matches ? DARK : LIGHT;
     }
 
     function applyTheme(theme) {
@@ -48,9 +56,25 @@
             const nextTheme = document.documentElement.dataset.theme === DARK
                     ? LIGHT : DARK;
 
-            localStorage.setItem(STORAGE_KEY, nextTheme);
+            try {
+                localStorage.setItem(STORAGE_KEY, nextTheme);
+            } catch (error) {
+                // The current page can still switch themes when storage is blocked.
+            }
             applyTheme(nextTheme);
         });
         window.sierraThemeToggleBound = true;
     }
+
+    window.addEventListener("storage", function (event) {
+        if (event.key === STORAGE_KEY) {
+            applyTheme(preferredTheme());
+        }
+    });
+
+    systemPreference.addEventListener("change", function () {
+        if (!savedTheme()) {
+            applyTheme(preferredTheme());
+        }
+    });
 }());

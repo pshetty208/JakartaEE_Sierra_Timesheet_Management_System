@@ -18,6 +18,37 @@
     font-size: var(--sierra-font-size-sm);
 }
 
+body .contract-statistics__messages .ui-messages-info {
+    color: var(--sierra-status-review-text);
+    background: var(--sierra-status-review-bg);
+    border-color: var(--sierra-status-review-border);
+}
+
+body .contract-statistics__messages .ui-messages-warn {
+    color: var(--sierra-warning-text);
+    background: var(--sierra-warning-bg);
+    border-color: var(--sierra-warning-border);
+}
+
+body .contract-statistics__messages .ui-messages-error,
+body .contract-statistics__messages .ui-messages-fatal {
+    color: var(--sierra-danger);
+    background: var(--sierra-danger-surface);
+    border-color: var(--sierra-danger-border);
+}
+
+body .contract-statistics__messages .ui-messages-success {
+    color: var(--sierra-status-started-text);
+    background: var(--sierra-status-started-bg);
+    border-color: var(--sierra-status-started-border);
+}
+
+.contract-statistics__messages .ui-messages-close,
+.contract-statistics__messages .ui-messages-close:hover {
+    color: inherit;
+    background: transparent;
+}
+
 .contract-statistics__totals {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));

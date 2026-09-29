@@ -11,6 +11,7 @@
     --print-md: 1rem;
     --print-lg: 1.7rem;
     --print-tracking: 0.08em;
+    color-scheme: light;
 
     min-height: 70rem;
     padding: 2.5rem;
@@ -54,12 +55,43 @@
 .timesheet-print__button.ui-button:hover,
 .timesheet-print__button.ui-button:focus {
     color: var(--sierra-text);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--sierra-surface-active);
     border-color: var(--sierra-text);
 }
 
 .timesheet-print__messages {
     margin-bottom: 1rem;
+}
+
+body .timesheet-print__messages .ui-messages-info {
+    color: var(--sierra-status-review-text);
+    background: var(--sierra-status-review-bg);
+    border-color: var(--sierra-status-review-border);
+}
+
+body .timesheet-print__messages .ui-messages-warn {
+    color: var(--sierra-warning-text);
+    background: var(--sierra-warning-bg);
+    border-color: var(--sierra-warning-border);
+}
+
+body .timesheet-print__messages .ui-messages-error,
+body .timesheet-print__messages .ui-messages-fatal {
+    color: var(--sierra-danger);
+    background: var(--sierra-danger-surface);
+    border-color: var(--sierra-danger-border);
+}
+
+body .timesheet-print__messages .ui-messages-success {
+    color: var(--sierra-status-started-text);
+    background: var(--sierra-status-started-bg);
+    border-color: var(--sierra-status-started-border);
+}
+
+.timesheet-print__messages .ui-messages-close,
+.timesheet-print__messages .ui-messages-close:hover {
+    color: inherit;
+    background: transparent;
 }
 
 .timesheet-print__header {

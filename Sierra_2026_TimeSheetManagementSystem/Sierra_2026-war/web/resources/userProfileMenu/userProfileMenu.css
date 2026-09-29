@@ -60,8 +60,33 @@
     color: var(--sierra-text-muted);
 }
 
-.sierra-user-profile-menu__overlay.ui-menu-dynamic {
+body .sierra-user-profile-menu__overlay.ui-menu-dynamic {
     width: auto;
     min-width: 14rem;
     max-width: 20rem;
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border: 1px solid var(--sierra-border);
+    box-shadow: 0 0.8rem 2rem var(--sierra-shadow-color);
+}
+
+.sierra-user-profile-menu__overlay .ui-menu-list,
+.sierra-user-profile-menu__overlay .ui-menuitem,
+.sierra-user-profile-menu__overlay .ui-menuitem-link {
+    background: transparent;
+}
+
+.sierra-user-profile-menu__overlay .ui-menuitem-link {
+    color: var(--sierra-text);
+}
+
+body .sierra-user-profile-menu__overlay.ui-widget .ui-menu-list .ui-menuitem .ui-menuitem-link .ui-menuitem-icon,
+body .sierra-user-profile-menu__overlay.ui-widget .ui-menu-list .ui-menuitem .ui-menuitem-link .ui-menuitem-text {
+    color: inherit;
+}
+
+.sierra-user-profile-menu__overlay.ui-menu-dynamic .ui-menu-list .ui-menuitem .ui-menuitem-link.ui-state-hover,
+.sierra-user-profile-menu__overlay.ui-menu-dynamic .ui-menu-list .ui-menuitem .ui-menuitem-link.ui-state-active {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
 }

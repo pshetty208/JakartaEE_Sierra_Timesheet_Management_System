@@ -41,7 +41,12 @@
                             <themeSwitcher:themeSwitcher lightLabel="#{msg['theme.useLight']}"
                                                            darkLabel="#{msg['theme.useDark']}"/>
                             <userProfileMenu:userProfileMenu name="#{currentPersonBean.displayName}"
-                                                             label="#{currentPersonBean.initials}"/>
+                                                             label="#{currentPersonBean.initials}">
+                                <p:menuitem value="#{msg['session.logout']}"
+                                            icon="pi pi-sign-out"
+                                            action="#{currentPersonBean.logout}"
+                                            ajax="false"/>
+                            </userProfileMenu:userProfileMenu>
                         </div>
                     </ui:insert>
                 </f:facet>
@@ -61,14 +66,17 @@
                             <p:menuitem value="#{msg['navigation.contracts']}"
                                         outcome="/contracts/index"
                                         icon="pi pi-file"
+                                        rendered="#{featureAccess.viewContract}"
                                         styleClass="#{facesContext.viewRoot.viewId.startsWith('/contracts/') ? 'sierra-shell__navigation-item--active' : ''}"/>
                             <p:menuitem value="#{msg['navigation.timesheets']}"
                                         outcome="/app/timesheets"
                                         icon="pi pi-clock"
+                                        rendered="#{featureAccess.viewTimesheets}"
                                         styleClass="#{facesContext.viewRoot.viewId eq '/app/timesheets.xhtml' ? 'sierra-shell__navigation-item--active' : ''}"/>
                             <p:menuitem value="#{msg['navigation.statistics']}"
                                         outcome="/app/statistics"
                                         icon="pi pi-chart-bar"
+                                        rendered="#{featureAccess.viewStatistics}"
                                         styleClass="#{facesContext.viewRoot.viewId eq '/app/statistics.xhtml' ? 'sierra-shell__navigation-item--active' : ''}"/>
                         </menu:menu>
                     </h:form>

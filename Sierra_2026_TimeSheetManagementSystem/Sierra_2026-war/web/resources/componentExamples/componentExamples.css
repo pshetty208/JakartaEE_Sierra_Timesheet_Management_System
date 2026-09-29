@@ -1,0 +1,54 @@
+html,
+body {
+    background: var(--sierra-background);
+}
+
+body {
+    color: var(--sierra-text);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body:not(.sierra-shell) {
+    margin: 0;
+    padding: 2rem;
+}
+
+body .ui-widget {
+    font-family: inherit;
+}
+
+body a {
+    color: var(--sierra-accent);
+}
+
+body .ui-growl-item-container {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border: 1px solid var(--sierra-border);
+    box-shadow: 0 0.8rem 2rem var(--sierra-shadow-color);
+}
+
+body .ui-growl-item-container.ui-growl-info {
+    color: var(--sierra-status-review-text);
+    background: var(--sierra-status-review-bg);
+    border-color: var(--sierra-status-review-border);
+}
+
+body .ui-growl-item-container.ui-growl-warn {
+    color: var(--sierra-warning-text);
+    background: var(--sierra-warning-bg);
+    border-color: var(--sierra-warning-border);
+}
+
+body .ui-growl-item-container.ui-growl-error,
+body .ui-growl-item-container.ui-growl-fatal {
+    color: var(--sierra-danger);
+    background: var(--sierra-danger-surface);
+    border-color: var(--sierra-danger-border);
+}
+
+body .ui-growl-item-container.ui-growl-success {
+    color: var(--sierra-status-started-text);
+    background: var(--sierra-status-started-bg);
+    border-color: var(--sierra-status-started-border);
+}

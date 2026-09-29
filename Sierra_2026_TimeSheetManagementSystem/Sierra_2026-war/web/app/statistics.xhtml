@@ -25,7 +25,8 @@
             </header>
 
             <p:messages id="messages" showDetail="false" closable="true"
-                        rendered="#{statisticsBean.summaries eq null}"/>
+                        rendered="#{statisticsBean.summaries eq null}"
+                        styleClass="contract-statistics__messages"/>
 
             <ui:fragment rendered="#{not empty statisticsBean.summaries}">
 

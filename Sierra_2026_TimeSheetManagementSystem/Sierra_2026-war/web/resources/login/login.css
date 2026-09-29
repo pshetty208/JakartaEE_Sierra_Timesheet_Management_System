@@ -47,7 +47,7 @@ body.sierra-auth::before {
     justify-content: center;
     width: 3.4rem;
     height: 3.4rem;
-    color: #fff;
+    color: var(--sierra-on-brand);
     background: var(--sierra-brand);
     font-size: 0.78rem;
     font-weight: 800;
@@ -101,7 +101,7 @@ body.sierra-auth::before {
     background: var(--sierra-surface);
     border: 1px solid var(--sierra-border);
     border-top: 0.45rem solid var(--sierra-brand);
-    box-shadow: var(--sierra-shadow-raised);
+    box-shadow: 0 0.8rem 2rem var(--sierra-shadow-color);
 }
 
 .sierra-auth__card-brand {
@@ -168,7 +168,7 @@ body.sierra-auth::before {
 
 .sierra-login-form__field input:focus {
     border-color: var(--sierra-brand);
-    box-shadow: var(--sierra-focus-ring);
+    box-shadow: 0 0 0 3px var(--sierra-focus-color);
 }
 
 .sierra-login-form__field input::placeholder {
@@ -300,8 +300,8 @@ body.sierra-auth::before {
     }
 
     .sierra-auth__language .app-language-switcher__select {
-        width: 4.25rem;
-        min-width: 4.25rem;
+        width: 8.5rem;
+        min-width: 8.5rem;
     }
 
     .sierra-auth__main {

@@ -42,7 +42,7 @@
                 </div>
                 <h:link outcome="/contracts/print"
                         styleClass="contract-detail__print-link"
-                        rendered="#{not empty contractBean.contract.id and (request.isUserInRole('SECRETARY') or request.isUserInRole('ASSISTANT'))}">
+                        rendered="#{not empty contractBean.contract.id and featureAccess.printContract}">
                     <span class="pi pi-print" aria-hidden="true"></span>
                     <span>Print contract</span>
                     <f:param name="id" value="#{contractBean.contract.id}"/>
@@ -162,8 +162,7 @@
                                          process="@this"
                                          update="contractDetailForm"
                                          rendered="#{contractBean.isPrepared()
-                                                     and (request.isUserInRole('SUPERVISOR')
-                                                          or request.isUserInRole('ASSISTANT'))}">
+                                                     and featureAccess.startContract}">
                             <f:param name="id" value="#{contractBean.contractDetailId}"/>
                         </p:commandButton>
                         <p:commandButton value="Terminate contract"
@@ -173,14 +172,14 @@
                                          process="@this"
                                          update="contractDetailForm"
                                          rendered="#{contractBean.isStarted()
-                                                     and (request.isUserInRole('SUPERVISOR')
-                                                          or request.isUserInRole('ASSISTANT'))}">
+                                                     and featureAccess.terminateContract}">
                             <p:confirm header="Terminate contract"
                                        message="Are you sure you want to terminate this contract? This action cannot be undone."
                                        icon="pi pi-exclamation-triangle"/>
                             <f:param name="id" value="#{contractBean.contractDetailId}"/>
                         </p:commandButton>
-                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade"
+                                         styleClass="contract-confirm-dialog">
                             <p:commandButton value="Cancel"
                                              type="button"
                                              icon="pi pi-times"

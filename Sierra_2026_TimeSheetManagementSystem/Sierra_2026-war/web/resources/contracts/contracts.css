@@ -126,12 +126,148 @@
 .contract-create .ui-inputfield:enabled:focus,
 .contract-create .ui-selectonemenu.ui-state-focus {
     border-color: var(--sierra-accent);
-    box-shadow: var(--sierra-focus-ring);
+    box-shadow: 0 0 0 3px var(--sierra-focus-color);
 }
 
 .contract-create .ui-inputfield::placeholder {
     color: var(--sierra-text-muted);
     opacity: 1;
+}
+
+.contract-create__select-panel.ui-selectonemenu-panel,
+.contract-create__date-panel.ui-datepicker {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border-color: var(--sierra-border);
+    box-shadow: 0 0.8rem 2rem var(--sierra-shadow-color);
+}
+
+.contract-create__select-panel .ui-selectonemenu-items-wrapper,
+.contract-create__select-panel .ui-selectonemenu-items {
+    background: transparent;
+}
+
+.contract-create__select-panel .ui-selectonemenu-item {
+    color: var(--sierra-text);
+    background: transparent;
+}
+
+.contract-create__select-panel .ui-selectonemenu-item.ui-state-hover,
+.contract-create__select-panel .ui-selectonemenu-item.ui-state-highlight {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+}
+
+.contract-create__date-panel .ui-datepicker-header,
+.contract-create__date-panel .ui-datepicker-calendar,
+.contract-create__date-panel .ui-datepicker-buttonbar {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border-color: var(--sierra-border);
+}
+
+.contract-create__date-panel .ui-datepicker-title,
+.contract-create__date-panel .ui-datepicker-prev,
+.contract-create__date-panel .ui-datepicker-next,
+.contract-create__date-panel th,
+.contract-create__date-panel .ui-datepicker-calendar tbody td > a.ui-state-default,
+.contract-create__date-panel td > span {
+    color: var(--sierra-text);
+}
+
+.contract-create__date-panel td > a,
+.contract-create__date-panel td > span {
+    background: transparent;
+    border-color: transparent;
+}
+
+.contract-create__date-panel td > a:hover,
+.contract-create__date-panel .ui-datepicker-calendar tbody td.ui-datepicker-today > a.ui-state-default {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+    border-color: var(--sierra-border-hover);
+}
+
+.contract-create__date-panel .ui-datepicker-calendar tbody td.ui-datepicker-current-day > a.ui-state-default {
+    color: var(--sierra-on-brand);
+    background: var(--sierra-brand);
+    border-color: var(--sierra-brand);
+}
+
+body .contract-create .ui-message-error,
+body .contract-detail__messages .ui-messages-error,
+body .contract-detail__messages .ui-messages-fatal {
+    color: var(--sierra-danger);
+    background: var(--sierra-danger-surface);
+    border-color: var(--sierra-danger-border);
+}
+
+body .contract-detail__messages .ui-messages-info {
+    color: var(--sierra-status-review-text);
+    background: var(--sierra-status-review-bg);
+    border-color: var(--sierra-status-review-border);
+}
+
+body .contract-detail__messages .ui-messages-warn {
+    color: var(--sierra-warning-text);
+    background: var(--sierra-warning-bg);
+    border-color: var(--sierra-warning-border);
+}
+
+body .contract-detail__messages .ui-messages-success {
+    color: var(--sierra-status-started-text);
+    background: var(--sierra-status-started-bg);
+    border-color: var(--sierra-status-started-border);
+}
+
+.contract-detail__messages .ui-messages-close,
+.contract-detail__messages .ui-messages-close:hover {
+    color: inherit;
+    background: transparent;
+}
+
+body .contract-confirm-dialog.ui-dialog,
+body .contract-confirm-dialog.ui-dialog .ui-dialog-titlebar,
+body .contract-confirm-dialog.ui-dialog .ui-dialog-content,
+body .contract-confirm-dialog.ui-dialog .ui-dialog-buttonpane {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border-color: var(--sierra-border);
+}
+
+body .contract-confirm-dialog.ui-dialog {
+    box-shadow: 0 0.8rem 2rem var(--sierra-shadow-color);
+}
+
+body .contract-confirm-dialog.ui-dialog .ui-dialog-titlebar-icon,
+body .contract-confirm-dialog.ui-dialog .ui-confirm-dialog-message,
+body .contract-confirm-dialog.ui-dialog .ui-confirm-dialog-severity {
+    color: var(--sierra-text);
+}
+
+body .contract-confirm-dialog.ui-dialog .ui-button {
+    color: var(--sierra-on-brand);
+    background: var(--sierra-brand);
+    border-color: var(--sierra-brand);
+}
+
+body .contract-confirm-dialog.ui-dialog .ui-button:not(:disabled):hover,
+body .contract-confirm-dialog.ui-dialog .ui-button:not(:disabled):focus {
+    color: var(--sierra-on-brand);
+    background: var(--sierra-brand-hover);
+    border-color: var(--sierra-brand-hover);
+}
+
+body .contract-confirm-dialog.ui-dialog .ui-button.p-button-outlined {
+    color: var(--sierra-text);
+    background: transparent;
+    border-color: var(--sierra-border);
+}
+
+body .contract-confirm-dialog.ui-dialog .ui-button.p-button-outlined:not(:disabled):hover {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+    border-color: var(--sierra-border-hover);
 }
 
 .contract-create__calculated {
@@ -181,8 +317,33 @@
 .contract-overview__heading {
     display: flex;
     align-items: flex-start;
+    justify-content: space-between;
     gap: var(--sierra-space-lg);
     margin-bottom: var(--sierra-space-lg);
+}
+
+.contract-overview__create {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: var(--sierra-control-height);
+    padding: 0.5rem 0.75rem;
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border: 1px solid var(--sierra-border);
+    border-radius: var(--sierra-radius-sm);
+    font-size: var(--sierra-font-size-sm);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.contract-overview__create:hover,
+.contract-overview__create:focus {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+    border-color: var(--sierra-border-hover);
 }
 
 .contract-overview__heading h1 {
@@ -716,6 +877,10 @@
     .contract-overview__heading {
         align-items: stretch;
         flex-direction: column;
+    }
+
+    .contract-overview__create {
+        width: 100%;
     }
 
     .contract-create__grid,
