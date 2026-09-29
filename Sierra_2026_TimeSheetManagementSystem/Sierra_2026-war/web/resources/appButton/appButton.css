@@ -27,14 +27,14 @@
 }
 
 .app-button.ui-button.ui-button-danger {
-    color: var(--sierra-on-brand);
+    color: var(--sierra-on-danger);
     background: var(--sierra-danger);
     border-color: var(--sierra-danger);
 }
 
 .app-button.ui-button:focus-visible {
     outline: none;
-    box-shadow: var(--sierra-focus-ring);
+    box-shadow: 0 0 0 3px var(--sierra-focus-color);
 }
 
 .app-button.ui-button:disabled {

@@ -6,4 +6,23 @@
 
 .app-input-text > input {
     width: 100%;
+    color: var(--sierra-text);
+    background: var(--sierra-input-background);
+    border: 1px solid var(--sierra-border);
+    outline: 0;
+    font: inherit;
+}
+
+.app-input-text > input::placeholder {
+    color: var(--sierra-placeholder);
+    opacity: 1;
+}
+
+.app-input-text > input:hover {
+    border-color: var(--sierra-border-hover);
+}
+
+.app-input-text > input:focus {
+    border-color: var(--sierra-brand);
+    box-shadow: 0 0 0 3px var(--sierra-focus-color);
 }

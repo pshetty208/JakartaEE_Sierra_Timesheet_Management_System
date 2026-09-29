@@ -32,6 +32,37 @@
     margin-bottom: var(--sierra-space-lg);
 }
 
+body .timesheet-overview__messages .ui-messages-info {
+    color: var(--sierra-status-review-text);
+    background: var(--sierra-status-review-bg);
+    border-color: var(--sierra-status-review-border);
+}
+
+body .timesheet-overview__messages .ui-messages-warn {
+    color: var(--sierra-warning-text);
+    background: var(--sierra-warning-bg);
+    border-color: var(--sierra-warning-border);
+}
+
+body .timesheet-overview__messages .ui-messages-error,
+body .timesheet-overview__messages .ui-messages-fatal {
+    color: var(--sierra-danger);
+    background: var(--sierra-danger-surface);
+    border-color: var(--sierra-danger-border);
+}
+
+body .timesheet-overview__messages .ui-messages-success {
+    color: var(--sierra-status-started-text);
+    background: var(--sierra-status-started-bg);
+    border-color: var(--sierra-status-started-border);
+}
+
+.timesheet-overview__messages .ui-messages-close,
+.timesheet-overview__messages .ui-messages-close:hover {
+    color: inherit;
+    background: transparent;
+}
+
 .timesheet-entry-form.ui-panel {
     margin-bottom: var(--sierra-space-lg);
     color: var(--sierra-text);
@@ -119,6 +150,7 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
     color: var(--sierra-text);
     background: var(--sierra-surface-raised);
     border-color: var(--sierra-border);
+    box-shadow: 0 0.8rem 2rem var(--sierra-shadow-color);
 }
 
 .timesheet-entry-form__select-panel .ui-selectonemenu-list-item {
@@ -131,7 +163,7 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 }
 
 .timesheet-entry-form__select-panel .ui-selectonemenu-list-item.ui-state-highlight {
-    color: #10110f;
+    color: var(--sierra-on-accent);
     background: var(--sierra-accent);
 }
 
@@ -142,7 +174,7 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 
 .timesheet-entry-form .ui-inputfield:enabled:focus, .timesheet-entry-form .ui-selectonemenu.ui-state-focus {
     border-color: var(--sierra-accent);
-    box-shadow: var(--sierra-focus-ring);
+    box-shadow: 0 0 0 3px var(--sierra-focus-color);
 }
 
 .timesheet-entry-form__actions {
@@ -152,7 +184,7 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 }
 
 .sierra-shell .timesheet-entry-form__submit.ui-button {
-    color: #10110f;
+    color: var(--sierra-on-accent);
     background: var(--sierra-accent);
     border-color: var(--sierra-accent);
 }
@@ -207,9 +239,9 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 }
 
 .timesheet-card__status--SIGNED_BY_EMPLOYEE, .timesheet-card__status--SIGNED_BY_SUPERVISOR {
-    color: #9bc6ff;
-    background: #142e4e;
-    border-color: #285789;
+    color: var(--sierra-status-review-text);
+    background: var(--sierra-status-review-bg);
+    border-color: var(--sierra-status-review-border);
 }
 
 .timesheet-card__change-request {
@@ -217,9 +249,9 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
     align-items: flex-start;
     gap: var(--sierra-space-sm);
     padding: var(--sierra-space-md) var(--sierra-space-xl);
-    color: #ffd892;
-    background: #332710;
-    border-bottom: 1px solid #6c5220;
+    color: var(--sierra-warning-text);
+    background: var(--sierra-warning-bg);
+    border-bottom: 1px solid var(--sierra-warning-border);
 }
 
 .timesheet-card__change-request .pi {
@@ -236,7 +268,7 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 }
 
 .timesheet-card__change-request span {
-    color: #f0d5a4;
+    color: var(--sierra-warning-text);
     font-size: var(--sierra-font-size-xs);
 }
 
@@ -280,7 +312,7 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 
 .sierra-shell .timesheet-card__sign.ui-button,
 .sierra-shell .timesheet-card__supervisor-sign.ui-button {
-    color: #10110f;
+    color: var(--sierra-on-accent);
     background: var(--sierra-accent);
     border-color: var(--sierra-accent);
 }
@@ -309,8 +341,8 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 .timesheet-card__print-link:hover,
 .timesheet-card__print-link:focus {
     color: var(--sierra-text);
-    background: rgba(255, 255, 255, 0.05);
-    border-color: var(--sierra-text-muted);
+    background: var(--sierra-surface-active);
+    border-color: var(--sierra-border-hover);
 }
 
 .timesheet-card__entries {
@@ -371,6 +403,50 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 
 .timesheet-card__description {
     min-width: 12rem;
+}
+
+body .timesheet-confirm-dialog.ui-dialog,
+body .timesheet-confirm-dialog.ui-dialog .ui-dialog-titlebar,
+body .timesheet-confirm-dialog.ui-dialog .ui-dialog-content,
+body .timesheet-confirm-dialog.ui-dialog .ui-dialog-buttonpane {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border-color: var(--sierra-border);
+}
+
+body .timesheet-confirm-dialog.ui-dialog {
+    box-shadow: 0 0.8rem 2rem var(--sierra-shadow-color);
+}
+
+body .timesheet-confirm-dialog.ui-dialog .ui-dialog-titlebar-icon,
+body .timesheet-confirm-dialog.ui-dialog .ui-confirm-dialog-message,
+body .timesheet-confirm-dialog.ui-dialog .ui-confirm-dialog-severity {
+    color: var(--sierra-text);
+}
+
+body .timesheet-confirm-dialog.ui-dialog .ui-button {
+    color: var(--sierra-on-brand);
+    background: var(--sierra-brand);
+    border-color: var(--sierra-brand);
+}
+
+body .timesheet-confirm-dialog.ui-dialog .ui-button:not(:disabled):hover,
+body .timesheet-confirm-dialog.ui-dialog .ui-button:not(:disabled):focus {
+    color: var(--sierra-on-brand);
+    background: var(--sierra-brand-hover);
+    border-color: var(--sierra-brand-hover);
+}
+
+body .timesheet-confirm-dialog.ui-dialog .ui-button.p-button-outlined {
+    color: var(--sierra-text);
+    background: transparent;
+    border-color: var(--sierra-border);
+}
+
+body .timesheet-confirm-dialog.ui-dialog .ui-button.p-button-outlined:not(:disabled):hover {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+    border-color: var(--sierra-border-hover);
 }
 
 .sierra-shell .timesheet-card__delete.ui-button {

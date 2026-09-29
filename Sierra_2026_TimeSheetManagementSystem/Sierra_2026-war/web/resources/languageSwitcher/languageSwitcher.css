@@ -33,7 +33,7 @@ body .app-language-switcher__select.ui-selectonemenu:hover {
 
 body .app-language-switcher .app-language-switcher__select.ui-selectonemenu.ui-state-focus {
     border-color: var(--sierra-border-hover);
-    box-shadow: var(--sierra-focus-ring);
+    box-shadow: 0 0 0 3px var(--sierra-focus-color);
 }
 
 body .app-language-switcher__select .ui-selectonemenu-label,
@@ -80,7 +80,7 @@ body .app-language-switcher__panel.ui-selectonemenu-panel {
     background: var(--sierra-surface-raised);
     border: 1px solid var(--sierra-border);
     border-radius: var(--sierra-radius-md);
-    box-shadow: var(--sierra-shadow-raised);
+    box-shadow: 0 0.8rem 2rem var(--sierra-shadow-color);
 }
 
 body .app-language-switcher__panel .ui-selectonemenu-items-wrapper,
