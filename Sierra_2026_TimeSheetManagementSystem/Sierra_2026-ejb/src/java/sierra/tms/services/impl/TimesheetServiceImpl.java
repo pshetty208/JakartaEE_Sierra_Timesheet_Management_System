@@ -94,7 +94,7 @@ public class TimesheetServiceImpl implements TimesheetService {
     }
 
     @Override
-    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY"})
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMINISTRATOR"})
     public List<TimesheetDto> findByContractId(Long contractId) {
         PersonEntity currentPerson = getCurrentPerson();
         return timesheetDao.findByContractId(contractId)
@@ -265,6 +265,14 @@ public class TimesheetServiceImpl implements TimesheetService {
             throw new EntityNotFoundException("Timesheet not found: " + id);
         }
 
+        PersonEntity currentPerson = getCurrentPerson();
+        ContractEntity contract = entity.getContract();
+        if (contract == null || currentPerson == null
+                || !containsPerson(contract.getSecretaries(), currentPerson.getId())) {
+            throw new EJBAccessException(
+                    "Only a secretary assigned to this contract may archive its timesheet.");
+        }
+
         if (entity.getStatus() != TimeSheetStatus.SIGNED_BY_SUPERVISOR) {
             throw new IllegalStateException("Only timesheets in SIGNED_BY_SUPERVISOR status can be archived.");
         }
@@ -272,8 +280,8 @@ public class TimesheetServiceImpl implements TimesheetService {
         entity.setStatus(TimeSheetStatus.ARCHIVED);
         timesheetDao.update(entity);
 
-        if (entity.getContract() != null) {
-            contractService.archiveContract(entity.getContract().getId());
+        if (contract != null) {
+            contractService.archiveContract(contract.getId());
         }
     }
 

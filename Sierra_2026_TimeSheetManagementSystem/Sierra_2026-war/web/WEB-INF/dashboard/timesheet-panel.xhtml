@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="jakarta.faces.core"
+                xmlns:h="jakarta.faces.html"
+                xmlns:ui="jakarta.faces.facelets">
+    <section class="dashboard-panel" aria-labelledby="#{panelId}">
+        <header class="dashboard-panel__header">
+            <div>
+                <h2 id="#{panelId}">#{title}</h2>
+                <p>#{description}</p>
+            </div>
+            <h:panelGroup rendered="#{showCount}" styleClass="dashboard-panel__count">
+                #{count}
+            </h:panelGroup>
+        </header>
+
+        <h:panelGroup layout="block" rendered="#{not empty rows}"
+                      styleClass="dashboard-table-wrap">
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <ui:fragment rendered="#{showEmployee}">
+                            <th>#{msg['dashboard.table.employee']}</th>
+                        </ui:fragment>
+                        <th>#{msg['dashboard.table.contract']}</th>
+                        <th>#{msg['dashboard.table.period']}</th>
+                        <th>#{msg['dashboard.table.hours']}</th>
+                        <ui:fragment rendered="#{showSigned}">
+                            <th>#{msg['dashboard.table.signed']}</th>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{showApproved}">
+                            <th>#{msg['dashboard.table.approved']}</th>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{showStatus}">
+                            <th>#{msg['dashboard.table.status']}</th>
+                        </ui:fragment>
+                        <ui:fragment rendered="#{not empty actionLabel}">
+                            <th><span class="dashboard-table__sr-only">#{msg['dashboard.table.action']}</span></th>
+                        </ui:fragment>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ui:repeat value="#{rows}" var="timesheet">
+                        <tr>
+                            <ui:fragment rendered="#{showEmployee}">
+                                <td data-label="#{msg['dashboard.table.employee']}">
+                                    <strong>#{dashboardBean.employeeName(timesheet)}</strong>
+                                </td>
+                            </ui:fragment>
+                            <td data-label="#{msg['dashboard.table.contract']}">
+                                #{dashboardBean.contractName(timesheet)}
+                            </td>
+                            <td data-label="#{msg['dashboard.table.period']}">
+                                <h:outputText value="#{timesheet.startDate}">
+                                    <f:convertDateTime type="localDate" pattern="dd MMM"/>
+                                </h:outputText>
+                                <span aria-hidden="true"> – </span>
+                                <h:outputText value="#{timesheet.endDate}">
+                                    <f:convertDateTime type="localDate" pattern="dd MMM yyyy"/>
+                                </h:outputText>
+                            </td>
+                            <td data-label="#{msg['dashboard.table.hours']}">
+                                <h:outputText value="#{dashboardBean.reportedHours(timesheet)}">
+                                    <f:convertNumber minFractionDigits="1" maxFractionDigits="1"/>
+                                </h:outputText>
+                            </td>
+                            <ui:fragment rendered="#{showSigned}">
+                                <td data-label="#{msg['dashboard.table.signed']}">
+                                    <h:outputText value="#{timesheet.signedByEmployee}">
+                                        <f:convertDateTime type="localDate" pattern="dd MMM yyyy"/>
+                                    </h:outputText>
+                                </td>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{showApproved}">
+                                <td data-label="#{msg['dashboard.table.approved']}">
+                                    <h:outputText value="#{timesheet.signedBySupervisor}">
+                                        <f:convertDateTime type="localDate" pattern="dd MMM yyyy"/>
+                                    </h:outputText>
+                                </td>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{showStatus}">
+                                <td data-label="#{msg['dashboard.table.status']}">
+                                    <span class="dashboard-table__status dashboard-table__status--#{dashboardBean.statusStyleClass(timesheet)}">
+                                        #{msg[dashboardBean.statusMessageKey(timesheet)]}
+                                    </span>
+                                </td>
+                            </ui:fragment>
+                            <ui:fragment rendered="#{not empty actionLabel}">
+                                <td class="dashboard-table__action">
+                                    <h:link outcome="/app/timesheets" title="#{actionLabel}"
+                                            styleClass="dashboard-table__action-link">
+                                        <span class="#{actionIcon}" aria-hidden="true"></span>
+                                        <span>#{actionLabel}</span>
+                                    </h:link>
+                                </td>
+                            </ui:fragment>
+                        </tr>
+                    </ui:repeat>
+                </tbody>
+            </table>
+        </h:panelGroup>
+
+        <h:panelGroup layout="block" rendered="#{empty rows}"
+                      styleClass="dashboard-panel__empty">
+            <span class="#{emptyIcon}" aria-hidden="true"></span>
+            <div>
+                <h3>#{emptyTitle}</h3>
+                <p>#{emptyDescription}</p>
+            </div>
+        </h:panelGroup>
+    </section>
+</ui:composition>

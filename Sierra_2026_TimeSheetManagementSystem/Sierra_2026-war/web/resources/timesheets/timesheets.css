@@ -286,7 +286,8 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 }
 
 .sierra-shell .timesheet-card__revoke.ui-button,
-.sierra-shell .timesheet-card__request-changes.ui-button {
+.sierra-shell .timesheet-card__request-changes.ui-button,
+.sierra-shell .timesheet-card__archive.ui-button {
     color: var(--sierra-text);
     background: transparent;
     border-color: var(--sierra-border);

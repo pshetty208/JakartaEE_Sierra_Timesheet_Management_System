@@ -170,6 +170,21 @@
     font-weight: 700;
 }
 
+.dashboard-table__status--in_progress {
+    color: var(--sierra-status-prepared-text);
+    background: var(--sierra-status-prepared-bg);
+}
+
+.dashboard-table__status--signed_by_supervisor {
+    color: var(--sierra-status-started-text);
+    background: var(--sierra-status-started-bg);
+}
+
+.dashboard-table__status--archived {
+    color: var(--sierra-status-archived-text);
+    background: var(--sierra-status-archived-bg);
+}
+
 .dashboard-table__sr-only {
     position: absolute;
     width: 1px;

@@ -181,8 +181,33 @@
 .contract-overview__heading {
     display: flex;
     align-items: flex-start;
+    justify-content: space-between;
     gap: var(--sierra-space-lg);
     margin-bottom: var(--sierra-space-lg);
+}
+
+.contract-overview__create {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: var(--sierra-control-height);
+    padding: 0.5rem 0.75rem;
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border: 1px solid var(--sierra-border);
+    border-radius: var(--sierra-radius-sm);
+    font-size: var(--sierra-font-size-sm);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.contract-overview__create:hover,
+.contract-overview__create:focus {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+    border-color: var(--sierra-border-hover);
 }
 
 .contract-overview__heading h1 {
@@ -716,6 +741,10 @@
     .contract-overview__heading {
         align-items: stretch;
         flex-direction: column;
+    }
+
+    .contract-overview__create {
+        width: 100%;
     }
 
     .contract-create__grid,

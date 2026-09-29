@@ -2,8 +2,12 @@ package com.jee.web;
 
 import jakarta.ejb.EJB;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.faces.FacesException;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Named;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Locale;
 import sierra.tms.dto.PersonDto;
@@ -79,6 +83,24 @@ public class CurrentPersonBean {
         return email == null || email.isBlank()
                 ? "U"
                 : email.substring(0, 1).toUpperCase(Locale.ROOT);
+    }
+
+    public void logout() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        HttpServletRequest request = (HttpServletRequest) context
+                .getExternalContext()
+                .getRequest();
+
+        try {
+            request.logout();
+            context.getExternalContext().invalidateSession();
+            context.getExternalContext().redirect(
+                    context.getExternalContext().getRequestContextPath()
+                    + "/faces/login.xhtml");
+            context.responseComplete();
+        } catch (ServletException | IOException exception) {
+            throw new FacesException("Unable to log out the current user.", exception);
+        }
     }
 
     private String firstLetter(String value) {
