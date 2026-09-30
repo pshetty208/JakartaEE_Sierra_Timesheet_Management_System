@@ -365,7 +365,7 @@ public class ContractServiceImpl implements ContractService {
 
     private void validatePositiveHours(Double hours) {
         if (hours == null || hours <= 0) {
-            throw new IllegalArgumentException("Hours per week must be greater than zero.");
+            throw new RuleViolation("contract.validation.hours.nonnegative");
         }
     }
     

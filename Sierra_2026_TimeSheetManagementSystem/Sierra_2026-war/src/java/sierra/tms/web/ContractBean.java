@@ -70,7 +70,7 @@ public class ContractBean implements Serializable {
             contract = newContractWithDefaults();
             loadContracts();
         } catch (RuleViolation violation) {
-            showRuleViolation(violation);
+            WebExceptionHandler.showRuleViolation(violation);
         } catch (RuntimeException exception) {
             WebExceptionHandler.handle(getClass(), "create contract",
                     "common.error.operationFailed", exception);
@@ -90,12 +90,6 @@ public class ContractBean implements Serializable {
             WebExceptionHandler.handle(getClass(), "load contract participants",
                     "common.error.loadFailed", exception);
         }
-    }
-
-    private void showRuleViolation(RuleViolation violation) {
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                        UiMessages.get(violation.getMessageKey(), violation.getArguments()), null));
     }
 
     private static List<PersonDto> withRole(List<PersonDto> people, RoleType role) {
@@ -147,7 +141,7 @@ public class ContractBean implements Serializable {
             contract = newContractWithDefaults();
             loadContracts();
         } catch (RuleViolation violation) {
-            showRuleViolation(violation);
+            WebExceptionHandler.showRuleViolation(violation);
         } catch (RuntimeException exception) {
             WebExceptionHandler.handle(getClass(), "update contract",
                     "common.error.operationFailed", exception);
@@ -180,7 +174,7 @@ public class ContractBean implements Serializable {
             contractService.startContract(contractDetailId);
             loadContractDetails();
         } catch (RuleViolation violation) {
-            showRuleViolation(violation);
+            WebExceptionHandler.showRuleViolation(violation);
         } catch (RuntimeException e) {
             WebExceptionHandler.handle(getClass(), "start contract",
                     "contract.message.startFailed", e);
@@ -197,7 +191,7 @@ public class ContractBean implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_WARN,
                             UiMessages.get("contract.message.terminationWarning"), null));
         } catch (RuleViolation violation) {
-            showRuleViolation(violation);
+            WebExceptionHandler.showRuleViolation(violation);
         } catch (RuntimeException exception) {
             WebExceptionHandler.handle(getClass(), "terminate contract",
                     "contract.message.terminateFailed", exception);
@@ -211,7 +205,7 @@ public class ContractBean implements Serializable {
             loadContractDetails();
         } catch (RuleViolation violation) {
             terminationWarningActive = false;
-            showRuleViolation(violation);
+            WebExceptionHandler.showRuleViolation(violation);
         } catch (RuntimeException e) {
             terminationWarningActive = false;
             WebExceptionHandler.handle(getClass(), "confirm contract termination",
