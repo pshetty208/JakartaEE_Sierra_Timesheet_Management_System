@@ -106,13 +106,42 @@
                             <h:outputText value="#{row.hoursPerWeek}"/>
                         </p:column>
 
-                        <p:column headerText="#{msg['common.actions']}">
-                            <h:link value="#{msg['contracts.viewDetails']}" outcome="/contracts/detail">
-                                <f:param name="id" value="#{row.id}"/>
-                            </h:link>
+                        <p:column headerText="#{msg['common.actions']}" styleClass="contract-overview__column--actions">
+                            <div class="contract-overview__actions">
+                                <h:link value="#{msg['contracts.viewDetails']}" outcome="/contracts/detail"
+                                        styleClass="contract-overview__action">
+                                    <f:param name="id" value="#{row.id}"/>
+                                </h:link>
+                                <h:link value="#{msg['common.edit']}" outcome="/contracts/edit"
+                                        styleClass="contract-overview__action"
+                                        rendered="#{(request.isUserInRole('SUPERVISOR') or request.isUserInRole('ASSISTANT')) and contractBean.isPrepared(row)}">
+                                    <f:param name="id" value="#{row.id}"/>
+                                </h:link>
+                                <p:commandLink value="#{msg['common.delete']}"
+                                               action="#{contractBean.delete(row.id)}"
+                                               process="@this"
+                                               update="contractsForm"
+                                               styleClass="contract-overview__action"
+                                               rendered="#{(request.isUserInRole('SUPERVISOR') or request.isUserInRole('ASSISTANT')) and contractBean.isPrepared(row)}">
+                                    <p:confirm header="#{msg['contract.delete.confirm.title']}"
+                                               message="#{msg['contract.delete.confirm.description']}"
+                                               icon="pi pi-exclamation-triangle"/>
+                                </p:commandLink>
+                            </div>
                         </p:column>
 
                     </dataTable:dataTable>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="#{msg['common.cancel']}"
+                                         type="button"
+                                         icon="pi pi-times"
+                                         styleClass="ui-confirmdialog-no p-button-outlined"/>
+                        <p:commandButton value="#{msg['common.confirm']}"
+                                         type="button"
+                                         icon="pi pi-check"
+                                         styleClass="ui-confirmdialog-yes"/>
+                    </p:confirmDialog>
                 </h:form>
             </ui:fragment>
         </section>
