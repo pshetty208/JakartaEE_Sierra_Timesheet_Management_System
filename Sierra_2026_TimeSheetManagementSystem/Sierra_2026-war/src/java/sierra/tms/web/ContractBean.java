@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sierra.tms.dto.ContractDto;
+import sierra.tms.exceptions.TerminationWarning;
 import sierra.tms.i18n.UiMessages;
 import sierra.tms.services.ContractService;
 import sierra.tms.utils.enums.ContractStatus;
@@ -118,16 +119,14 @@ public class ContractBean implements Serializable {
         try {
             contractService.terminateContract(contractDetailId, false);
             loadContractDetails();
-        } catch (RuntimeException e) {
-            if (hasTerminationWarning(e)) {
-                terminationWarningActive = true;
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_WARN,
-                                UiMessages.get("contract.message.terminationWarning"), null));
-            } else {
-                WebExceptionHandler.handle(getClass(), "terminate contract",
-                        "contract.message.terminateFailed", e);
-            }
+        } catch (TerminationWarning warning) {
+            terminationWarningActive = true;
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN,
+                            UiMessages.get("contract.message.terminationWarning"), null));
+        } catch (RuntimeException exception) {
+            WebExceptionHandler.handle(getClass(), "terminate contract",
+                    "contract.message.terminateFailed", exception);
         }
     }
 
@@ -145,19 +144,6 @@ public class ContractBean implements Serializable {
 
     public void cancelTerminate() {
         terminationWarningActive = false;
-    }
-
-    private boolean hasTerminationWarning(Throwable throwable) {
-        Throwable current = throwable;
-        while (current != null) {
-            if (current instanceof IllegalStateException
-                    && current.getMessage() != null
-                    && current.getMessage().startsWith("Terminating contract")) {
-                return true;
-            }
-            current = current.getCause();
-        }
-        return false;
     }
 
     public void loadContracts() {

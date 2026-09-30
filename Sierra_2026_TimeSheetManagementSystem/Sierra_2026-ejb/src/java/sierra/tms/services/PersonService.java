@@ -24,7 +24,11 @@ public interface PersonService {
 
     void assignRole(Long personId, RoleType role);
 
-    void removeRole(Long personId, RoleType role);
+    // Removed: with the single-role-per-user model, assignRole() already performs an atomic
+    // swap (clears the existing role and sets the new one), so a separate removeRole() has no
+    // valid use case - a person must always have exactly one role, and this never worked
+    // correctly anyway (it threw when a role was assigned and silently did nothing otherwise).
+    // void removeRole(Long personId, RoleType role);
 
     PersonDto getCurrentPerson();
 

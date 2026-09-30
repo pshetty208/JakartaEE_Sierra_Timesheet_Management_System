@@ -3,8 +3,8 @@ package sierra.tms.web;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -39,9 +39,6 @@ public class DashboardBean implements Serializable {
     @EJB
     private PersonService personService;
 
-    @Inject
-    private FeatureAccessBean featureAccess;
-
     private RoleType dashboardRole;
     private List<TimesheetDto> timesheets;
     private List<TimesheetDto> pendingTimesheets;
@@ -58,12 +55,14 @@ public class DashboardBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        dashboardRole = featureAccess.getPrimaryRole();
+        dashboardRole = resolveRole();
         contracts = loadContracts();
         contractsById = contracts.stream()
                 .collect(Collectors.toMap(ContractDto::getId, Function.identity()));
-        peopleById = loadPeople().stream()
-                .collect(Collectors.toMap(PersonDto::getId, Function.identity()));
+        peopleById = dashboardRole == RoleType.EMPLOYEE
+                ? Map.of()
+                : loadPeople().stream()
+                        .collect(Collectors.toMap(PersonDto::getId, Function.identity()));
         timesheets = loadTimesheets();
 
         pendingTimesheets = byStatus(TimeSheetStatus.SIGNED_BY_EMPLOYEE,
@@ -99,6 +98,16 @@ public class DashboardBean implements Serializable {
                         && date.getYear() == today.getYear()
                         && date.getMonth() == today.getMonth())
                 .count();
+    }
+
+    private RoleType resolveRole() {
+        var externalContext = FacesContext.getCurrentInstance().getExternalContext();
+        for (RoleType role : RoleType.values()) {
+            if (externalContext.isUserInRole(role.name())) {
+                return role;
+            }
+        }
+        return RoleType.EMPLOYEE;
     }
 
     private List<TimesheetDto> byStatus(TimeSheetStatus status,
@@ -152,8 +161,15 @@ public class DashboardBean implements Serializable {
 
     public String getViewPath() {
         return "/WEB-INF/dashboard/"
-                + dashboardRole.name().toLowerCase(Locale.ROOT)
+                + dashboardFileName()
                 + ".xhtml";
+    }
+
+    /** The dashboard include files are named after the role, except ADMIN, whose file is "administrator.xhtml". */
+    private String dashboardFileName() {
+        return dashboardRole == RoleType.ADMIN
+                ? "administrator"
+                : dashboardRole.name().toLowerCase(Locale.ROOT);
     }
 
     public String getPageTitleKey() {

@@ -2,7 +2,7 @@
 <web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
     <context-param>
         <param-name>jakarta.faces.PROJECT_STAGE</param-name>
-        <param-value>Production</param-value>
+        <param-value>Development</param-value>
     </context-param>
     <context-param>
         <param-name>jakarta.faces.STATE_SAVING_METHOD</param-name>
@@ -21,6 +21,14 @@
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
+    <mime-mapping>
+        <extension>eot</extension>
+        <mime-type>application/vnd.ms-fontobject</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>woff2</extension>
+        <mime-type>font/woff2</mime-type>
+    </mime-mapping>
     <security-constraint>
         <display-name>Authenticated application pages</display-name>
         <web-resource-collection>

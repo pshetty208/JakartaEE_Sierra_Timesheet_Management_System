@@ -123,7 +123,11 @@ public class TimesheetBean implements Serializable {
         } catch (EJBException e) {
             error(UiMessages.get("timesheet.message.entryUnavailable"));
         } catch (IllegalStateException e) {
-            error(UiMessages.get("timesheet.message.entryUnavailable"));
+            if (e.getMessage() != null && e.getMessage().startsWith("This entry overlaps")) {
+                error(UiMessages.get("timesheet.message.entryOverlap"));
+            } else {
+                error(UiMessages.get("timesheet.message.entryUnavailable"));
+            }
         } catch (RuntimeException e) {
             WebExceptionHandler.handle(getClass(), "add timesheet entry",
                     "common.error.operationFailed", e);

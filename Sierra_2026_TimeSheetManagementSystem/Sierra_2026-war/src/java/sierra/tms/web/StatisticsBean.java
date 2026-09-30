@@ -5,7 +5,6 @@ import jakarta.ejb.EJBException;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
-import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -34,9 +33,6 @@ public class StatisticsBean implements Serializable {
     @EJB
     private TimesheetService timesheetService;
 
-    @Inject
-    private FeatureAccessBean featureAccess;
-
     private List<ContractSummary> summaries;
 
     public void load() {
@@ -58,11 +54,13 @@ public class StatisticsBean implements Serializable {
     }
 
     public boolean isEmployee() {
-        return featureAccess.isReportWork();
+        return FacesContext.getCurrentInstance().getExternalContext()
+                .isUserInRole("EMPLOYEE");
     }
 
     public boolean isSupervisor() {
-        return featureAccess.isCountersignTimesheet();
+        return FacesContext.getCurrentInstance().getExternalContext()
+                .isUserInRole("SUPERVISOR");
     }
 
     public double getHoursDue() {

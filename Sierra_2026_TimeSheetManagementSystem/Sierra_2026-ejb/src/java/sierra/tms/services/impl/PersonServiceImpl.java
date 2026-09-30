@@ -197,24 +197,28 @@ public class PersonServiceImpl implements PersonService {
         }
     }
 
-    @Override
-    @RolesAllowed({"ADMIN"})
-    public void removeRole(Long personId, RoleType roleType) {
-
-        PersonEntity person = personDao.findById(personId);
-
-        if (person == null) {
-            return;
-        }
-
-        boolean assigned = person.getRoles()
-                .stream()
-                .anyMatch(role -> role.getRole() == roleType);
-        if (assigned) {
-            throw new IllegalStateException(
-                    "A person's only role cannot be removed; assign a replacement role instead.");
-        }
-    }
+    // Removed: with the single-role-per-user model, assignRole() already performs an atomic
+    // swap (clears the existing role and sets the new one), so a separate removeRole() has no
+    // valid use case - a person must always have exactly one role, and this never worked
+    // correctly anyway (it threw when a role was assigned and silently did nothing otherwise).
+    // @Override
+    // @RolesAllowed({"ADMIN"})
+    // public void removeRole(Long personId, RoleType roleType) {
+    //
+    //     PersonEntity person = personDao.findById(personId);
+    //
+    //     if (person == null) {
+    //         return;
+    //     }
+    //
+    //     boolean assigned = person.getRoles()
+    //             .stream()
+    //             .anyMatch(role -> role.getRole() == roleType);
+    //     if (assigned) {
+    //         throw new IllegalStateException(
+    //                 "A person's only role cannot be removed; assign a replacement role instead.");
+    //     }
+    // }
 
     @Override
     @RolesAllowed({

@@ -535,7 +535,8 @@ public class TimesheetServiceImpl implements TimesheetService {
                         && existing.getStartTime().isBefore(candidate.getEndTime()));
 
         if (overlapsExistingEntry) {
-            throw new IllegalStateException("This entry overlaps time already reported for that date.");
+            throw new IllegalStateException(
+                    "This entry overlaps time already reported for that date.");
         }
     }
 

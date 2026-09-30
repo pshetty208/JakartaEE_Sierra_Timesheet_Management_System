@@ -27,7 +27,7 @@
                 </div>
                 <h:link outcome="/contracts/create"
                         styleClass="contract-overview__create"
-                        rendered="#{featureAccess.manageContract}">
+                        rendered="#{request.isUserInRole('SUPERVISOR') or request.isUserInRole('ASSISTANT')}">
                     <span class="pi pi-plus" aria-hidden="true"></span>
                     <span>#{msg['contracts.create']}</span>
                 </h:link>
