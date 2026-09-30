@@ -55,7 +55,7 @@ public class ContractServiceImpl implements ContractService {
     private ConfigService configService;
 
     @Override
-    @RolesAllowed({"SUPERVISOR", "ASSISTANT"})
+    @RolesAllowed({"ASSISTANT", "SECRETARY"})
     public void createContract(ContractDto dto) {
         PersonEntity currentPerson = requireUniversityStaffCaller();
         if (dto == null) {
@@ -117,12 +117,12 @@ public class ContractServiceImpl implements ContractService {
         contract.setSupervisor(supervisor);
         contract.setAssistants(findPeopleWithRole(dto.getAssistantRoleIds(), RoleType.ASSISTANT));
         contract.setSecretaries(findPeopleWithRole(dto.getSecretaryRoleIds(), RoleType.SECRETARY));
-
-        if (!isAuthorizedToManageContract(currentPerson, contract)) {
-            throw new EJBAccessException(
-                    "Only the selected supervisor or an assigned assistant may create this contract.");
+        Set<PersonEntity> creatorParticipants = sessionContext.isCallerInRole("ASSISTANT")
+                ? contract.getAssistants() : contract.getSecretaries();
+        if (!containsPerson(creatorParticipants, currentPerson.getId())) {
+            creatorParticipants.add(currentPerson);
         }
-        
+
         contractDao.save(contract);
         LOGGER.log(Level.INFO, "Contract created: contract_id=" + contract.getId() + ", employee=" + employee.getId() + ", supervisor=" + supervisor.getId());
     }
