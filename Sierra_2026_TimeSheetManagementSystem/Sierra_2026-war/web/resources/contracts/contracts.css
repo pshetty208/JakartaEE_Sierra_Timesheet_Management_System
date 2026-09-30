@@ -194,6 +194,64 @@
     border-color: var(--sierra-brand);
 }
 
+/*
+ * The PrimeFaces Saga theme styles the date picker header with
+ * "body .ui-datepicker .ui-datepicker-header" (white background, dark text),
+ * which outranks the panel rules above. In dark mode that left the light
+ * month/year text on a white header. The "body" prefix below outranks the theme.
+ */
+body .contract-create__date-panel.ui-datepicker .ui-datepicker-header {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border-color: var(--sierra-border);
+}
+
+body .contract-create__date-panel.ui-datepicker .ui-datepicker-title,
+body .contract-create__date-panel.ui-datepicker .ui-datepicker-title .ui-datepicker-month,
+body .contract-create__date-panel.ui-datepicker .ui-datepicker-title .ui-datepicker-year {
+    color: var(--sierra-text);
+}
+
+body .contract-create__date-panel.ui-datepicker .ui-datepicker-title select {
+    color: var(--sierra-text);
+    background: var(--sierra-input-background);
+    border: 1px solid var(--sierra-border);
+    border-radius: var(--sierra-radius-sm, 4px);
+    padding: 0.25rem 0.4rem;
+    color-scheme: inherit;
+}
+
+body .contract-create__date-panel.ui-datepicker .ui-datepicker-title select:hover {
+    border-color: var(--sierra-border-hover);
+}
+
+body .contract-create__date-panel.ui-datepicker .ui-datepicker-title select:focus {
+    border-color: var(--sierra-accent);
+    box-shadow: 0 0 0 3px var(--sierra-focus-color);
+    outline: none;
+}
+
+body .contract-create__date-panel.ui-datepicker .ui-datepicker-title select option {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+}
+
+body .contract-create__date-panel.ui-datepicker .ui-datepicker-prev,
+body .contract-create__date-panel.ui-datepicker .ui-datepicker-next {
+    color: var(--sierra-text-muted);
+}
+
+body .contract-create__date-panel.ui-datepicker .ui-datepicker-prev:hover,
+body .contract-create__date-panel.ui-datepicker .ui-datepicker-next:hover {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+}
+
+body .contract-create__date-panel.ui-datepicker .ui-monthpicker-month,
+body .contract-create__date-panel.ui-datepicker .ui-yearpicker-year {
+    color: var(--sierra-text);
+}
+
 body .contract-create .ui-message-error,
 body .contract-detail__messages .ui-messages-error,
 body .contract-detail__messages .ui-messages-fatal {
