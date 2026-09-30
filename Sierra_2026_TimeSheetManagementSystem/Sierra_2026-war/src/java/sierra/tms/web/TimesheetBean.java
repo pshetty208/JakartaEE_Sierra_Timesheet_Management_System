@@ -45,6 +45,13 @@ public class TimesheetBean implements Serializable {
     private Long timesheetDetailId;
     private TimesheetDto timesheetForPrinting;
 
+    private Long editingEntryId;
+    private ReportType editEntryType = ReportType.WORK;
+    private String editEntryDate;
+    private String editStartTime;
+    private String editEndTime;
+    private String editDescription;
+
 //Check if needed - before deleting
 //    public void saveTimesheet() {
 //
@@ -127,6 +134,8 @@ public class TimesheetBean implements Serializable {
         } catch (IllegalStateException e) {
             if (e.getMessage() != null && e.getMessage().startsWith("This entry overlaps")) {
                 error(UiMessages.get("timesheet.message.entryOverlap"));
+            } else if (e.getMessage() != null && e.getMessage().startsWith("This entry date is outside")) {
+                error(UiMessages.get("timesheet.message.entryOutOfRange"));
             } else {
                 error(UiMessages.get("timesheet.message.entryUnavailable"));
             }
@@ -134,6 +143,74 @@ public class TimesheetBean implements Serializable {
             WebExceptionHandler.handle(getClass(), "add timesheet entry",
                     "common.error.operationFailed", e);
         }
+    }
+
+    public void editEntry(TimesheetEntryDto entry) {
+        editingEntryId = entry.getId();
+        editEntryType = entry.getType();
+        editEntryDate = entry.getEntryDate().toString();
+        editStartTime = entry.getStartTime().toString();
+        editEndTime = entry.getEndTime().toString();
+        editDescription = entry.getDescription();
+    }
+
+    public void updateEntry() {
+
+        if (editEntryDate == null || editEntryDate.isBlank()
+                || editStartTime == null || editStartTime.isBlank()
+                || editEndTime == null || editEndTime.isBlank()) {
+            error(UiMessages.get("timesheet.message.invalidDateTime"));
+            return;
+        }
+
+        try {
+            TimesheetEntryDto dto = new TimesheetEntryDto();
+            dto.setId(editingEntryId);
+            dto.setType(editEntryType);
+            dto.setDescription(editDescription);
+            dto.setEntryDate(LocalDate.parse(editEntryDate.trim()));
+            dto.setStartTime(parseTime(editStartTime));
+            dto.setEndTime(parseTime(editEndTime));
+
+            if (!dto.getEndTime().isAfter(dto.getStartTime())) {
+                error(UiMessages.get("timesheet.message.endAfterStart"));
+                return;
+            }
+
+            service.updateEntry(dto);
+            refreshTimesheets();
+            cancelEdit();
+
+        } catch (DateTimeParseException e) {
+            error(UiMessages.get("timesheet.message.invalidDateTime"));
+        } catch (EJBAccessException e) {
+            error(UiMessages.get("timesheet.message.ownEntriesOnly"));
+        } catch (EJBException e) {
+            error(UiMessages.get("timesheet.message.entryUnavailable"));
+        } catch (IllegalStateException e) {
+            if (e.getMessage() != null && e.getMessage().startsWith("This entry overlaps")) {
+                error(UiMessages.get("timesheet.message.entryOverlap"));
+            } else if (e.getMessage() != null && e.getMessage().startsWith("This entry date is outside")) {
+                error(UiMessages.get("timesheet.message.entryOutOfRange"));
+            } else {
+                error(UiMessages.get("timesheet.message.entryUnavailable"));
+            }
+        } catch (RuntimeException e) {
+            WebExceptionHandler.handle(getClass(), "update timesheet entry",
+                    "common.error.operationFailed", e);
+        }
+    }
+
+    public void cancelEdit() {
+        editingEntryId = null;
+        editDescription = "";
+        editEntryDate = "";
+        editStartTime = "";
+        editEndTime = "";
+    }
+
+    public boolean isEditing() {
+        return editingEntryId != null;
     }
 
     // accepts "9:00" as well as "09:00", LocalTime.parse only accepts the latter
@@ -412,6 +489,46 @@ public class TimesheetBean implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public ReportType getEditEntryType() {
+        return editEntryType;
+    }
+
+    public void setEditEntryType(ReportType editEntryType) {
+        this.editEntryType = editEntryType;
+    }
+
+    public String getEditEntryDate() {
+        return editEntryDate;
+    }
+
+    public void setEditEntryDate(String editEntryDate) {
+        this.editEntryDate = editEntryDate;
+    }
+
+    public String getEditStartTime() {
+        return editStartTime;
+    }
+
+    public void setEditStartTime(String editStartTime) {
+        this.editStartTime = editStartTime;
+    }
+
+    public String getEditEndTime() {
+        return editEndTime;
+    }
+
+    public void setEditEndTime(String editEndTime) {
+        this.editEndTime = editEndTime;
+    }
+
+    public String getEditDescription() {
+        return editDescription;
+    }
+
+    public void setEditDescription(String editDescription) {
+        this.editDescription = editDescription;
     }
 
     public Long getTimesheetDetailId() {

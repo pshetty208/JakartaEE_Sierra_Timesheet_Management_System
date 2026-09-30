@@ -178,6 +178,7 @@ public class TimesheetServiceImpl implements TimesheetService {
         TimesheetEntity timesheet = timesheetDao.findById(timesheetId);
         validateEmployeeOwnsTimesheet(timesheet);
         validateTimesheet(timesheet);
+        validateEntryDateWithinRange(timesheet, entry);
         validateNoOverlappingEntry(null, timesheet, entry);
 
         double hours = computeHours(entry.getStartTime(), entry.getEndTime());
@@ -215,6 +216,7 @@ public class TimesheetServiceImpl implements TimesheetService {
         TimesheetEntity timesheet = entity.getTimesheet();
         validateEmployeeOwnsTimesheet(timesheet);
         validateTimesheet(timesheet);
+        validateEntryDateWithinRange(timesheet, entry);
         validateNoOverlappingEntry(entity.getId(), timesheet, entry);
 
         double hours = computeHours(entry.getStartTime(), entry.getEndTime());
@@ -566,6 +568,13 @@ public class TimesheetServiceImpl implements TimesheetService {
 
         if (timesheet.getStatus() != TimeSheetStatus.IN_PROGRESS || contract == null || contract.getStatus() != sierra.tms.utils.enums.ContractStatus.STARTED) {
             throw new IllegalStateException("Timesheet entries can only be changed while the timesheet is IN_PROGRESS state and contract is STARTED state");
+        }
+    }
+
+    private void validateEntryDateWithinRange(TimesheetEntity timesheet, TimesheetEntryDto entry) {
+        LocalDate entryDate = entry.getEntryDate();
+        if (entryDate.isBefore(timesheet.getStartDate()) || entryDate.isAfter(timesheet.getEndDate())) {
+            throw new IllegalStateException("This entry date is outside the timesheet's date range.");
         }
     }
 

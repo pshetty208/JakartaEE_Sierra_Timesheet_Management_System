@@ -151,6 +151,17 @@ public class ContractBean implements Serializable {
         }
     }
 
+    public String updateAndReturn() {
+        try {
+            contractService.update(contract);
+            return "/contracts/index?faces-redirect=true";
+        } catch (RuntimeException exception) {
+            WebExceptionHandler.handle(getClass(), "update contract",
+                    "common.error.operationFailed", exception);
+            return null;
+        }
+    }
+
     public void delete(Long id) {
         try {
             contractService.delete(id);
@@ -245,6 +256,10 @@ public class ContractBean implements Serializable {
 
     public boolean isPrepared() {
       return ContractStatus.PREPARED == contract.getStatus();
+    }
+
+    public boolean isPrepared(ContractDto dto) {
+        return dto != null && ContractStatus.PREPARED == dto.getStatus();
     }
 
     public boolean isStarted() {

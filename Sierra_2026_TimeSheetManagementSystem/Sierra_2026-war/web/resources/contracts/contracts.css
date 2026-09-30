@@ -509,6 +509,28 @@ body .contract-confirm-dialog.ui-dialog .ui-button.p-button-outlined:not(:disabl
     min-width: 11rem;
 }
 
+.contract-overview__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.contract-overview__actions > .contract-overview__action:not(:first-child) {
+    margin-left: 0.5rem;
+    padding-left: 0.5rem;
+    border-left: 1px solid var(--sierra-border);
+}
+
+.contract-overview__actions .contract-overview__action,
+.contract-overview__actions .contract-overview__action.ui-commandlink {
+    font-size: inherit;
+    font-weight: inherit;
+    font-family: inherit;
+    color: var(--sierra-accent);
+    text-decoration: none;
+}
+
 .contract-overview__table .ui-datatable-emptymessage td {
     padding: 2.5rem 1rem;
     color: var(--sierra-text-muted);
