@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<!-- CN1 / CN6: edit a PREPARED contract. Only its supervisor or an assigned assistant sees the form;
+     ContractServiceImpl.update enforces the same rules on the server. -->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="jakarta.faces.core"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="jakarta.faces.facelets"
+                template="/WEB-INF/templates/app-layout.xhtml">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam id="contractId"
+                         name="id"
+                         value="#{contractBean.contractDetailId}"
+                         required="true"
+                         requiredMessage="#{msg['contract.validation.id.required']}"
+                         converterMessage="#{msg['contract.validation.id.number']}"
+                         validatorMessage="#{msg['contract.validation.id.positive']}">
+                <f:validateLongRange minimum="1"/>
+            </f:viewParam>
+            <f:viewAction action="#{contractBean.loadContractDetails}"
+                          if="#{not empty param.id}"
+                          onPostback="false"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="title">#{msg['contract.edit.page.title']}</ui:define>
+
+    <ui:define name="content">
+        <h:outputStylesheet library="contracts" name="contracts.css"/>
+
+        <section class="contract-create" aria-labelledby="contract-edit-title">
+            <header class="contract-create__heading">
+                <h:link outcome="/contracts/detail"
+                        styleClass="contract-create__back"
+                        aria-label="#{msg['contract.backToDetails']}">
+                    <span class="pi pi-arrow-left" aria-hidden="true"></span>
+                    <f:param name="id" value="#{contractBean.contractDetailId}"/>
+                </h:link>
+
+                <div>
+                    <h1 id="contract-edit-title">#{msg['contract.edit.title']}</h1>
+                    <p>#{msg['contract.edit.description']}</p>
+                </div>
+            </header>
+
+            <h:form id="editContractForm"
+                    styleClass="contract-create__card"
+                    rendered="#{contractBean.canEditOrDelete}">
+                <p:messages id="messages" globalOnly="true" closable="true"/>
+
+                <div class="contract-create__grid">
+                    <div class="contract-create__field contract-create__field--wide">
+                        <p:outputLabel for="contractName" value="#{msg['contract.name']}"/>
+                        <p:inputText id="contractName"
+                                     value="#{contractBean.contract.name}"
+                                     required="true"
+                                     requiredMessage="#{msg['contract.validation.name.required']}"
+                                     validatorMessage="#{msg['contract.validation.name.invalid']}">
+                            <f:validateLength maximum="100"/>
+                            <f:validateRegex pattern=".*\S.*"/>
+                        </p:inputText>
+                        <p:message for="contractName"/>
+                    </div>
+
+                    <div class="contract-create__field">
+                        <span class="contract-create__readonly-label">#{msg['contract.employee']}</span>
+                        <h:outputText value="#{contractBean.contract.employeeName}"
+                                      styleClass="contract-create__readonly-value"/>
+                    </div>
+
+                    <div class="contract-create__field">
+                        <span class="contract-create__readonly-label">#{msg['contract.supervisor']}</span>
+                        <h:outputText value="#{contractBean.contract.supervisorName}"
+                                      styleClass="contract-create__readonly-value"/>
+                    </div>
+
+                    <div class="contract-create__field">
+                        <p:outputLabel for="startDate" value="#{msg['contract.startDate.first']}"/>
+                        <p:datePicker id="startDate"
+                                      value="#{contractBean.contract.startDate}"
+                                      pattern="dd.MM.yyyy"
+                                      showIcon="true"
+                                      panelStyleClass="contract-create__date-panel"
+                                      required="true"
+                                      requiredMessage="#{msg['contract.validation.startDate.required']}"
+                                      converterMessage="#{msg['contract.validation.startDate.format']}"/>
+                        <p:message for="startDate"/>
+                    </div>
+
+                    <div class="contract-create__field">
+                        <p:outputLabel for="endDate" value="#{msg['contract.endDate.last']}"/>
+                        <p:datePicker id="endDate"
+                                      value="#{contractBean.contract.endDate}"
+                                      pattern="dd.MM.yyyy"
+                                      showIcon="true"
+                                      panelStyleClass="contract-create__date-panel"
+                                      required="true"
+                                      requiredMessage="#{msg['contract.validation.endDate.required']}"
+                                      converterMessage="#{msg['contract.validation.endDate.format']}"/>
+                        <p:message for="endDate"/>
+                    </div>
+
+                    <div class="contract-create__field">
+                        <p:outputLabel for="frequency" value="#{msg['contract.frequency']}"/>
+                        <p:selectOneMenu id="frequency"
+                                         panelStyleClass="contract-create__select-panel"
+                                         value="#{contractBean.contract.frequency}"
+                                         required="true"
+                                         requiredMessage="#{msg['contract.validation.frequency.required']}">
+                            <f:selectItems value="#{contractBean.frequencies}"
+                                           var="frequency"
+                                           itemLabel="#{contractBean.frequencyLabel(frequency)}"
+                                           itemValue="#{frequency}"/>
+                        </p:selectOneMenu>
+                        <p:message for="frequency"/>
+                    </div>
+
+                    <div class="contract-create__field">
+                        <p:outputLabel for="hoursPerWeek" value="#{msg['contract.hoursPerWeek']}"/>
+                        <p:inputNumber id="hoursPerWeek"
+                                       value="#{contractBean.contract.hoursPerWeek}"
+                                       decimalPlaces="1"
+                                       minValue="0"
+                                       required="true"
+                                       requiredMessage="#{msg['contract.validation.hours.required']}"/>
+                        <p:message for="hoursPerWeek"/>
+                    </div>
+
+                    <div class="contract-create__field">
+                        <p:outputLabel for="workingDays" value="#{msg['contract.workingDaysPerWeek']}"/>
+                        <p:inputNumber id="workingDays"
+                                       value="#{contractBean.contract.workingDaysPerWeek}"
+                                       decimalPlaces="0"
+                                       minValue="1"
+                                       maxValue="5"
+                                       required="true"
+                                       requiredMessage="#{msg['contract.validation.workingDays.required']}"
+                                       validatorMessage="#{msg['contract.validation.workingDays.range5']}">
+                            <f:validateLongRange minimum="1" maximum="5"/>
+                        </p:inputNumber>
+                        <p:message for="workingDays"/>
+                    </div>
+
+                    <div class="contract-create__field">
+                        <p:outputLabel for="vacationDays" value="#{msg['contract.vacationDaysPerYear']}"/>
+                        <p:inputNumber id="vacationDays"
+                                       value="#{contractBean.contract.vacationDaysPerYear}"
+                                       decimalPlaces="0"
+                                       minValue="0"
+                                       required="true"
+                                       requiredMessage="#{msg['contract.validation.vacationDays.required']}"
+                                       validatorMessage="#{msg['contract.validation.vacationDays.nonnegative']}">
+                            <f:validateLongRange minimum="0"/>
+                        </p:inputNumber>
+                        <p:message for="vacationDays"/>
+                    </div>
+
+                    <div class="contract-create__field">
+                        <p:outputLabel for="archiveDuration" value="#{msg['contract.archiveDurationMonths']}"/>
+                        <p:inputNumber id="archiveDuration"
+                                       value="#{contractBean.contract.archiveDuration}"
+                                       decimalPlaces="0"
+                                       minValue="1"
+                                       required="true"
+                                       requiredMessage="#{msg['contract.validation.archiveDuration.required']}"/>
+                        <p:message for="archiveDuration"/>
+                    </div>
+                </div>
+
+                <div class="contract-create__actions">
+                    <p:button value="#{msg['common.cancel']}"
+                              outcome="/contracts/detail"
+                              styleClass="ui-button-outlined contract-create__button">
+                        <f:param name="id" value="#{contractBean.contractDetailId}"/>
+                    </p:button>
+                    <p:commandButton value="#{msg['contract.edit.save']}"
+                                     action="#{contractBean.update}"
+                                     icon="pi pi-check"
+                                     process="@form"
+                                     update="@form"
+                                     styleClass="contract-create__button">
+                        <f:param name="id" value="#{contractBean.contractDetailId}"/>
+                    </p:commandButton>
+                </div>
+            </h:form>
+
+            <h:panelGroup layout="block"
+                          rendered="#{not contractBean.canEditOrDelete}"
+                          styleClass="contract-detail__state"
+                          role="status">
+                <span class="pi pi-lock" aria-hidden="true"></span>
+                <div>
+                    <h2>#{msg['contract.edit.notEditable.title']}</h2>
+                    <p>#{msg['contract.edit.notEditable.description']}</p>
+                </div>
+            </h:panelGroup>
+        </section>
+    </ui:define>
+</ui:composition>

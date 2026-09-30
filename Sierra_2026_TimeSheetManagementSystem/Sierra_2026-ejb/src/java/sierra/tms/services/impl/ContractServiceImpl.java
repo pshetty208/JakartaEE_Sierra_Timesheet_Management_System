@@ -300,17 +300,15 @@ public class ContractServiceImpl implements ContractService {
     }
     
     @Override
-    @RolesAllowed({"SECRETARY", "ADMIN"})
+    @RolesAllowed("SECRETARY")
     public ContractDto getContractForPrinting(Long id) {
         ContractEntity contract = getRequiredContract(id);
-        if (!sessionContext.isCallerInRole("ADMIN")) {
-            PersonEntity currentPerson = getCurrentPerson();
-            if (currentPerson == null
-                    || !currentPerson.isUniversityStaff()
-                    || !containsPerson(contract.getSecretaries(), currentPerson.getId())) {
-                throw new EJBAccessException(
-                        "Only a secretary assigned to this contract may print it.");
-            }
+        PersonEntity currentPerson = getCurrentPerson();
+        if (currentPerson == null
+                || !currentPerson.isUniversityStaff()
+                || !containsPerson(contract.getSecretaries(), currentPerson.getId())) {
+            throw new EJBAccessException(
+                    "Only a secretary assigned to this contract may print it.");
         }
         return createDto(contract);
     }
