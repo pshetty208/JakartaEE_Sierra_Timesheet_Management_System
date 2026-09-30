@@ -166,6 +166,7 @@ public class ContractServiceImpl implements ContractService {
 
         validateState(contract);
         validateStartAndEndDates(dto.getStartDate(), dto.getEndDate()); 
+        validatePositiveHours(dto.getHoursPerWeek());
         contract.setName(dto.getName());
         contract.setStartDate(dto.getStartDate());
         contract.setEndDate(dto.getEndDate());
@@ -342,9 +343,7 @@ public class ContractServiceImpl implements ContractService {
     }
     
     private void validateEmployeeHours(Long employeeId, Double hours) {
-        if (hours == null || hours < 0) {
-            throw new IllegalArgumentException("Hours per week must be greater than zero.");
-        }
+        validatePositiveHours(hours);
 
         double existingHours = contractDao.findByEmployee(employeeId)
                 .stream()
@@ -361,6 +360,12 @@ public class ContractServiceImpl implements ContractService {
                     + maxHoursPerWeek + "-hour limit.");
         }
 
+    }
+
+    private void validatePositiveHours(Double hours) {
+        if (hours == null || hours <= 0) {
+            throw new IllegalArgumentException("Hours per week must be greater than zero.");
+        }
     }
     
     private boolean isAuthorizedToViewContract(PersonEntity person, ContractEntity contract) {
