@@ -146,23 +146,6 @@ public class TimesheetBean implements Serializable {
         }
     }
 
-    /**
-     * The container wraps a plain (non-@ApplicationException) RuntimeException such as
-     * IllegalStateException in an EJBException before it reaches a web-tier client, so a
-     * direct {@code catch (IllegalStateException e)} around an EJB call never actually fires.
-     * This walks the cause chain to find the real exception type instead.
-     */
-    private boolean hasCauseOfType(Throwable throwable, Class<? extends Throwable> type) {
-        Throwable current = throwable;
-        while (current != null) {
-            if (type.isInstance(current)) {
-                return true;
-            }
-            current = current.getCause();
-        }
-        return false;
-    }
-
     public void deleteEntry(Long id) {
         try {
             service.deleteEntry(id);
@@ -184,13 +167,6 @@ public class TimesheetBean implements Serializable {
             error(UiMessages.get("timesheet.message.employeeSignOnly"));
         } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.signUnavailable"));
-        } catch (EJBException e) {
-            if (hasCauseOfType(e, IllegalStateException.class)) {
-                error(UiMessages.get("timesheet.message.signUnavailable"));
-            } else {
-                WebExceptionHandler.handle(getClass(), "sign timesheet",
-                        "common.error.operationFailed", e);
-            }
         } catch (RuntimeException e) {
             WebExceptionHandler.handle(getClass(), "sign timesheet",
                     "common.error.operationFailed", e);
@@ -206,13 +182,6 @@ public class TimesheetBean implements Serializable {
             error(UiMessages.get("timesheet.message.employeeRevokeOnly"));
         } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.revokeUnavailable"));
-        } catch (EJBException e) {
-            if (hasCauseOfType(e, IllegalStateException.class)) {
-                error(UiMessages.get("timesheet.message.revokeUnavailable"));
-            } else {
-                WebExceptionHandler.handle(getClass(), "revoke timesheet signature",
-                        "common.error.operationFailed", e);
-            }
         } catch (RuntimeException e) {
             WebExceptionHandler.handle(getClass(), "revoke timesheet signature",
                     "common.error.operationFailed", e);
@@ -228,13 +197,6 @@ public class TimesheetBean implements Serializable {
             error(UiMessages.get("timesheet.message.supervisorSignOnly"));
         } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.supervisorSignUnavailable"));
-        } catch (EJBException e) {
-            if (hasCauseOfType(e, IllegalStateException.class)) {
-                error(UiMessages.get("timesheet.message.supervisorSignUnavailable"));
-            } else {
-                WebExceptionHandler.handle(getClass(), "supervisor sign timesheet",
-                        "common.error.operationFailed", e);
-            }
         } catch (RuntimeException e) {
             WebExceptionHandler.handle(getClass(), "supervisor sign timesheet",
                     "common.error.operationFailed", e);
@@ -250,13 +212,6 @@ public class TimesheetBean implements Serializable {
             error(UiMessages.get("timesheet.message.requestChangesOnly"));
         } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.requestChangesUnavailable"));
-        } catch (EJBException e) {
-            if (hasCauseOfType(e, IllegalStateException.class)) {
-                error(UiMessages.get("timesheet.message.requestChangesUnavailable"));
-            } else {
-                WebExceptionHandler.handle(getClass(), "request timesheet changes",
-                        "common.error.operationFailed", e);
-            }
         } catch (RuntimeException e) {
             WebExceptionHandler.handle(getClass(), "request timesheet changes",
                     "common.error.operationFailed", e);
@@ -272,13 +227,6 @@ public class TimesheetBean implements Serializable {
             error(UiMessages.get("timesheet.message.archiveOnly"));
         } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.archiveUnavailable"));
-        } catch (EJBException e) {
-            if (hasCauseOfType(e, IllegalStateException.class)) {
-                error(UiMessages.get("timesheet.message.archiveUnavailable"));
-            } else {
-                WebExceptionHandler.handle(getClass(), "archive timesheet",
-                        "common.error.operationFailed", e);
-            }
         } catch (RuntimeException e) {
             WebExceptionHandler.handle(getClass(), "archive timesheet",
                     "common.error.operationFailed", e);
