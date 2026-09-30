@@ -75,6 +75,55 @@
                     </div>
                 </p:panel>
 
+                <p:dialog widgetVar="editEntryDialog" modal="true" resizable="false" closable="true"
+                          header="#{msg['timesheet.entry.edit']}"
+                          styleClass="timesheet-entry-dialog">
+                    <h:panelGroup id="editEntryDialogContent">
+                        <div class="timesheet-entry-form__grid">
+                            <div class="timesheet-entry-form__field">
+                                <p:outputLabel for="editEntryType" value="#{msg['common.type']}"/>
+                                <p:selectOneMenu id="editEntryType" value="#{timesheetBean.editEntryType}"
+                                                 panelStyleClass="timesheet-entry-form__select-panel">
+                                    <f:selectItems value="#{timesheetBean.reportTypes}" var="reportType"
+                                                   itemValue="#{reportType}" itemLabel="#{timesheetBean.reportTypeLabel(reportType)}"/>
+                                </p:selectOneMenu>
+                            </div>
+                            <div class="timesheet-entry-form__field">
+                                <p:outputLabel for="editEntryDate" value="#{msg['common.date']}"/>
+                                <p:inputText id="editEntryDate" value="#{timesheetBean.editEntryDate}" placeholder="YYYY-MM-DD"/>
+                            </div>
+                            <div class="timesheet-entry-form__field">
+                                <p:outputLabel for="editStartTime" value="#{msg['timesheet.entry.startTime']}"/>
+                                <p:inputText id="editStartTime" value="#{timesheetBean.editStartTime}" placeholder="09:00"/>
+                            </div>
+                            <div class="timesheet-entry-form__field">
+                                <p:outputLabel for="editEndTime" value="#{msg['timesheet.entry.endTime']}"/>
+                                <p:inputText id="editEndTime" value="#{timesheetBean.editEndTime}" placeholder="17:00"/>
+                            </div>
+                            <div class="timesheet-entry-form__field timesheet-entry-form__field--wide">
+                                <p:outputLabel for="editDescription" value="#{msg['common.description']}"/>
+                                <p:inputText id="editDescription" value="#{timesheetBean.editDescription}"
+                                             placeholder="#{msg['timesheet.entry.description.placeholder']}"/>
+                            </div>
+                        </div>
+                        <div class="timesheet-entry-form__actions">
+                            <p:commandButton value="#{msg['timesheet.entry.save']}" icon="pi pi-check"
+                                             action="#{timesheetBean.updateEntry}"
+                                             process="@this editEntryDialogContent"
+                                             update="timesheetsForm"
+                                             oncomplete="if (!args.validationFailed) { PF('editEntryDialog').hide(); }"
+                                             styleClass="timesheet-entry-form__submit"/>
+                            <p:commandButton value="#{msg['common.cancel']}"
+                                             action="#{timesheetBean.cancelEdit}"
+                                             process="@this"
+                                             immediate="true"
+                                             update="timesheetsForm"
+                                             oncomplete="PF('editEntryDialog').hide()"
+                                             styleClass="ui-button-outlined timesheet-entry-form__cancel"/>
+                        </div>
+                    </h:panelGroup>
+                </p:dialog>
+
                 <ui:repeat value="#{timesheetBean.timesheets}" var="timesheet">
                     <article class="timesheet-card">
                         <header class="timesheet-card__summary">
@@ -228,6 +277,13 @@
                                 </p:column>
                                 <p:column headerText="#{msg['common.type']}"><span class="timesheet-card__type">#{timesheetBean.reportTypeLabel(entry.type)}</span></p:column>
                                 <p:column headerText="#{msg['common.action']}" styleClass="timesheet-card__action">
+                                    <p:commandButton value="#{msg['common.edit']}" icon="pi pi-pencil"
+                                                     action="#{timesheetBean.editEntry(entry)}"
+                                                     process="@this"
+                                                     update=":timesheetsForm:editEntryDialogContent"
+                                                     oncomplete="PF('editEntryDialog').show()"
+                                                     styleClass="timesheet-card__edit"
+                                                     rendered="#{request.isUserInRole('EMPLOYEE') and timesheetBean.canManageEntries(entry.timesheetId)}"/>
                                     <p:commandButton value="#{msg['common.delete']}" icon="pi pi-trash"
                                                      action="#{timesheetBean.deleteEntry(entry.id)}"
                                                      process="@this"
