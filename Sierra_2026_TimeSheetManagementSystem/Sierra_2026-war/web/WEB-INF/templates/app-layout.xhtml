@@ -78,6 +78,11 @@
                                         rendered="#{featureAccess.viewStatistics}"
                                         icon="pi pi-chart-bar"
                                         styleClass="#{facesContext.viewRoot.viewId eq '/app/statistics.xhtml' ? 'sierra-shell__navigation-item--active' : ''}"/>
+                            <p:menuitem value="#{msg['navigation.people']}"
+                                        outcome="/app/people"
+                                        rendered="#{featureAccess.managePeople}"
+                                        icon="pi pi-users"
+                                        styleClass="#{facesContext.viewRoot.viewId eq '/app/people.xhtml' ? 'sierra-shell__navigation-item--active' : ''}"/>
                         </menu:menu>
                     </h:form>
                 </ui:insert>

@@ -10,10 +10,16 @@
                 <h1 id="dashboard-title">#{msg['dashboard.administrator.title']}</h1>
                 <p>#{msg['dashboard.administrator.description']}</p>
             </div>
-            <h:link outcome="/app/statistics" styleClass="dashboard__heading-action">
-                <span class="pi pi-chart-bar" aria-hidden="true"></span>
-                <span>#{msg['dashboard.administrator.action']}</span>
-            </h:link>
+            <div class="dashboard__heading-actions">
+                <h:link outcome="/app/people" styleClass="dashboard__heading-action">
+                    <span class="pi pi-users" aria-hidden="true"></span>
+                    <span>#{msg['dashboard.administrator.peopleAction']}</span>
+                </h:link>
+                <h:link outcome="/app/statistics" styleClass="dashboard__heading-action">
+                    <span class="pi pi-chart-bar" aria-hidden="true"></span>
+                    <span>#{msg['dashboard.administrator.action']}</span>
+                </h:link>
+            </div>
         </header>
 
         <div class="dashboard__metrics">

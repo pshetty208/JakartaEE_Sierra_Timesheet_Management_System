@@ -5,6 +5,7 @@ import jakarta.faces.context.FacesContext;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import sierra.tms.exceptions.RuleViolation;
 import sierra.tms.i18n.UiMessages;
 
 final class WebExceptionHandler {
@@ -24,5 +25,11 @@ final class WebExceptionHandler {
             context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
                     UiMessages.get(messageKey, incidentId), null));
         }
+    }
+
+    static void showRuleViolation(RuleViolation violation) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        UiMessages.get(violation.getMessageKey(), violation.getArguments()), null));
     }
 }

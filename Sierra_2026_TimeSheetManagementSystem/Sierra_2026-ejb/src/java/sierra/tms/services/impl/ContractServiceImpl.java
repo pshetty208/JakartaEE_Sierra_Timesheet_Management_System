@@ -23,7 +23,7 @@ import sierra.tms.dto.ContractDto;
 import sierra.tms.entities.ContractEntity;
 import sierra.tms.entities.PersonEntity;
 import sierra.tms.entities.TimesheetEntity;
-import sierra.tms.exceptions.ContractRuleViolation;
+import sierra.tms.exceptions.RuleViolation;
 import sierra.tms.exceptions.TerminationWarning;
 import sierra.tms.services.ContractService;
 import sierra.tms.utils.enums.ContractStatus;
@@ -230,7 +230,7 @@ public class ContractServiceImpl implements ContractService {
             throw new EJBAccessException("The current user is not authorized to start this contract.");
         }
         if (contract.getStatus() != ContractStatus.PREPARED) {
-            throw new ContractRuleViolation("contract.message.startNotPrepared");
+            throw new RuleViolation("contract.message.startNotPrepared");
         }
         contract.setStatus(ContractStatus.STARTED);
         List<TimesheetEntity> generateTimesheets = generateTimesheets(contract);
@@ -265,7 +265,7 @@ public class ContractServiceImpl implements ContractService {
             throw new EJBAccessException("The current user is not authorized to terminate this contract.");
         }
         if (contract.getStatus() != ContractStatus.STARTED) {
-            throw new ContractRuleViolation("contract.message.terminateNotStarted");
+            throw new RuleViolation("contract.message.terminateNotStarted");
         }
 
         List<TimesheetEntity> timesheets = timesheetDao.findByContractId(id);
@@ -274,7 +274,7 @@ public class ContractServiceImpl implements ContractService {
                         && t.getStatus() != TimeSheetStatus.SIGNED_BY_SUPERVISOR
                         && t.getStatus() != TimeSheetStatus.ARCHIVED);
         if (hasBlockingTimesheet) {
-            throw new ContractRuleViolation("contract.message.terminateSignaturePending");
+            throw new RuleViolation("contract.message.terminateSignaturePending");
         }
         
         if (!confirmed) {
@@ -334,18 +334,20 @@ public class ContractServiceImpl implements ContractService {
     
     private void validateStartAndEndDates(LocalDate startDate, LocalDate endDate) {
         if (!startDate.equals(startDate.withDayOfMonth(1))) {
-            throw new ContractRuleViolation("contract.validation.startDate.firstOfMonth");
+            throw new RuleViolation("contract.validation.startDate.firstOfMonth");
         }
         if (!endDate.equals(endDate.with(TemporalAdjusters.lastDayOfMonth()))) {
-            throw new ContractRuleViolation("contract.validation.endDate.lastOfMonth");
+            throw new RuleViolation("contract.validation.endDate.lastOfMonth");
         }
         if (endDate.isBefore(startDate)) {
-            throw new ContractRuleViolation("contract.validation.endDate.beforeStart");
+            throw new RuleViolation("contract.validation.endDate.beforeStart");
         }
     }
     
     private void validateEmployeeHours(Long employeeId, Double hours) {
-        validatePositiveHours(hours);
+        if (hours == null || hours < 0) {
+            throw new RuleViolation("contract.validation.hours.nonnegative");
+        }
 
         double existingHours = contractDao.findByEmployee(employeeId)
                 .stream()
@@ -357,7 +359,7 @@ public class ContractServiceImpl implements ContractService {
         if (existingHours + hours > maxHoursPerWeek) {
             LOGGER.log(Level.WARNING, "Rejected contract for employee: employee_id=" + employeeId
                     + " as working hours has exceeded " + maxHoursPerWeek + " hours per week.");
-            throw new ContractRuleViolation("contract.message.hoursLimitExceeded",
+            throw new RuleViolation("contract.message.hoursLimitExceeded",
                     existingHours, hours, maxHoursPerWeek);
         }
 
