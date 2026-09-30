@@ -16,9 +16,11 @@ import jakarta.inject.Named;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 
 @Named
@@ -95,8 +97,8 @@ public class TimesheetBean implements Serializable {
             dto.setType(entryType);
             dto.setDescription(description);
             dto.setEntryDate(LocalDate.parse(entryDate.trim()));
-            dto.setStartTime(LocalTime.parse(startTime.trim()));
-            dto.setEndTime(LocalTime.parse(endTime.trim()));
+            dto.setStartTime(parseTime(startTime));
+            dto.setEndTime(parseTime(endTime));
 
             if (!dto.getEndTime().isAfter(dto.getStartTime())) {
                 error(UiMessages.get("timesheet.message.endAfterStart"));
@@ -121,7 +123,11 @@ public class TimesheetBean implements Serializable {
         } catch (EJBAccessException e) {
             error(UiMessages.get("timesheet.message.ownEntriesOnly"));
         } catch (EJBException e) {
-            error(UiMessages.get("timesheet.message.entryUnavailable"));
+            if (hasCauseMessage(e, "This entry overlaps")) {
+                error(UiMessages.get("timesheet.message.entryOverlap"));
+            } else {
+                error(UiMessages.get("timesheet.message.entryUnavailable"));
+            }
         } catch (IllegalStateException e) {
             if (e.getMessage() != null && e.getMessage().startsWith("This entry overlaps")) {
                 error(UiMessages.get("timesheet.message.entryOverlap"));
@@ -132,6 +138,45 @@ public class TimesheetBean implements Serializable {
             WebExceptionHandler.handle(getClass(), "add timesheet entry",
                     "common.error.operationFailed", e);
         }
+    }
+
+    // Accept both "9:00" and the zero-padded ISO form "09:00".
+    private LocalTime parseTime(String value) {
+        String trimmed = value.trim();
+        try {
+            return LocalTime.parse(trimmed);
+        } catch (DateTimeParseException e) {
+            return LocalTime.parse(trimmed, DateTimeFormatter.ofPattern("H:mm", Locale.ROOT));
+        }
+    }
+
+    private boolean hasCauseMessage(Throwable throwable, String messagePrefix) {
+        Throwable current = throwable;
+        while (current != null) {
+            if (current.getMessage() != null
+                    && current.getMessage().startsWith(messagePrefix)) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
+    }
+
+    /**
+     * The container wraps a plain (non-@ApplicationException) RuntimeException such as
+     * IllegalStateException in an EJBException before it reaches a web-tier client, so a
+     * direct {@code catch (IllegalStateException e)} around an EJB call never actually fires.
+     * This walks the cause chain to find the real exception type instead.
+     */
+    private boolean hasCauseOfType(Throwable throwable, Class<? extends Throwable> type) {
+        Throwable current = throwable;
+        while (current != null) {
+            if (type.isInstance(current)) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 
     public void deleteEntry(Long id) {
@@ -155,6 +200,13 @@ public class TimesheetBean implements Serializable {
             error(UiMessages.get("timesheet.message.employeeSignOnly"));
         } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.signUnavailable"));
+        } catch (EJBException e) {
+            if (hasCauseOfType(e, IllegalStateException.class)) {
+                error(UiMessages.get("timesheet.message.signUnavailable"));
+            } else {
+                WebExceptionHandler.handle(getClass(), "sign timesheet",
+                        "common.error.operationFailed", e);
+            }
         } catch (RuntimeException e) {
             WebExceptionHandler.handle(getClass(), "sign timesheet",
                     "common.error.operationFailed", e);
@@ -170,6 +222,13 @@ public class TimesheetBean implements Serializable {
             error(UiMessages.get("timesheet.message.employeeRevokeOnly"));
         } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.revokeUnavailable"));
+        } catch (EJBException e) {
+            if (hasCauseOfType(e, IllegalStateException.class)) {
+                error(UiMessages.get("timesheet.message.revokeUnavailable"));
+            } else {
+                WebExceptionHandler.handle(getClass(), "revoke timesheet signature",
+                        "common.error.operationFailed", e);
+            }
         } catch (RuntimeException e) {
             WebExceptionHandler.handle(getClass(), "revoke timesheet signature",
                     "common.error.operationFailed", e);
@@ -185,6 +244,13 @@ public class TimesheetBean implements Serializable {
             error(UiMessages.get("timesheet.message.supervisorSignOnly"));
         } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.supervisorSignUnavailable"));
+        } catch (EJBException e) {
+            if (hasCauseOfType(e, IllegalStateException.class)) {
+                error(UiMessages.get("timesheet.message.supervisorSignUnavailable"));
+            } else {
+                WebExceptionHandler.handle(getClass(), "supervisor sign timesheet",
+                        "common.error.operationFailed", e);
+            }
         } catch (RuntimeException e) {
             WebExceptionHandler.handle(getClass(), "supervisor sign timesheet",
                     "common.error.operationFailed", e);
@@ -200,6 +266,13 @@ public class TimesheetBean implements Serializable {
             error(UiMessages.get("timesheet.message.requestChangesOnly"));
         } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.requestChangesUnavailable"));
+        } catch (EJBException e) {
+            if (hasCauseOfType(e, IllegalStateException.class)) {
+                error(UiMessages.get("timesheet.message.requestChangesUnavailable"));
+            } else {
+                WebExceptionHandler.handle(getClass(), "request timesheet changes",
+                        "common.error.operationFailed", e);
+            }
         } catch (RuntimeException e) {
             WebExceptionHandler.handle(getClass(), "request timesheet changes",
                     "common.error.operationFailed", e);
@@ -215,6 +288,13 @@ public class TimesheetBean implements Serializable {
             error(UiMessages.get("timesheet.message.archiveOnly"));
         } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.archiveUnavailable"));
+        } catch (EJBException e) {
+            if (hasCauseOfType(e, IllegalStateException.class)) {
+                error(UiMessages.get("timesheet.message.archiveUnavailable"));
+            } else {
+                WebExceptionHandler.handle(getClass(), "archive timesheet",
+                        "common.error.operationFailed", e);
+            }
         } catch (RuntimeException e) {
             WebExceptionHandler.handle(getClass(), "archive timesheet",
                     "common.error.operationFailed", e);

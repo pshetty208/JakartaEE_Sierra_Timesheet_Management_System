@@ -477,10 +477,12 @@ public class ContractServiceImpl implements ContractService {
 
         if (entity.getEmployee() != null) {
             dto.setEmployeeId(entity.getEmployee().getId());
+            dto.setEmployeeName(entity.getEmployee().getFirstName() + " " + entity.getEmployee().getLastName());
         }
 
         if (entity.getSupervisor() != null) {
             dto.setSupervisorId(entity.getSupervisor().getId());
+            dto.setSupervisorName(entity.getSupervisor().getFirstName() + " " + entity.getSupervisor().getLastName());
         }
 
         dto.setName(entity.getName());
