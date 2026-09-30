@@ -17,6 +17,7 @@ for overdue action, and keeps statistics per contract.
 - [Installation and Setup](#installation-and-setup)
 - [Technologies Used](#technologies-used)
 - [Domain Model](#domain-model)
+- [Architecture](#architecture)
 - [Features](#features)
 - [Requirements Summary](#requirements-summary)
   - [Completed Requirements](#completed-requirements)
@@ -86,6 +87,61 @@ Secretary), `Contract` (owns a set of `Timesheet`s, an employee, a
 supervisor, and optional assistants/secretaries), `Timesheet` (owns a set of
 `TimesheetEntry`, tracks its own status and signature dates), and
 `TimesheetEntry` (a single reported block of work, vacation, or sick leave).
+
+## Architecture
+
+TSS follows the layered architecture of the course (SA1). It is packaged as
+one enterprise application (`Sierra_2026_TimeSheetManagementSystem.ear`) with
+two modules (SA2). The application packages are under the root package
+`sierra.tms` (SA6).
+
+### Modules and layers
+
+| Layer | Module | Package | Contents |
+| --- | --- | --- | --- |
+| Presentation | `Sierra_2026-war` | `web/*.xhtml`, `web/resources` | JSF Facelets pages (contracts, timesheets, statistics, dashboards, login) and reusable composite components with their CSS |
+| Presentation logic | `Sierra_2026-war` | `sierra.tms.web` | CDI backing beans (`ContractBean`, `TimesheetBean`, `StatisticsBean`, `DashboardBean`, `PersonBean`), `FeatureAccessBean` for role-based UI features, and the JSF exception handling |
+| UI language | `Sierra_2026-war` | `sierra.tms.i18n` | `LocaleBean` and `UiMessages`, with `messages.properties` / `messages_de.properties` |
+| Business logic | `Sierra_2026-ejb` | `sierra.tms.services`, `sierra.tms.services.impl` | Stateless EJBs behind local interfaces: contracts, timesheets, persons, hours and vacation calculation, public holidays, reminders |
+| Data access | `Sierra_2026-ejb` | `sierra.tms.dao` | One DAO per entity, using JPA (EclipseLink) through the `Sierra-tms-pu` persistence unit and `jdbc/sierra` |
+| Domain model | `Sierra_2026-ejb` | `sierra.tms.entities` | JPA entities `PersonEntity`, `RoleEntity`, `ContractEntity`, `TimesheetEntity`, `TimesheetEntryEntity`, `TimesheetSignatureEventEntity` |
+| Data transfer | `Sierra_2026-ejb` | `sierra.tms.dto` | DTOs passed between the EJB and web modules, so entities never reach the pages |
+| Support | `Sierra_2026-ejb` | `sierra.tms.utils`, `sierra.tms.utils.enums`, `sierra.tms.i18n`, `sierra.tms.exceptions` | `ConfigService` (reads `sierra.properties`), `ArchivingService`, enums, reminder texts in English and German, `TerminationWarning` |
+
+The web module only talks to the EJB module through the service interfaces
+and DTOs; pages never access DAOs or entities directly.
+
+### Subsystems
+
+- **Security.** Login uses a GlassFish JDBC realm (`sierraRealm`) on the
+`SIERRA_AUTH_USER` / `SIERRA_AUTH_GROUP` tables. Every service method is
+protected with `@RolesAllowed`, and the services additionally check that the
+caller is assigned to the contract. In the web module, `FeatureAccessBean`
+maps each role to the UI features it may see, so pages do not contain role
+checks of their own.
+- **Contracts and timesheets.** `ContractService` handles the contract
+lifecycle and generates all timesheets when a contract starts.
+`TimesheetService` handles entries, signatures, change requests and
+archiving, and records every signature in `TimesheetSignatureEvent`.
+- **Calculations.** `ContractHoursCalculationService` computes vacation hours,
+hours due per timesheet and per contract, and remaining hours, using
+`HolidayService` for the public holidays of the configured federal state.
+- **Scheduled jobs.** EJB timers send the daily reminder mails
+(`ReminderService`, through `mail/tssMailSession`) and delete expired
+archived timesheets and contracts (`ArchivingService`).
+- **Configuration.** Limits and defaults (maximum hours per week, default
+working and vacation days, archive duration, federal state, holiday years,
+time zone, mail sender) are read from `sierra.properties`, so they can be
+changed without code changes.
+- **Internationalization.** UI texts come from resource bundles in the web
+module; reminder texts come from bundles in the EJB module and use each
+recipient's preferred language.
+
+### Database
+
+MariaDB database `sierra`. `database/000-sierra-application-schema.sql`
+creates the application tables and `database/001-sierra-auth-schema.sql` the
+login tables; the numbered scripts after that add constraints and test data.
 
 ## Features
 
@@ -179,7 +235,6 @@ Completed Requirements
 #### Access Control (AC)
 
 - **AC1**: Users are authenticated before any data is accessible.
-- **AC2**: The system can determine whether a person is a university staff member.
 - **AC3**: Users can only view, change or delete data according to their staff status and their role on the specific contract — every service method is guarded by `@RolesAllowed`, and contract/timesheet operations additionally check that the caller is the employee, supervisor, assistant or secretary assigned to that contract.
 
 
@@ -206,15 +261,18 @@ Completed Requirements
 
 - **SA1**: The TSS is implemented according to the layered architecture.
 - **SA2**: The TSS contains at least two modules, a web module and an EJB module.
+- **SA3**: No third-party libraries beyond those presented in the lecture/lab are used. The only additions to Jakarta EE are PrimeFaces (explicitly allowed) and the MariaDB Connector/J JDBC driver from the course setup, so no extra consent was needed.
 - **SA4**: MariaDB is used as the database server.
+- **SA5**: Architectural decisions (modules, layers, package structure and subsystems) are documented in the [Architecture](#architecture) section.
 - **SA6**: All global names (database, JNDI names, security realm, root Java package) are prefixed with the team name (`sierra`).
 
 
 
 Missed Requirements
 
-- **SG4**: Digital signing (a cryptographic signature, not just recording who signed and when) was not attempted; it is a SHOULD requirement.
-- **UI2**: Mobile device support was not specifically tested; the layout is responsive but no device testing was done.
+- **SG4**: Digital signing of timesheets is not implemented. Signing records who signed and when (an audit entry tied to the logged-in session), but it does not create a cryptographic signature. A real digital signature needs keys or certificates for every employee and supervisor, and the university provides no such infrastructure for this project. As a SHOULD requirement, it was left out in favour of the MIN requirements.
+- **AC2**: The TSS cannot determine on its own whether a person is a university staff member. Staff status is a `university_staff` flag that is set manually when the account is created, and the access checks rely on that flag. Determining it automatically would need a connection to the university's identity or HR directory (for example LDAP), which was not available to the team. Instead, the administrator creates the user accounts, keeps track of former employees, and deletes their contracts when required.
+- **UI2**: Mobile devices are only partly supported. The pages set a viewport and have responsive CSS rules, but no dedicated mobile layout was designed and nothing was tested on phones or tablets. As a SHOULD requirement, it was deprioritised behind the MIN requirements. The application views work on mobile screens, but the login page is not adapted to mobile view.
 - **UI3**: Cross-browser support (FireFox, Safari, Chrome) was not systematically tested; the team only tested in Chrome.
 
 
@@ -278,6 +336,18 @@ without saying whether several are allowed; the team chose one role per
 person, enforced by a unique constraint on the `Roles` table and by
 `assignRole()` replacing the current role rather than adding to it. This
 keeps authorization decisions unambiguous.
+- When an assistant or a secretary creates a contract, they are added to
+that contract as an assistant or secretary by default. The requirements do
+not say who is assigned to a new contract; the team chose to add the creator
+automatically so that they can see and work with the contract they just
+created without assigning themselves separately.
+- An employee can have more than one contract, as the requirements allow,
+but the hours per week of all their active contracts (PREPARED or STARTED)
+together may not exceed 20. Creating a contract that would go over this
+limit is rejected. The requirements do not set a limit; the team added it to
+reflect the usual 20-hour weekly limit for student assistants. The value is
+configurable in `sierra.properties` (`tss.contract.max-hours-per-week`).
+Terminated and archived contracts do not count towards the limit.
 
 
 
