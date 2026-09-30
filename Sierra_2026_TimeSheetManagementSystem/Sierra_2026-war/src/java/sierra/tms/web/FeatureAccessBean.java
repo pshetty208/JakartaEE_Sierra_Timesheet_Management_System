@@ -4,6 +4,7 @@ import static sierra.tms.web.ApplicationFeature.ARCHIVE_TIMESHEET;
 import static sierra.tms.web.ApplicationFeature.COUNTERSIGN_TIMESHEET;
 import static sierra.tms.web.ApplicationFeature.CREATE_CONTRACT;
 import static sierra.tms.web.ApplicationFeature.MANAGE_CONTRACT;
+import static sierra.tms.web.ApplicationFeature.MANAGE_PEOPLE;
 import static sierra.tms.web.ApplicationFeature.PRINT_CONTRACT;
 import static sierra.tms.web.ApplicationFeature.PRINT_TIMESHEET;
 import static sierra.tms.web.ApplicationFeature.REPORT_WORK;
@@ -85,7 +86,7 @@ public class FeatureAccessBean {
                 VIEW_STATISTICS, 
                 VIEW_TIMESHEETS, 
                 SYSTEM_OVERVIEW,
-                SEARCH_RECORDS));
+                MANAGE_PEOPLE));
     }
 
     private Set<ApplicationFeature> availableFeatures;
@@ -178,5 +179,9 @@ public class FeatureAccessBean {
 
     public boolean isSystemOverview() {
         return has(SYSTEM_OVERVIEW);
+    }
+
+    public boolean isManagePeople() {
+        return has(MANAGE_PEOPLE);
     }
 }

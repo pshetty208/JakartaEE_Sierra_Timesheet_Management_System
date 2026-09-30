@@ -1,0 +1,359 @@
+.people {
+    width: 100%;
+    max-width: 56rem;
+}
+
+.people__heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    margin-bottom: var(--sierra-space-lg);
+}
+
+.people__heading h1 {
+    margin: 0;
+    color: var(--sierra-text);
+    font-size: 1.35rem;
+    line-height: 1.25;
+}
+
+.people__heading p {
+    margin: var(--sierra-space-xs) 0 0;
+    color: var(--sierra-text);
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
+.people__back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 2rem;
+    height: 2rem;
+    color: var(--sierra-text);
+    border: 1px solid var(--sierra-border);
+    border-radius: 0.45rem;
+    text-decoration: none;
+}
+
+.people__back:hover,
+.people__back:focus {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+}
+
+.people__card {
+    display: block;
+    padding: var(--sierra-space-2xl);
+    background: var(--sierra-surface-raised);
+    border: 1px solid var(--sierra-border);
+    border-radius: var(--sierra-radius-lg);
+}
+
+.people__card + .people__card {
+    margin-top: var(--sierra-space-lg);
+}
+
+.people__section-title {
+    margin: 0 0 var(--sierra-space-xs);
+    color: var(--sierra-text);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.people__section-description {
+    margin: 0 0 var(--sierra-space-lg);
+    color: var(--sierra-text-muted);
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
+.people__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem 1rem;
+}
+
+.people__field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.people__field--wide {
+    grid-column: 1 / -1;
+}
+
+.people__field label {
+    color: var(--sierra-text);
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.people .ui-inputfield,
+.people .ui-selectonemenu,
+.people .ui-datepicker-trigger {
+    color: var(--sierra-text);
+    background: transparent;
+    border-color: var(--sierra-border);
+    box-shadow: none;
+}
+
+.people .ui-inputfield,
+.people .ui-selectonemenu,
+.people .ui-password {
+    width: 100%;
+}
+
+.people .ui-inputfield {
+    min-height: var(--sierra-control-height);
+}
+
+.people .ui-selectonemenu-label,
+.people .ui-selectonemenu-trigger {
+    color: var(--sierra-text);
+}
+
+.people .ui-calendar {
+    display: flex;
+    width: 100%;
+}
+
+.people .ui-calendar .ui-inputfield {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.people .ui-calendar .ui-datepicker-trigger {
+    flex: 0 0 2.5rem;
+    border-left: 0;
+}
+
+.people .ui-inputfield:enabled:hover,
+.people .ui-selectonemenu:not(.ui-state-disabled):hover {
+    border-color: var(--sierra-text-muted);
+}
+
+.people .ui-inputfield:enabled:focus,
+.people .ui-selectonemenu.ui-state-focus {
+    border-color: var(--sierra-accent);
+    box-shadow: 0 0 0 3px var(--sierra-focus-color);
+}
+
+.people .ui-inputfield::placeholder {
+    color: var(--sierra-text-muted);
+    opacity: 1;
+}
+
+.people__select-panel.ui-selectonemenu-panel,
+.people__date-panel.ui-datepicker {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border-color: var(--sierra-border);
+    box-shadow: 0 0.8rem 2rem var(--sierra-shadow-color);
+}
+
+.people__select-panel .ui-selectonemenu-items-wrapper,
+.people__select-panel .ui-selectonemenu-items {
+    background: transparent;
+}
+
+.people__select-panel .ui-selectonemenu-item {
+    color: var(--sierra-text);
+    background: transparent;
+}
+
+.people__select-panel .ui-selectonemenu-item.ui-state-hover,
+.people__select-panel .ui-selectonemenu-item.ui-state-highlight {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+}
+
+body .people__date-panel.ui-datepicker .ui-datepicker-header,
+.people__date-panel .ui-datepicker-calendar,
+.people__date-panel .ui-datepicker-buttonbar {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border-color: var(--sierra-border);
+}
+
+.people__date-panel .ui-datepicker-title,
+.people__date-panel .ui-datepicker-prev,
+.people__date-panel .ui-datepicker-next,
+.people__date-panel th,
+.people__date-panel .ui-datepicker-calendar tbody td > a.ui-state-default,
+.people__date-panel td > span {
+    color: var(--sierra-text);
+}
+
+body .people__date-panel.ui-datepicker .ui-datepicker-title {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0 2.25rem;
+}
+
+body .people__date-panel.ui-datepicker .ui-datepicker-title select,
+body .people__date-panel.ui-datepicker .ui-datepicker-title input {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+    margin: 0;
+    height: 2rem;
+    padding: 0 0.5rem;
+    color: var(--sierra-text);
+    background: var(--sierra-surface);
+    border: 1px solid var(--sierra-border);
+    border-radius: 0.375rem;
+    font: inherit;
+    font-weight: 600;
+}
+
+.people__date-panel td > a,
+.people__date-panel td > span {
+    background: transparent;
+    border-color: transparent;
+}
+
+.people__date-panel td > a:hover,
+.people__date-panel .ui-datepicker-calendar tbody td.ui-datepicker-today > a.ui-state-default {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+    border-color: var(--sierra-border-hover);
+}
+
+.people__date-panel .ui-datepicker-calendar tbody td.ui-datepicker-current-day > a.ui-state-default {
+    color: var(--sierra-on-brand);
+    background: var(--sierra-brand);
+    border-color: var(--sierra-brand);
+}
+
+body .people .ui-message-error,
+body .people .ui-messages-error,
+body .people .ui-messages-fatal {
+    color: var(--sierra-danger);
+    background: var(--sierra-danger-surface);
+    border-color: var(--sierra-danger-border);
+}
+
+body .people .ui-messages-info {
+    color: var(--sierra-status-started-text);
+    background: var(--sierra-status-started-bg);
+    border-color: var(--sierra-status-started-border);
+}
+
+.people .ui-messages-close,
+.people .ui-messages-close:hover {
+    color: inherit;
+    background: transparent;
+}
+
+.people__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.65rem;
+    margin-top: var(--sierra-space-2xl);
+}
+
+.sierra-shell .people__button.ui-button {
+    color: var(--sierra-text);
+    background: transparent;
+    border-color: var(--sierra-text-muted);
+}
+
+.sierra-shell .people__button.ui-button:hover,
+.sierra-shell .people__button.ui-button:focus {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+    border-color: var(--sierra-text);
+}
+
+@media (max-width: 48rem) {
+    .people__heading {
+        gap: 0.4rem;
+        margin-bottom: 0.65rem;
+    }
+
+    .people__heading h1 {
+        font-size: 1rem;
+    }
+
+    .people__heading p {
+        margin-top: 0.1rem;
+        line-height: 1.35;
+    }
+
+    .people__back {
+        width: 1.65rem;
+        height: 1.65rem;
+        font-size: 0.7rem;
+    }
+
+    .people__card {
+        padding: 0.75rem;
+    }
+
+    .people__grid {
+        gap: 0.55rem 0.7rem;
+    }
+
+    .people__field {
+        gap: 0.2rem;
+    }
+
+    .people .ui-inputfield {
+        min-height: 1.8rem;
+        padding: 0.35rem 0.55rem;
+    }
+
+    .people .ui-selectonemenu-label {
+        padding: 0.4rem 0.55rem;
+    }
+
+    .people .ui-selectonemenu-trigger,
+    .people .ui-calendar .ui-datepicker-trigger {
+        width: 2rem;
+        flex-basis: 2rem;
+    }
+
+    .people__actions {
+        margin-top: 0.8rem;
+    }
+}
+
+@media (max-width: 34rem) {
+    .people__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .people__field--wide {
+        grid-column: auto;
+    }
+
+    .people__button.ui-button {
+        width: 100%;
+    }
+}
+
+.sierra-shell .people__table.ui-datatable thead > tr > th {
+    color: var(--sierra-text-muted);
+    background: var(--sierra-surface-subtle);
+    border-color: var(--sierra-border);
+}
+
+.sierra-shell .people__table.ui-datatable tbody > tr,
+.sierra-shell .people__table.ui-datatable tbody > tr.ui-datatable-odd {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+}
+
+.sierra-shell .people__table.ui-datatable tbody > tr.ui-datatable-odd {
+    background: var(--sierra-surface);
+}
+
+.sierra-shell .people__table.ui-datatable tbody > tr > td {
+    color: var(--sierra-text);
+    background: transparent;
+    border-color: var(--sierra-border);
+}

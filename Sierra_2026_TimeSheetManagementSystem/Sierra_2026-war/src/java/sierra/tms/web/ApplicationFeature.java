@@ -16,7 +16,7 @@ public enum ApplicationFeature {
     PRINT_TIMESHEET,
     ARCHIVE_TIMESHEET,
     SYSTEM_OVERVIEW,
-    SEARCH_RECORDS,
+    MANAGE_PEOPLE,
     REVOKE_SIGNATURE
 }
 

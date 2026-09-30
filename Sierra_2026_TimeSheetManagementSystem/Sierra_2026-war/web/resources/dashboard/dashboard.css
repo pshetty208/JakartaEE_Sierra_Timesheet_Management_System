@@ -62,6 +62,11 @@
     border-color: var(--sierra-border-hover);
 }
 
+.dashboard__heading-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
 .dashboard__metrics {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -227,6 +232,11 @@
 @media (max-width: 40rem) {
     .dashboard__heading {
         align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .dashboard__heading-actions {
+        width: 100%;
         flex-direction: column;
     }
 

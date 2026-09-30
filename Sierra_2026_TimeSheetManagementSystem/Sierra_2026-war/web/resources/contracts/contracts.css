@@ -158,7 +158,7 @@
     background: var(--sierra-surface-active);
 }
 
-.contract-create__date-panel .ui-datepicker-header,
+body .contract-create__date-panel.ui-datepicker .ui-datepicker-header,
 .contract-create__date-panel .ui-datepicker-calendar,
 .contract-create__date-panel .ui-datepicker-buttonbar {
     color: var(--sierra-text);

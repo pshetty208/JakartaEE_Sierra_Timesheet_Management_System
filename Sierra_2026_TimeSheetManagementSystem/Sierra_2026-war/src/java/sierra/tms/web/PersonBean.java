@@ -1,13 +1,18 @@
 package sierra.tms.web;
 
 import jakarta.ejb.EJB;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import sierra.tms.dto.PersonDto;
+import sierra.tms.exceptions.RuleViolation;
+import sierra.tms.i18n.UiMessages;
 import sierra.tms.services.PersonService;
 import sierra.tms.utils.enums.RoleType;
 
@@ -26,6 +31,10 @@ public class PersonBean implements Serializable {
 
     private List<RoleType> roleTypes = Arrays.asList(RoleType.values());
 
+    private RoleType selectedRole;
+
+    private String initialPassword;
+
 
     public void init() {
         try {
@@ -41,9 +50,18 @@ public class PersonBean implements Serializable {
     public void save() {
 
         try {
-            personService.createPerson(person);
+            person.setRoles(List.of(selectedRole));
+            personService.createPerson(person, initialPassword);
+            String emailAddress = person.getEmailAddress().trim().toLowerCase(Locale.ROOT);
             person = new PersonDto();
+            selectedRole = null;
+            initialPassword = null;
             persons = personService.findAll();
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO,
+                            UiMessages.get("person.create.success", emailAddress), null));
+        } catch (RuleViolation violation) {
+            WebExceptionHandler.showRuleViolation(violation);
         } catch (RuntimeException exception) {
             WebExceptionHandler.handle(getClass(), "create person",
                     "common.error.operationFailed", exception);
@@ -82,6 +100,16 @@ public class PersonBean implements Serializable {
     }
 
 
+    public LocalDate getLatestDateOfBirth() {
+        return LocalDate.now().minusYears(PersonService.MINIMUM_AGE);
+    }
+
+
+    public String roleLabel(RoleType role) {
+        return UiMessages.get("role." + role.name());
+    }
+
+
     public PersonDto getPerson() {
         return person;
     }
@@ -99,5 +127,25 @@ public class PersonBean implements Serializable {
 
     public List<RoleType> getRoleTypes() {
         return roleTypes;
+    }
+
+
+    public RoleType getSelectedRole() {
+        return selectedRole;
+    }
+
+
+    public void setSelectedRole(RoleType selectedRole) {
+        this.selectedRole = selectedRole;
+    }
+
+
+    public String getInitialPassword() {
+        return initialPassword;
+    }
+
+
+    public void setInitialPassword(String initialPassword) {
+        this.initialPassword = initialPassword;
     }
 }
