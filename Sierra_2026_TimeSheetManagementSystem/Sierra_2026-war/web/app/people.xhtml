@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="jakarta.faces.core"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:appButton="jakarta.faces.composite/appButton"
+                xmlns:dataTable="jakarta.faces.composite/dataTable"
+                template="/WEB-INF/templates/app-layout.xhtml">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewAction action="#{personBean.init}" onPostback="false"/>
+        </f:metadata>
+    </ui:define>
+
+    <ui:define name="title">#{msg['people.page.title']}</ui:define>
+
+    <ui:define name="content">
+        <h:outputStylesheet library="people" name="people.css"/>
+
+        <section class="people" aria-labelledby="people-title">
+            <header class="people__heading">
+                <h:link outcome="/app/dashboard"
+                        styleClass="people__back"
+                        aria-label="#{msg['common.back']}">
+                    <span class="pi pi-arrow-left" aria-hidden="true"></span>
+                </h:link>
+
+                <div>
+                    <h1 id="people-title">#{msg['people.title']}</h1>
+                    <p>#{msg['people.description']}</p>
+                </div>
+            </header>
+
+            <h:form id="createPersonForm" styleClass="people__card">
+                <h2 class="people__section-title">#{msg['people.create.title']}</h2>
+                <p class="people__section-description">#{msg['people.create.description']}</p>
+
+                <p:messages id="messages" globalOnly="true" closable="true"/>
+                <div class="people__grid">
+                    <div class="people__field">
+                        <p:outputLabel for="firstName" value="#{msg['person.firstName']}"/>
+                        <p:inputText id="firstName"
+                                     value="#{personBean.person.firstName}"
+                                     required="true"
+                                     requiredMessage="#{msg['person.validation.firstName.required']}"
+                                     validatorMessage="#{msg['person.validation.name.invalid']}">
+                            <f:validateLength maximum="100"/>
+                            <f:validateRegex pattern=".*\S.*"/>
+                        </p:inputText>
+                        <p:message for="firstName"/>
+                    </div>
+
+                    <div class="people__field">
+                        <p:outputLabel for="lastName" value="#{msg['person.lastName']}"/>
+                        <p:inputText id="lastName"
+                                     value="#{personBean.person.lastName}"
+                                     required="true"
+                                     requiredMessage="#{msg['person.validation.lastName.required']}"
+                                     validatorMessage="#{msg['person.validation.name.invalid']}">
+                            <f:validateLength maximum="100"/>
+                            <f:validateRegex pattern=".*\S.*"/>
+                        </p:inputText>
+                        <p:message for="lastName"/>
+                    </div>
+
+                    <div class="people__field people__field--wide">
+                        <p:outputLabel for="emailAddress" value="#{msg['person.emailAddress']}"/>
+                        <p:inputText id="emailAddress"
+                                     type="email"
+                                     value="#{personBean.person.emailAddress}"
+                                     required="true"
+                                     requiredMessage="#{msg['person.validation.email.required']}"
+                                     validatorMessage="#{msg['person.validation.email.invalid']}">
+                            <f:validateLength maximum="255"/>
+                            <f:validateRegex pattern="\s*[^@\s]+@[^@\s]+\.[^@\s]+\s*"/>
+                        </p:inputText>
+                        <p:message for="emailAddress"/>
+                    </div>
+
+                    <div class="people__field">
+                        <p:outputLabel for="dateOfBirth" value="#{msg['person.dateOfBirth']}"/>
+                        <p:datePicker id="dateOfBirth"
+                                      value="#{personBean.person.dateOfBirth}"
+                                      placeholder="dd.mm.yyyy"
+                                      pattern="dd.MM.yyyy"
+                                      showIcon="true"
+                                      maxdate="#{personBean.latestDateOfBirth}"
+                                      monthNavigator="true"
+                                      yearNavigator="true"
+                                      yearRange="c-100:c+0"
+                                      panelStyleClass="people__date-panel"
+                                      converterMessage="#{msg['person.validation.dateOfBirth.format']}"/>
+                        <p:message for="dateOfBirth"/>
+                    </div>
+
+                    <div class="people__field">
+                        <p:outputLabel for="preferredLanguage" value="#{msg['person.preferredLanguage']}"/>
+                        <p:selectOneMenu id="preferredLanguage"
+                                         panelStyleClass="people__select-panel"
+                                         value="#{personBean.person.preferredLanguage}">
+                            <f:selectItem itemLabel="#{msg['language.english']}" itemValue="en"/>
+                            <f:selectItem itemLabel="#{msg['language.german']}" itemValue="de"/>
+                        </p:selectOneMenu>
+                        <p:message for="preferredLanguage"/>
+                    </div>
+
+                    <div class="people__field">
+                        <p:outputLabel for="role" value="#{msg['person.role']}"/>
+                        <p:selectOneMenu id="role"
+                                         panelStyleClass="people__select-panel"
+                                         value="#{personBean.selectedRole}"
+                                         required="true"
+                                         requiredMessage="#{msg['person.validation.role.required']}">
+                            <f:selectItem itemLabel="#{msg['person.role.placeholder']}"
+                                          itemValue="#{null}"
+                                          noSelectionOption="true"/>
+                            <f:selectItems value="#{personBean.roleTypes}"
+                                           var="roleType"
+                                           itemLabel="#{personBean.roleLabel(roleType)}"
+                                           itemValue="#{roleType}"/>
+                        </p:selectOneMenu>
+                        <p:message for="role"/>
+                    </div>
+
+                    <div class="people__field">
+                        <p:outputLabel for="initialPassword" value="#{msg['person.initialPassword']}"/>
+                        <p:password id="initialPassword"
+                                    value="#{personBean.initialPassword}"
+                                    feedback="false"
+                                    toggleMask="true"
+                                    autocomplete="new-password"
+                                    required="true"
+                                    requiredMessage="#{msg['person.validation.password.required']}"
+                                    validatorMessage="#{msg['person.validation.password.length']}">
+                            <f:validateLength minimum="8"/>
+                        </p:password>
+                        <p:message for="initialPassword"/>
+                    </div>
+                </div>
+
+                <div class="people__actions">
+                    <appButton:appButton value="#{msg['people.create.submit']}"
+                                         icon="pi pi-user-plus"
+                                         action="#{personBean.save}"
+                                         process="@form"
+                                         update="@form :peopleForm"
+                                         styleClass="ui-button-outlined people__button"/>
+                </div>
+            </h:form>
+
+            <h:form id="peopleForm" styleClass="people__card">
+                <h2 class="people__section-title">#{msg['people.list.title']}</h2>
+
+                <dataTable:dataTable value="#{personBean.persons}"
+                                     rowKey="#{row.id}"
+                                     rows="10"
+                                     emptyMessage="#{msg['people.empty']}"
+                                     styleClass="app-data-table people__table">
+                    <p:column headerText="#{msg['person.name']}">
+                        <h:outputText value="#{row.firstName} #{row.lastName}"/>
+                    </p:column>
+
+                    <p:column headerText="#{msg['person.emailAddress']}">
+                        <h:outputText value="#{row.emailAddress}"/>
+                    </p:column>
+
+                    <p:column headerText="#{msg['person.role']}">
+                        <h:outputText value="#{personBean.roleLabel(row.roles[0])}"
+                                      rendered="#{not empty row.roles}"/>
+                    </p:column>
+                </dataTable:dataTable>
+            </h:form>
+        </section>
+    </ui:define>
+</ui:composition>

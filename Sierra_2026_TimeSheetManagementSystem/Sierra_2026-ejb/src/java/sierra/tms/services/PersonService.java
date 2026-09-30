@@ -7,8 +7,10 @@ import sierra.tms.utils.enums.RoleType;
 
 @Local
 public interface PersonService {
-    
-    void createPerson(PersonDto dto);
+
+    int MINIMUM_AGE = 17;
+
+    void createPerson(PersonDto dto, String initialPassword);
 
     PersonDto findById(Long id);
 

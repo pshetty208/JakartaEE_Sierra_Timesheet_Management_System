@@ -17,6 +17,6 @@ public enum ApplicationFeature {
     ARCHIVE_TIMESHEET,
     SYSTEM_OVERVIEW,
     SEARCH_RECORDS,
+    MANAGE_PEOPLE,
     REVOKE_SIGNATURE
 }
-

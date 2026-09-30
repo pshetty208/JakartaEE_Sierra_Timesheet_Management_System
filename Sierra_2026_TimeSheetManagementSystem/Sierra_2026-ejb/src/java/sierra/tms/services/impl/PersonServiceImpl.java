@@ -6,14 +6,18 @@ import jakarta.ejb.EJB;
 import jakarta.ejb.EJBAccessException;
 import jakarta.ejb.SessionContext;
 import jakarta.ejb.Stateless;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import sierra.tms.dao.AccountDao;
 import sierra.tms.dao.PersonDao;
 import sierra.tms.dto.PersonDto;
 import sierra.tms.entities.PersonEntity;
 import sierra.tms.entities.RoleEntity;
+import sierra.tms.exceptions.RuleViolation;
 import sierra.tms.i18n.LanguageResolver;
 import sierra.tms.services.PersonService;
 import sierra.tms.utils.enums.RoleType;
@@ -23,20 +27,40 @@ public class PersonServiceImpl implements PersonService {
 
     private static final Logger LOGGER = Logger.getLogger(PersonServiceImpl.class.getName());
 
+    private static final int MINIMUM_PASSWORD_LENGTH = 8;
+
     @EJB
     private PersonDao personDao;
+
+    @EJB
+    private AccountDao accountDao;
 
     @Resource
     private SessionContext sessionContext;
 
     @Override
     @RolesAllowed({"ADMIN"})
-    public void createPerson(PersonDto dto) {
+    public void createPerson(PersonDto dto, String initialPassword) {
+        String emailAddress = dto.getEmailAddress().trim().toLowerCase(Locale.ROOT);
+
+        if (personDao.findByEmailAddress(emailAddress) != null || accountDao.exists(emailAddress)) {
+            throw new RuleViolation("person.validation.emailTaken", emailAddress);
+        }
+
+        if (initialPassword == null || initialPassword.length() < MINIMUM_PASSWORD_LENGTH) {
+            throw new RuleViolation("person.validation.passwordTooShort", MINIMUM_PASSWORD_LENGTH);
+        }
+
+        if (dto.getDateOfBirth() != null
+                && dto.getDateOfBirth().isAfter(LocalDate.now().minusYears(MINIMUM_AGE))) {
+            throw new RuleViolation("person.validation.tooYoung", MINIMUM_AGE);
+        }
+
         PersonEntity person = new PersonEntity();
 
         person.setFirstName(dto.getFirstName());
         person.setLastName(dto.getLastName());
-        person.setEmailAddress(dto.getEmailAddress());
+        person.setEmailAddress(emailAddress);
         person.setDateOfBirth(dto.getDateOfBirth());
 
         if (dto.getConsent() != null) {
@@ -48,19 +72,20 @@ public class PersonServiceImpl implements PersonService {
                     LanguageResolver.normalize(dto.getPreferredLanguage()));
         }
 
-        person.setUniversityStaff(dto.isUniversityStaff());
+        // Users created here are employees or staff, who are all university staff; only outsiders are not.
+        person.setUniversityStaff(true);
 
         if (dto.getRoles() == null || dto.getRoles().size() != 1) {
             throw new IllegalArgumentException("Exactly one role is required.");
         }
 
-        validateStaffRoles(dto.isUniversityStaff(), dto.getRoles());
-
+        RoleType roleType = dto.getRoles().get(0);
         RoleEntity role = new RoleEntity();
-        role.setRole(dto.getRoles().get(0));
+        role.setRole(roleType);
         person.addRole(role);
 
         personDao.save(person);
+        accountDao.create(emailAddress, initialPassword, roleType);
         LOGGER.log(Level.INFO, "Person created: person_id={0}", person.getId());
     }
 
@@ -192,6 +217,7 @@ public class PersonServiceImpl implements PersonService {
             role.setRole(roleType);
             person.addRole(role);
             personDao.update(person);
+            accountDao.assignRole(person.getEmailAddress(), roleType);
             LOGGER.log(Level.INFO, "Person role assigned: person_id={0}, role={1}",
                     new Object[]{personId, roleType});
         }
@@ -283,8 +309,7 @@ public class PersonServiceImpl implements PersonService {
                 || role == RoleType.SECRETARY
                 || role == RoleType.ADMIN);
         if (containsStaffRole && !universityStaff) {
-            throw new IllegalArgumentException(
-                    "Supervisor, assistant, secretary, and admin roles require university staff status.");
+            throw new RuleViolation("person.validation.staffRoleRequiresStaff");
         }
     }
 }
