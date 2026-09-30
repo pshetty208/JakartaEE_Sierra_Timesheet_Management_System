@@ -16,9 +16,11 @@ import jakarta.inject.Named;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 
 @Named
@@ -95,8 +97,8 @@ public class TimesheetBean implements Serializable {
             dto.setType(entryType);
             dto.setDescription(description);
             dto.setEntryDate(LocalDate.parse(entryDate.trim()));
-            dto.setStartTime(LocalTime.parse(startTime.trim()));
-            dto.setEndTime(LocalTime.parse(endTime.trim()));
+            dto.setStartTime(parseTime(startTime));
+            dto.setEndTime(parseTime(endTime));
 
             if (!dto.getEndTime().isAfter(dto.getStartTime())) {
                 error(UiMessages.get("timesheet.message.endAfterStart"));
@@ -131,6 +133,16 @@ public class TimesheetBean implements Serializable {
         } catch (RuntimeException e) {
             WebExceptionHandler.handle(getClass(), "add timesheet entry",
                     "common.error.operationFailed", e);
+        }
+    }
+
+    // accepts "9:00" as well as "09:00", LocalTime.parse only accepts the latter
+    private LocalTime parseTime(String value) {
+        String trimmed = value.trim();
+        try {
+            return LocalTime.parse(trimmed);
+        } catch (DateTimeParseException e) {
+            return LocalTime.parse(trimmed, DateTimeFormatter.ofPattern("H:mm", Locale.ROOT));
         }
     }
 
