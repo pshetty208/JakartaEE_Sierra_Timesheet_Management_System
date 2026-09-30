@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -310,20 +311,22 @@ public class TimesheetServiceImpl implements TimesheetService {
         }
     }
 
+    /**
+     * Retention (AR): a timesheet is deleted once its archive duration (default 24 months,
+     * per contract) has passed since the supervisor signed it, whether or not a secretary
+     * archived it. When the last timesheet of a contract is deleted, the contract is deleted too.
+     */
     @Schedule(hour = "2", minute = "0", second = "0", persistent = true)
     public void deleteExpiredTimesheets() {
         LOGGER.log(Level.INFO, "Expired-timesheet cleanup started");
         int deletedTimesheets = 0;
         int deletedContracts = 0;
         try {
-            List<TimesheetEntity> archived = timesheetDao.findByStatus(TimeSheetStatus.ARCHIVED);
+            List<TimesheetEntity> signed = timesheetDao.findSignedBySupervisor();
             LocalDate today = LocalDate.now(configService.getTimeZone());
+            Set<Long> affectedContractIds = new LinkedHashSet<>();
 
-            for (TimesheetEntity timesheet : archived) {
-                if (timesheet.getSignedBySupervisor() == null) {
-                    continue;
-                }
-
+            for (TimesheetEntity timesheet : signed) {
                 ContractEntity contract = timesheet.getContract();
                 int archiveDurationMonths = (contract != null && contract.getArchiveDuration() != null)
                         ? contract.getArchiveDuration() : configService.getDefaultArchiveDurationMonths();
@@ -333,19 +336,27 @@ public class TimesheetServiceImpl implements TimesheetService {
                     continue;
                 }
 
-                Long timesheetId = timesheet.getId();
+                LOGGER.log(Level.INFO, "Deleting expired timesheet: timesheet_id={0}, contract_id={1}",
+                        new Object[]{timesheet.getId(), contract == null ? null : contract.getId()});
                 timesheetDao.delete(timesheet);
                 deletedTimesheets++;
-
-                if (contract == null) {
-                    continue;
+                if (contract != null) {
+                    affectedContractIds.add(contract.getId());
                 }
-                boolean anyTimesheetsRemain = timesheetDao.findByContractId(contract.getId())
-                        .stream()
-                        .anyMatch(t -> !t.getId().equals(timesheetId));
-                if (!anyTimesheetsRemain) {
-                    contractDao.delete(contract);
-                    deletedContracts++;
+            }
+
+            // Only contracts that just lost a timesheet are candidates, so prepared contracts
+            // (which have no timesheets yet) are never touched.
+            for (Long contractId : affectedContractIds) {
+                if (timesheetDao.findByContractId(contractId).isEmpty()) {
+                    ContractEntity contract = contractDao.findById(contractId);
+                    if (contract != null) {
+                        LOGGER.log(Level.INFO,
+                                "Deleting contract whose timesheets have all been deleted: contract_id={0}",
+                                contractId);
+                        contractDao.delete(contract);
+                        deletedContracts++;
+                    }
                 }
             }
             LOGGER.log(Level.INFO,

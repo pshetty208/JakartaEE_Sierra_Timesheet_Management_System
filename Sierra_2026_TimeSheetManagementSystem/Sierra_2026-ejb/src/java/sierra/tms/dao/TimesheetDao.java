@@ -51,6 +51,14 @@ public class TimesheetDao {
                 .getResultList();
     }
     
+    /** Timesheets the supervisor has signed (SIGNED_BY_SUPERVISOR or ARCHIVED). */
+    public List<TimesheetEntity> findSignedBySupervisor() {
+        return em.createQuery(
+                "SELECT t FROM TimesheetEntity t WHERE t.signedBySupervisor IS NOT NULL",
+                TimesheetEntity.class)
+                .getResultList();
+    }
+
     public void delete(TimesheetEntity timesheet) {
         em.remove(em.contains(timesheet) ? timesheet : em.merge(timesheet));
     }
