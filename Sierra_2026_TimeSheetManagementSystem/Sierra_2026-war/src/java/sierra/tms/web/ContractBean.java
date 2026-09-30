@@ -176,6 +176,8 @@ public class ContractBean implements Serializable {
         try {
             contractService.startContract(contractDetailId);
             loadContractDetails();
+        } catch (ContractRuleViolation violation) {
+            showRuleViolation(violation);
         } catch (RuntimeException e) {
             WebExceptionHandler.handle(getClass(), "start contract",
                     "contract.message.startFailed", e);
@@ -191,6 +193,8 @@ public class ContractBean implements Serializable {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN,
                             UiMessages.get("contract.message.terminationWarning"), null));
+        } catch (ContractRuleViolation violation) {
+            showRuleViolation(violation);
         } catch (RuntimeException exception) {
             WebExceptionHandler.handle(getClass(), "terminate contract",
                     "contract.message.terminateFailed", exception);
@@ -202,6 +206,9 @@ public class ContractBean implements Serializable {
             contractService.terminateContract(contractDetailId, true);
             terminationWarningActive = false;
             loadContractDetails();
+        } catch (ContractRuleViolation violation) {
+            terminationWarningActive = false;
+            showRuleViolation(violation);
         } catch (RuntimeException e) {
             terminationWarningActive = false;
             WebExceptionHandler.handle(getClass(), "confirm contract termination",
