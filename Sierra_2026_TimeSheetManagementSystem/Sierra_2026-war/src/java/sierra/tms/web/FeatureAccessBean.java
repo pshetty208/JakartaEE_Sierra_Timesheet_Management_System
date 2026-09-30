@@ -11,6 +11,7 @@ import static sierra.tms.web.ApplicationFeature.REQUEST_TIMESHEET_CHANGES;
 import static sierra.tms.web.ApplicationFeature.REVOKE_SIGNATURE;
 import static sierra.tms.web.ApplicationFeature.SIGN_TIMESHEET;
 import static sierra.tms.web.ApplicationFeature.START_CONTRACT;
+import static sierra.tms.web.ApplicationFeature.SEARCH_RECORDS;
 import static sierra.tms.web.ApplicationFeature.SYSTEM_OVERVIEW;
 import static sierra.tms.web.ApplicationFeature.TERMINATE_CONTRACT;
 import static sierra.tms.web.ApplicationFeature.VIEW_CONTRACT;
@@ -83,7 +84,8 @@ public class FeatureAccessBean {
                 VIEW_CONTRACT, 
                 VIEW_STATISTICS, 
                 VIEW_TIMESHEETS, 
-                SYSTEM_OVERVIEW));
+                SYSTEM_OVERVIEW,
+                SEARCH_RECORDS));
     }
 
     private Set<ApplicationFeature> availableFeatures;
@@ -167,6 +169,11 @@ public class FeatureAccessBean {
 
     public boolean isViewStatistics() {
         return has(VIEW_STATISTICS);
+    }
+
+    /** Administrator search for contracts and timesheets by user name or contract name. */
+    public boolean isSearchRecords() {
+        return has(SEARCH_RECORDS);
     }
 
     public boolean isSystemOverview() {

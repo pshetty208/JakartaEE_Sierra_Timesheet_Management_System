@@ -928,3 +928,25 @@ body .contract-confirm-dialog.ui-dialog .ui-button.p-button-outlined:not(:disabl
         display: none;
     }
 }
+
+/* Administrator search bar (contracts and timesheets) */
+.record-search {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    margin: 0 0 1rem;
+}
+
+.record-search__label {
+    font-weight: 600;
+}
+
+.record-search__field {
+    flex: 1 1 18rem;
+    max-width: 32rem;
+}
+
+.record-search__field .ui-inputfield {
+    width: 100%;
+}

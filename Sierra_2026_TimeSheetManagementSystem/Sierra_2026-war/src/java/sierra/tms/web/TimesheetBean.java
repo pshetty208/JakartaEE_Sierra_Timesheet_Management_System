@@ -1,8 +1,12 @@
 package sierra.tms.web;
 
+import sierra.tms.dto.ContractDto;
+import sierra.tms.dto.PersonDto;
 import sierra.tms.dto.TimesheetDto;
 import sierra.tms.dto.TimesheetEntryDto;
 import sierra.tms.i18n.UiMessages;
+import sierra.tms.services.ContractService;
+import sierra.tms.services.PersonService;
 import sierra.tms.services.TimesheetService;
 import sierra.tms.utils.enums.ReportType;
 import sierra.tms.utils.enums.TimeSheetStatus;
@@ -19,7 +23,9 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Locale;
 
 
@@ -29,6 +35,17 @@ public class TimesheetBean implements Serializable {
 
     @EJB
     private TimesheetService service;
+
+    @EJB
+    private ContractService contractService;
+
+    @EJB
+    private PersonService personService;
+
+    /** Administrator search: user name (login e-mail or name) of the timesheet's employee. */
+    private String searchTerm;
+    private Map<Long, ContractDto> contractsById;
+    private Map<Long, PersonDto> peopleById;
 
     private Long selectedTimesheetId;
     private ReportType entryType = ReportType.WORK;
@@ -325,6 +342,84 @@ public class TimesheetBean implements Serializable {
             refreshTimesheets();
         }
         return timesheets;
+    }
+
+    /**
+     * Timesheets shown on the page. For the administrator the list is narrowed by
+     * {@link #searchTerm}; everyone else always sees their full list.
+     */
+    public List<TimesheetDto> getFilteredTimesheets() {
+        List<TimesheetDto> all = getTimesheets();
+        if (all == null || RecordSearch.isBlank(searchTerm)) {
+            return all;
+        }
+        return all.stream()
+                .filter(t -> RecordSearch.matches(searchTerm, employeeSearchValues(t)))
+                .toList();
+    }
+
+    /** "Name (user name)" of the timesheet's employee, shown on the card for the administrator. */
+    public String employeeLabel(TimesheetDto timesheet) {
+        PersonDto employee = employeeOf(timesheet);
+        if (employee == null) {
+            ContractDto contract = getContractsById().get(timesheet.getContractId());
+            return contract == null || contract.getEmployeeName() == null ? "-" : contract.getEmployeeName();
+        }
+        String[] values = RecordSearch.personValues(employee);
+        return values[1].isEmpty() ? values[0] : values[1] + " (" + values[0] + ")";
+    }
+
+    private String[] employeeSearchValues(TimesheetDto timesheet) {
+        ContractDto contract = getContractsById().get(timesheet.getContractId());
+        PersonDto employee = employeeOf(timesheet);
+        String[] personValues = RecordSearch.personValues(employee);
+        String[] values = new String[personValues.length + 1];
+        System.arraycopy(personValues, 0, values, 0, personValues.length);
+        values[personValues.length] = contract == null ? null : contract.getEmployeeName();
+        return values;
+    }
+
+    private PersonDto employeeOf(TimesheetDto timesheet) {
+        ContractDto contract = getContractsById().get(timesheet.getContractId());
+        return contract == null ? null : getPeopleById().get(contract.getEmployeeId());
+    }
+
+    private Map<Long, ContractDto> getContractsById() {
+        if (contractsById == null) {
+            contractsById = new HashMap<>();
+            try {
+                for (ContractDto contract : contractService.findAll()) {
+                    contractsById.put(contract.getId(), contract);
+                }
+            } catch (RuntimeException exception) {
+                WebExceptionHandler.handle(getClass(), "load contracts for timesheet search",
+                        "common.error.loadFailed", exception);
+            }
+        }
+        return contractsById;
+    }
+
+    private Map<Long, PersonDto> getPeopleById() {
+        if (peopleById == null) {
+            peopleById = new HashMap<>();
+            try {
+                for (PersonDto person : personService.findAll()) {
+                    peopleById.put(person.getId(), person);
+                }
+            } catch (RuntimeException exception) {
+                WebExceptionHandler.handle(getClass(), "load people for timesheet search",
+                        "common.error.loadFailed", exception);
+            }
+        }
+        return peopleById;
+    }
+
+    public String getSearchTerm() {
+        return searchTerm;
+    }
+
+    public void setSearchTerm(String searchTerm) {
+        this.searchTerm = searchTerm;
     }
 
     public List<TimesheetDto> getEntryManageableTimesheets() {
