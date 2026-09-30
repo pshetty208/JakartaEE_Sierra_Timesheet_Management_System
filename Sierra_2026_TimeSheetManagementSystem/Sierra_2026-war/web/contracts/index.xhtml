@@ -44,11 +44,24 @@
             </h:panelGroup>
 
             <ui:fragment rendered="#{contractBean.contracts ne null}">
+                <h:form id="contractSearchForm" styleClass="record-search"
+                        rendered="#{featureAccess.searchRecords}">
+                    <p:outputLabel for="contractSearch" value="#{msg['search.label']}"
+                                   styleClass="record-search__label"/>
+                    <span class="ui-input-icon-left record-search__field">
+                        <i class="pi pi-search" aria-hidden="true"></i>
+                        <p:inputText id="contractSearch" value="#{contractBean.searchTerm}"
+                                     placeholder="#{msg['search.contracts.placeholder']}"
+                                     autocomplete="off">
+                            <p:ajax event="keyup" delay="300" update=":contractsForm"/>
+                        </p:inputText>
+                    </span>
+                </h:form>
                 <h:form id="contractsForm" styleClass="contract-overview__card">
-                    <dataTable:dataTable value="#{contractBean.contracts}"
+                    <dataTable:dataTable value="#{contractBean.filteredContracts}"
                                          rowKey="#{row.id}"
                                          rows="8"
-                                         emptyMessage="#{msg['contracts.empty']}"
+                                         emptyMessage="#{empty contractBean.searchTerm ? msg['contracts.empty'] : msg['search.noResults']}"
                                          styleClass="app-data-table contract-overview__table">
                         <p:column headerText="#{msg['contract.label']}"
                                   styleClass="contract-overview__column--contract">
