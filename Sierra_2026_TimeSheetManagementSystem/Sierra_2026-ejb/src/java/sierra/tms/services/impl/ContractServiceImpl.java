@@ -229,7 +229,7 @@ public class ContractServiceImpl implements ContractService {
             throw new EJBAccessException("The current user is not authorized to start this contract.");
         }
         if (contract.getStatus() != ContractStatus.PREPARED) {
-            throw new IllegalStateException("Only prepared contracts can be started.");
+            throw new ContractRuleViolation("contract.message.startNotPrepared");
         }
         contract.setStatus(ContractStatus.STARTED);
         List<TimesheetEntity> generateTimesheets = generateTimesheets(contract);
@@ -264,7 +264,7 @@ public class ContractServiceImpl implements ContractService {
             throw new EJBAccessException("The current user is not authorized to terminate this contract.");
         }
         if (contract.getStatus() != ContractStatus.STARTED) {
-            throw new IllegalStateException("Only started contracts can be terminated.");
+            throw new ContractRuleViolation("contract.message.terminateNotStarted");
         }
 
         List<TimesheetEntity> timesheets = timesheetDao.findByContractId(id);
@@ -273,8 +273,7 @@ public class ContractServiceImpl implements ContractService {
                         && t.getStatus() != TimeSheetStatus.SIGNED_BY_SUPERVISOR
                         && t.getStatus() != TimeSheetStatus.ARCHIVED);
         if (hasBlockingTimesheet) {
-            throw new IllegalStateException("Contract " + id
-                    + " cannot be terminated while a supervisor signature is pending.");
+            throw new ContractRuleViolation("contract.message.terminateSignaturePending");
         }
         
         if (!confirmed) {
