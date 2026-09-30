@@ -41,7 +41,7 @@
                 </div>
                 <h:link outcome="/contracts/print"
                         styleClass="contract-detail__print-link"
-                        rendered="#{not empty contractBean.contract.id and (request.isUserInRole('SECRETARY') or request.isUserInRole('ADMIN'))}">
+                        rendered="#{not empty contractBean.contract.id and featureAccess.printContract}">
                     <span class="pi pi-print" aria-hidden="true"></span>
                     <span>#{msg['contract.print.action']}</span>
                     <f:param name="id" value="#{contractBean.contract.id}"/>
@@ -160,8 +160,7 @@
                                          styleClass="contract-detail__action-button"
                                          process="@this"
                                          update="contractDetailForm"
-                                         rendered="#{contractBean.isPrepared()
-                                                     and (request.isUserInRole('SUPERVISOR') or request.isUserInRole('ASSISTANT'))}">
+                                         rendered="#{contractBean.isPrepared() and featureAccess.startContract}">
                             <f:param name="id" value="#{contractBean.contractDetailId}"/>
                         </p:commandButton>
                         <p:commandButton value="#{msg['contract.terminate.action']}"
@@ -170,8 +169,7 @@
                                          styleClass="contract-detail__action-button"
                                          process="@this"
                                          update="contractDetailForm"
-                                         rendered="#{contractBean.isStarted()
-                                                     and (request.isUserInRole('SUPERVISOR') or request.isUserInRole('ASSISTANT'))}">
+                                         rendered="#{contractBean.isStarted() and featureAccess.terminateContract}">
                             <p:confirm header="#{msg['contract.terminate.action']}"
                                        message="#{msg['contract.terminate.confirm']}"
                                        icon="pi pi-exclamation-triangle"/>
