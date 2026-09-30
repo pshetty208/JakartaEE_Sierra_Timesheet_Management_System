@@ -7,11 +7,6 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import sierra.tms.dto.PersonDto;
 
-/**
- * Case-insensitive text matching for the search on the contract and timesheet pages.
- * A record matches when any of its searchable values contains the term. Every role can
- * search, but only within the records it is already allowed to see.
- */
 final class RecordSearch {
 
     private RecordSearch() {
@@ -32,7 +27,6 @@ final class RecordSearch {
                 .anyMatch(value -> value.contains(needle));
     }
 
-    /** User name (login e-mail) and full name of a person, for matching. */
     static String[] personValues(PersonDto person) {
         if (person == null) {
             return new String[0];
@@ -42,10 +36,6 @@ final class RecordSearch {
         return new String[]{person.getEmailAddress(), fullName};
     }
 
-    /**
-     * Whether the caller may load the person directory (PersonService.findAll). Employees
-     * may not, so their search uses the names already carried by their contracts.
-     */
     static boolean canListPeople() {
         FacesContext context = FacesContext.getCurrentInstance();
         if (context == null) {

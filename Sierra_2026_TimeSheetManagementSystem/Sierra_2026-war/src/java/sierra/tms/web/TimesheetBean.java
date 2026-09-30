@@ -44,7 +44,6 @@ public class TimesheetBean implements Serializable {
     @EJB
     private PersonService personService;
 
-    /** Administrator search: user name (login e-mail or name) of the timesheet's employee. */
     private String searchTerm;
     private Map<Long, ContractDto> contractsById;
     private Map<Long, PersonDto> peopleById;
@@ -346,10 +345,6 @@ public class TimesheetBean implements Serializable {
         return timesheets;
     }
 
-    /**
-     * Timesheets shown on the page. For the administrator the list is narrowed by
-     * {@link #searchTerm}; everyone else always sees their full list.
-     */
     public List<TimesheetDto> getFilteredTimesheets() {
         List<TimesheetDto> all = getTimesheets();
         if (all == null || RecordSearch.isBlank(searchTerm)) {
@@ -360,7 +355,6 @@ public class TimesheetBean implements Serializable {
                 .toList();
     }
 
-    /** "Name (user name)" of the timesheet's employee, shown on the card for the administrator. */
     public String employeeLabel(TimesheetDto timesheet) {
         PersonDto employee = employeeOf(timesheet);
         if (employee == null) {
@@ -371,7 +365,6 @@ public class TimesheetBean implements Serializable {
         return values[1].isEmpty() ? values[0] : values[1] + " (" + values[0] + ")";
     }
 
-    /** Employee user name and name, contract name, status and period of a timesheet. */
     private String[] timesheetSearchValues(TimesheetDto timesheet) {
         ContractDto contract = getContractsById().get(timesheet.getContractId());
         List<String> values = new ArrayList<>(List.of(RecordSearch.personValues(employeeOf(timesheet))));

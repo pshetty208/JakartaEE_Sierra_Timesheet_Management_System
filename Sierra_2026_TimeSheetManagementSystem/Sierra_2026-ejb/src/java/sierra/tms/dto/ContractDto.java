@@ -54,7 +54,6 @@ public class ContractDto implements Serializable {
 
     private Set<Long> secretaryRoleIds;
 
-    /** Display names, in the same order as the ids; filled by the service for read views. */
     private List<String> assistantNames = new ArrayList<>();
 
     private List<String> secretaryNames = new ArrayList<>();

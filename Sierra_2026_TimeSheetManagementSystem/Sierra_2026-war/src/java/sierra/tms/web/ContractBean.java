@@ -55,7 +55,6 @@ public class ContractBean implements Serializable {
 
     private boolean terminationWarningActive;
 
-    /** Administrator search: contract name or user name (login e-mail or name) of the employee or supervisor. */
     private String searchTerm;
 
     private Map<Long, PersonDto> peopleById;
@@ -234,10 +233,6 @@ public class ContractBean implements Serializable {
         }
     }
 
-    /**
-     * Contracts shown in the overview, narrowed by {@link #searchTerm}. Matches the contract
-     * name, its status, and the name or user name of the employee or supervisor.
-     */
     public List<ContractDto> getFilteredContracts() {
         if (contracts == null || RecordSearch.isBlank(searchTerm)) {
             return contracts;
@@ -349,10 +344,6 @@ public class ContractBean implements Serializable {
         return assistants;
     }
 
-    /**
-     * Assistants chosen in the create and edit forms. A contract can have zero or more
-     * assistants; an assistant who creates a contract is added by the service anyway.
-     */
     public Long[] getSelectedAssistantIds() {
         if (contract == null || contract.getAssistantRoleIds() == null) {
             return new Long[0];
@@ -375,7 +366,6 @@ public class ContractBean implements Serializable {
         contract.setAssistantRoleIds(ids);
     }
 
-    /** Comma-separated names for the detail page, or null when the list is empty. */
     public String joinNames(List<String> names) {
         return names == null || names.isEmpty() ? null : String.join(", ", names);
     }

@@ -51,7 +51,6 @@ public class TimesheetDao {
                 .getResultList();
     }
     
-    /** Timesheets the supervisor has signed (SIGNED_BY_SUPERVISOR or ARCHIVED). */
     public List<TimesheetEntity> findSignedBySupervisor() {
         return em.createQuery(
                 "SELECT t FROM TimesheetEntity t WHERE t.signedBySupervisor IS NOT NULL",

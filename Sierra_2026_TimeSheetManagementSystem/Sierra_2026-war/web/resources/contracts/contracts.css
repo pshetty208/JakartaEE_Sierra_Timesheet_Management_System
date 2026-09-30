@@ -194,12 +194,6 @@
     border-color: var(--sierra-brand);
 }
 
-/*
- * The PrimeFaces Saga theme styles the date picker header with
- * "body .ui-datepicker .ui-datepicker-header" (white background, dark text),
- * which outranks the panel rules above. In dark mode that left the light
- * month/year text on a white header. The "body" prefix below outranks the theme.
- */
 body .contract-create__date-panel.ui-datepicker .ui-datepicker-header {
     color: var(--sierra-text);
     background: var(--sierra-surface-raised);
@@ -987,7 +981,6 @@ body .contract-confirm-dialog.ui-dialog .ui-button.p-button-outlined:not(:disabl
     }
 }
 
-/* Administrator search bar (contracts and timesheets) */
 .record-search {
     display: flex;
     flex-wrap: wrap;
@@ -1009,8 +1002,6 @@ body .contract-confirm-dialog.ui-dialog .ui-button.p-button-outlined:not(:disabl
     width: 100%;
 }
 
-/* Assistants multi-select (create and edit). The Saga theme styles it with "body ..."
-   selectors, so the rules below use the same prefix to win in light and dark mode. */
 .contract-create__hint {
     color: var(--sierra-text-muted);
     font-size: 0.72rem;

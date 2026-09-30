@@ -289,7 +289,7 @@ public class ContractServiceImpl implements ContractService {
         timesheets.stream().filter(t -> t.getStatus() == TimeSheetStatus.IN_PROGRESS).forEach(timesheetDao::delete);// TS4
 
         contract.setStatus(ContractStatus.TERMINATED);
-        LocalDate date = LocalDate.now();
+        LocalDate date = LocalDate.now(configService.getTimeZone());
         contract.setTerminationDate(date);
         LOGGER.log(Level.INFO, "Contract terminated: contract_id=" + contract.getId() + ", at " + date);
     }
