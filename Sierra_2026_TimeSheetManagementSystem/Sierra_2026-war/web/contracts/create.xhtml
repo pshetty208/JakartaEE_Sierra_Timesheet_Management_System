@@ -7,6 +7,11 @@
       xmlns:appButton="jakarta.faces.composite/appButton"
                 xmlns:ui="jakarta.faces.facelets"
                 template="/WEB-INF/templates/app-layout.xhtml">
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewAction action="#{contractBean.loadCreateOptions}" onPostback="false"/>
+        </f:metadata>
+    </ui:define>
     <ui:define name="title">#{msg['contract.create.page.title']}</ui:define>
 
     <ui:define name="content">
@@ -27,6 +32,7 @@
             </header>
 
             <h:form id="createContractForm" styleClass="contract-create__card">
+                <p:messages id="messages" globalOnly="true" closable="true"/>
                 <div class="contract-create__grid">
                     <div class="contract-create__field contract-create__field--wide">
                         <p:outputLabel for="contractName" value="#{msg['contract.name']}"/>
@@ -44,20 +50,52 @@
 
                     <div class="contract-create__field">
                         <p:outputLabel for="employee" value="#{msg['contract.employee']}"/>
-                        <p:selectOneMenu id="employee" panelStyleClass="contract-create__select-panel">
+                        <p:selectOneMenu id="employee"
+                                         panelStyleClass="contract-create__select-panel"
+                                         value="#{contractBean.contract.employeeId}"
+                                         required="true">
                             <f:selectItem itemLabel="#{msg['contract.create.employee.placeholder']}"
                                           itemValue="#{null}"
                                           noSelectionOption="true"/>
+                            <f:selectItems value="#{contractBean.employees}"
+                                           var="employee"
+                                           itemLabel="#{employee.firstName} #{employee.lastName}"
+                                           itemValue="#{employee.id}"/>
                         </p:selectOneMenu>
+                        <p:message for="employee"/>
                     </div>
 
                     <div class="contract-create__field">
                         <p:outputLabel for="supervisor" value="#{msg['contract.supervisor']}"/>
-                        <p:selectOneMenu id="supervisor" panelStyleClass="contract-create__select-panel">
+                        <p:selectOneMenu id="supervisor"
+                                         panelStyleClass="contract-create__select-panel"
+                                         value="#{contractBean.contract.supervisorId}"
+                                         required="true">
                             <f:selectItem itemLabel="#{msg['contract.create.supervisor.placeholder']}"
                                           itemValue="#{null}"
                                           noSelectionOption="true"/>
+                            <f:selectItems value="#{contractBean.supervisors}"
+                                           var="supervisor"
+                                           itemLabel="#{supervisor.firstName} #{supervisor.lastName}"
+                                           itemValue="#{supervisor.id}"/>
                         </p:selectOneMenu>
+                        <p:message for="supervisor"/>
+                    </div>
+
+                    <div class="contract-create__field">
+                        <p:outputLabel for="assistant" value="#{msg['contract.assistant']}"/>
+                        <p:selectOneMenu id="assistant"
+                                         panelStyleClass="contract-create__select-panel"
+                                         value="#{contractBean.selectedAssistantId}">
+                            <f:selectItem itemLabel="#{msg['contract.create.assistant.placeholder']}"
+                                          itemValue="#{null}"
+                                          noSelectionOption="true"/>
+                            <f:selectItems value="#{contractBean.assistants}"
+                                           var="assistant"
+                                           itemLabel="#{assistant.firstName} #{assistant.lastName}"
+                                           itemValue="#{assistant.id}"/>
+                        </p:selectOneMenu>
+                        <p:message for="assistant"/>
                     </div>
 
                     <!-- TODO: Add CN6a complete-month validation after backend enforcement is implemented. -->
@@ -111,12 +149,12 @@
                         <p:outputLabel for="hoursPerWeek" value="#{msg['contract.hoursPerWeek']}"/>
                         <p:inputNumber id="hoursPerWeek"
                                        value="#{contractBean.contract.hoursPerWeek}"
-                                       decimalPlaces="0"
-                                       minValue="0"
+                                       decimalPlaces="1"
+                                       minValue="0.1"
                                        required="true"
                                        requiredMessage="#{msg['contract.validation.hours.required']}"
                                        validatorMessage="#{msg['contract.validation.hours.nonnegative']}">
-                            <f:validateLongRange minimum="0"/>
+                            <f:validateDoubleRange minimum="0.1"/>
                         </p:inputNumber>
                         <p:message for="hoursPerWeek"/>
                     </div>
@@ -183,8 +221,9 @@
                                                outcome="/index"
                                                styleClass="ui-button-outlined contract-create__button"/>
                     <appButton:appButton value="#{msg['contract.create.savePrepared']}"
-                                               type="button"
-                                               disabled="true"
+                                               action="#{contractBean.create}"
+                                               process="@form"
+                                               update="@form"
                                                styleClass="ui-button-outlined contract-create__button"/>
                 </div>
             </h:form>

@@ -122,9 +122,12 @@
                         <p:inputNumber id="hoursPerWeek"
                                        value="#{contractBean.contract.hoursPerWeek}"
                                        decimalPlaces="1"
-                                       minValue="0"
+                                       minValue="0.1"
                                        required="true"
-                                       requiredMessage="#{msg['contract.validation.hours.required']}"/>
+                                       requiredMessage="#{msg['contract.validation.hours.required']}"
+                                       validatorMessage="#{msg['contract.validation.hours.nonnegative']}">
+                            <f:validateDoubleRange minimum="0.1"/>
+                        </p:inputNumber>
                         <p:message for="hoursPerWeek"/>
                     </div>
 
