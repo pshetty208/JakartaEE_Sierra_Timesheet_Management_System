@@ -9,14 +9,18 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import sierra.tms.dto.ContractDto;
+import sierra.tms.dto.PersonDto;
 import sierra.tms.exceptions.TerminationWarning;
 import sierra.tms.i18n.UiMessages;
 import sierra.tms.services.ContractService;
+import sierra.tms.services.PersonService;
 import sierra.tms.utils.enums.ContractStatus;
 import sierra.tms.utils.enums.Frequency;
+import sierra.tms.utils.enums.RoleType;
 
 @Named
 @ViewScoped
@@ -29,9 +33,20 @@ public class ContractBean implements Serializable {
     @EJB
     private ContractService contractService;
 
+    @EJB
+    private PersonService personService;
+
     private ContractDto contract;
 
     private List<ContractDto> contracts;
+
+    private List<PersonDto> employees = List.of();
+
+    private List<PersonDto> supervisors = List.of();
+
+    private List<PersonDto> assistants = List.of();
+
+    private Long selectedAssistantId;
 
     private Long contractDetailId;
 
@@ -44,13 +59,43 @@ public class ContractBean implements Serializable {
 
     public void create() {
         try {
+            contract.setAssistantRoleIds(selectedAssistantId == null
+                    ? Set.of() : Set.of(selectedAssistantId));
             contractService.createContract(contract);
             contract = newContractWithDefaults();
+            selectedAssistantId = null;
             loadContracts();
         } catch (RuntimeException exception) {
             WebExceptionHandler.handle(getClass(), "create contract",
                     "common.error.operationFailed", exception);
         }
+    }
+
+    public void loadCreateOptions() {
+        try {
+            List<PersonDto> people = personService.findAll();
+            List<PersonDto> loadedEmployees = withRole(people, RoleType.EMPLOYEE);
+            List<PersonDto> loadedSupervisors = withStaffRole(people, RoleType.SUPERVISOR);
+            List<PersonDto> loadedAssistants = withStaffRole(people, RoleType.ASSISTANT);
+            employees = loadedEmployees;
+            supervisors = loadedSupervisors;
+            assistants = loadedAssistants;
+        } catch (RuntimeException exception) {
+            WebExceptionHandler.handle(getClass(), "load contract participants",
+                    "common.error.loadFailed", exception);
+        }
+    }
+
+    private static List<PersonDto> withRole(List<PersonDto> people, RoleType role) {
+        return people.stream()
+                .filter(person -> person.getRoles().contains(role))
+                .toList();
+    }
+
+    private static List<PersonDto> withStaffRole(List<PersonDto> people, RoleType role) {
+        return people.stream()
+                .filter(person -> person.isUniversityStaff() && person.getRoles().contains(role))
+                .toList();
     }
 
     public void load(Long id) {
@@ -209,6 +254,26 @@ public class ContractBean implements Serializable {
 
     public List<ContractDto> getContracts() {
         return contracts;
+    }
+
+    public List<PersonDto> getEmployees() {
+        return employees;
+    }
+
+    public List<PersonDto> getSupervisors() {
+        return supervisors;
+    }
+
+    public List<PersonDto> getAssistants() {
+        return assistants;
+    }
+
+    public Long getSelectedAssistantId() {
+        return selectedAssistantId;
+    }
+
+    public void setSelectedAssistantId(Long selectedAssistantId) {
+        this.selectedAssistantId = selectedAssistantId;
     }
 
     public void setContracts(List<ContractDto> contracts) {

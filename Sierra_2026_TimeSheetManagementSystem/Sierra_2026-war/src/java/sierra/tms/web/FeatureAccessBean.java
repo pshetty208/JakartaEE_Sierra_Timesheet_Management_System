@@ -2,6 +2,7 @@ package sierra.tms.web;
 
 import static sierra.tms.web.ApplicationFeature.ARCHIVE_TIMESHEET;
 import static sierra.tms.web.ApplicationFeature.COUNTERSIGN_TIMESHEET;
+import static sierra.tms.web.ApplicationFeature.CREATE_CONTRACT;
 import static sierra.tms.web.ApplicationFeature.MANAGE_CONTRACT;
 import static sierra.tms.web.ApplicationFeature.PRINT_CONTRACT;
 import static sierra.tms.web.ApplicationFeature.PRINT_TIMESHEET;
@@ -33,6 +34,7 @@ import sierra.tms.utils.enums.RoleType;
 public class FeatureAccessBean {
     /*
     MANAGE_CONTRACT - CN1: only supervisor/assistant manage contracts
+    CREATE_CONTRACT - only assistants and secretaries create contracts
     PRINT_CONTRACT - CN2: only the secretary prints contracts
     REVOKE_SIGNATURE - SG1a
     */
@@ -65,6 +67,7 @@ public class FeatureAccessBean {
                 VIEW_STATISTICS, 
                 VIEW_TIMESHEETS,
                 MANAGE_CONTRACT, 
+                CREATE_CONTRACT,
                 START_CONTRACT, 
                 TERMINATE_CONTRACT,
                 REQUEST_TIMESHEET_CHANGES));
@@ -72,6 +75,7 @@ public class FeatureAccessBean {
                 VIEW_CONTRACT, 
                 VIEW_STATISTICS, 
                 VIEW_TIMESHEETS,
+                CREATE_CONTRACT,
                 PRINT_CONTRACT, 
                 PRINT_TIMESHEET, 
                 ARCHIVE_TIMESHEET));
@@ -111,6 +115,10 @@ public class FeatureAccessBean {
 
     public boolean isManageContract() {
         return has(MANAGE_CONTRACT);
+    }
+
+    public boolean isCreateContract() {
+        return has(CREATE_CONTRACT);
     }
 
     public boolean isStartContract() {
