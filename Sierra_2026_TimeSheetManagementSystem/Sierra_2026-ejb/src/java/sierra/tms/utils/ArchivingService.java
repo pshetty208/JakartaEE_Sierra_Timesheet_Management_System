@@ -16,7 +16,7 @@ import sierra.tms.utils.enums.TimeSheetStatus;
 
 @Singleton
 public class ArchivingService {
-    
+
     private static final Logger LOGGER = Logger.getLogger(ArchivingService.class.getName());
 
     @EJB
@@ -25,40 +25,60 @@ public class ArchivingService {
     @EJB
     private ContractDao contractDao;
 
+    @EJB
+    private ConfigService configService;
+
     // Once a day - 01:00.
     @Schedule(hour = "1", minute = "0", persistent = false)
     public void archiveTimesheets() {
-        LocalDate today = LocalDate.now();
+        LOGGER.log(Level.INFO, "Archive-retention job started");
+        int deletedTimesheets = 0;
+        try {
+            LocalDate today = LocalDate.now(configService.getTimeZone());
 
-        for (TimesheetEntity timesheet : timesheetDao.findAll()) {
-            if (timesheet.getStatus() != TimeSheetStatus.ARCHIVED
-                    || timesheet.getSignedBySupervisor() == null) {
-                continue;
+            for (TimesheetEntity timesheet : timesheetDao.findAll()) {
+                if (timesheet.getStatus() != TimeSheetStatus.ARCHIVED
+                        || timesheet.getSignedBySupervisor() == null) {
+                    continue;
+                }
+
+                ContractEntity contract = timesheet.getContract();
+                int retentionMonths = contract.getArchiveDuration() != null
+                        ? contract.getArchiveDuration()
+                        : configService.getDefaultArchiveDurationMonths();
+
+                LocalDate expiry = timesheet.getSignedBySupervisor().plusMonths(retentionMonths);
+                if (!today.isBefore(expiry)) {
+                    LOGGER.log(Level.INFO, () -> "Deleting expired timesheet " + timesheet.getId()
+                            + " (contract " + contract.getId() + ")");
+                    timesheetDao.delete(timesheet.getId());
+                    deletedTimesheets++;
+                }
             }
 
-            ContractEntity contract = timesheet.getContract();
-            int retentionMonths = contract.getArchiveDuration(); //default - 24
-
-            LocalDate expiry = timesheet.getSignedBySupervisor().plusMonths(retentionMonths);
-            if (!today.isBefore(expiry)) {
-                LOGGER.log(Level.INFO, () -> "Archiving expired timesheet " + timesheet.getId()
-                        + " (contract " + contract.getId() + ")");
-                timesheetDao.delete(timesheet.getId());
-            }
+            int deletedContracts = archiveContracts();
+            LOGGER.log(Level.INFO,
+                    "Archive-retention job completed: timesheets_deleted={0}, contracts_deleted={1}",
+                    new Object[]{deletedTimesheets, deletedContracts});
+        } catch (RuntimeException exception) {
+            LOGGER.log(Level.SEVERE,
+                    "Archive-retention job failed: timesheets_deleted=" + deletedTimesheets,
+                    exception);
+            throw exception;
         }
-
-        archiveContracts();
     }
 
 
-    private void archiveContracts() {
+    private int archiveContracts() {
+        int deletedContracts = 0;
         for (ContractEntity contract : contractDao.findAll()) {
             List<TimesheetEntity> remaining = timesheetDao.findByContractId(contract.getId());
             if (remaining.isEmpty()) {
                 LOGGER.log(Level.INFO, () -> "Deleting contract " + contract.getId() +  ", as all timesheets are archived");
                 contractDao.delete(contract);
+                deletedContracts++;
             }
         }
+        return deletedContracts;
     }
 }
-    

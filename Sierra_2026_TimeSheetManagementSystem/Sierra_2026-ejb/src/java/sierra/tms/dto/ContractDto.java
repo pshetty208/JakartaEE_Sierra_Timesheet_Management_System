@@ -28,7 +28,7 @@ public class ContractDto implements Serializable {
 
     private LocalDate endDate;
 
-    private Integer hoursPerWeek;
+    private Double hoursPerWeek;
 
     private Integer workingDaysPerWeek;
 
@@ -56,7 +56,7 @@ public class ContractDto implements Serializable {
 
 
     public ContractDto(Long id, Long employeeId, Long supervisorId, String name, ContractStatus status, LocalDate startDate, 
-            LocalDate endDate, Frequency frequency, Integer hoursPerWeek, Integer workingDaysPerWeek, Integer vacationDaysPerYear, 
+            LocalDate endDate, Frequency frequency, Double hoursPerWeek, Integer workingDaysPerWeek, Integer vacationDaysPerYear, 
             LocalDate terminationDate, Integer archiveDuration, Set<Long> assistantRoleIds, Set<Long> secretaryRoleIds) {
 
         this.id = id;
@@ -165,11 +165,11 @@ public class ContractDto implements Serializable {
     }
 
 
-    public Integer getHoursPerWeek() {
+    public Double getHoursPerWeek() {
         return hoursPerWeek;
     }
 
-    public void setHoursPerWeek(Integer hoursPerWeek) {
+    public void setHoursPerWeek(Double hoursPerWeek) {
         this.hoursPerWeek = hoursPerWeek;
     }
 

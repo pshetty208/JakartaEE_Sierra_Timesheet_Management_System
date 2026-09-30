@@ -7,6 +7,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import sierra.tms.dto.PersonDto;
 import sierra.tms.services.PersonService;
 import sierra.tms.utils.enums.SupportedLanguage;
@@ -17,6 +19,7 @@ public class LocaleBean implements Serializable {
 
     // Serialization of session-scoped bean.
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(LocaleBean.class.getName());
 
     @EJB
     private PersonService personService;
@@ -43,7 +46,13 @@ public class LocaleBean implements Serializable {
         locale = LanguageResolver.resolveLocale(languageCode);
 
         if (loadedUserEmail != null) {
-            personService.changeCurrentPersonPreferredLanguage(languageCode);
+            try {
+                personService.changeCurrentPersonPreferredLanguage(languageCode);
+            } catch (RuntimeException exception) {
+                LOGGER.log(Level.WARNING,
+                        "Could not persist the current user's language preference.",
+                        exception);
+            }
         }
     }
 
@@ -74,7 +83,15 @@ public class LocaleBean implements Serializable {
             return;
         }
 
-        PersonDto currentPerson = currentPersonBean.getCurrentPerson();
+        PersonDto currentPerson;
+        try {
+            currentPerson = currentPersonBean.getCurrentPerson();
+        } catch (RuntimeException exception) {
+            LOGGER.log(Level.WARNING,
+                    "Could not load the current user's language preference.",
+                    exception);
+            return;
+        }
         if (currentPerson == null) {
             return;
         }

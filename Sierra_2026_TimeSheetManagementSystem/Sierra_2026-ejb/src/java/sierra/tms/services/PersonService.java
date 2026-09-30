@@ -24,8 +24,6 @@ public interface PersonService {
 
     void assignRole(Long personId, RoleType role);
 
-    void removeRole(Long personId, RoleType role);
-
     PersonDto getCurrentPerson();
 
 }

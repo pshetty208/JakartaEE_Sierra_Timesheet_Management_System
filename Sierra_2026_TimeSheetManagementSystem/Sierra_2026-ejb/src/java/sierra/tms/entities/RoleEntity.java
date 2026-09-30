@@ -11,11 +11,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.io.Serializable;
 import sierra.tms.utils.enums.RoleType;
 
 @Entity
-@Table(name = "Roles")
+@Table(
+        name = "Roles",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uq_roles_person",
+                columnNames = "person_id"))
 public class RoleEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -32,6 +32,10 @@ public class ApplicationRoleAssignmentDao {
 
     public void assign(String username, RoleType role) {
         em.createNativeQuery(
+                "DELETE FROM SIERRA_AUTH_GROUP WHERE username = :username")
+                .setParameter("username", username)
+                .executeUpdate();
+        em.createNativeQuery(
                 "INSERT INTO SIERRA_AUTH_GROUP (username, group_name) "
                 + "VALUES (:username, :role)")
                 .setParameter("username", username)
@@ -39,12 +43,4 @@ public class ApplicationRoleAssignmentDao {
                 .executeUpdate();
     }
 
-    public void remove(String username, RoleType role) {
-        em.createNativeQuery(
-                "DELETE FROM SIERRA_AUTH_GROUP "
-                + "WHERE username = :username AND group_name = :role")
-                .setParameter("username", username)
-                .setParameter("role", role.name())
-                .executeUpdate();
-    }
 }

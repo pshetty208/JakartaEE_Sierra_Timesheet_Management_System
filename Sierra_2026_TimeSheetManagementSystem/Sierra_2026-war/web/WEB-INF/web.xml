@@ -21,6 +21,14 @@
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
+    <mime-mapping>
+        <extension>eot</extension>
+        <mime-type>application/vnd.ms-fontobject</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>woff2</extension>
+        <mime-type>font/woff2</mime-type>
+    </mime-mapping>
     <security-constraint>
         <display-name>Authenticated application pages</display-name>
         <web-resource-collection>
@@ -39,7 +47,7 @@
             <role-name>SUPERVISOR</role-name>
             <role-name>ASSISTANT</role-name>
             <role-name>SECRETARY</role-name>
-            <role-name>ADMINISTRATOR</role-name>
+            <role-name>ADMIN</role-name>
         </auth-constraint>
     </security-constraint>
     <login-config>
@@ -50,6 +58,22 @@
             <form-error-page>/faces/login-error.xhtml</form-error-page>
         </form-login-config>
     </login-config>
+    <error-page>
+        <error-code>403</error-code>
+        <location>/faces/error.xhtml</location>
+    </error-page>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/faces/error.xhtml</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/faces/error.xhtml</location>
+    </error-page>
+    <error-page>
+        <exception-type>java.lang.Throwable</exception-type>
+        <location>/faces/error.xhtml</location>
+    </error-page>
     <security-role>
         <role-name>EMPLOYEE</role-name>
     </security-role>
@@ -63,7 +87,7 @@
         <role-name>SECRETARY</role-name>
     </security-role>
     <security-role>
-        <role-name>ADMINISTRATOR</role-name>
+        <role-name>ADMIN</role-name>
     </security-role>
     <welcome-file-list>
         <welcome-file>faces/app/dashboard.xhtml</welcome-file>

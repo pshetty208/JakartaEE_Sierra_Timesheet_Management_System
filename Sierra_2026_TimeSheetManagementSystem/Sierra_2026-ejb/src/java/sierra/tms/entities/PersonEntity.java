@@ -170,11 +170,17 @@ public class PersonEntity implements Serializable {
 
 
     public void setRoles(List<RoleEntity> roles) {
+        if (roles != null && roles.size() > 1) {
+            throw new IllegalArgumentException("A person must have exactly one role.");
+        }
         this.roles = roles;
     }
 
 
     public void addRole(RoleEntity role) {
+        if (!roles.isEmpty()) {
+            throw new IllegalStateException("A person must have exactly one role.");
+        }
         roles.add(role);
         role.setPerson(this);
     }

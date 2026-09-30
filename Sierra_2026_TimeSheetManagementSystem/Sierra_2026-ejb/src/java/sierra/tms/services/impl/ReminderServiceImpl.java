@@ -30,24 +30,22 @@ import sierra.tms.entities.PersonEntity;
 import sierra.tms.entities.TimesheetEntity;
 import sierra.tms.i18n.LanguageResolver;
 import sierra.tms.services.ReminderService;
+import sierra.tms.utils.ConfigService;
 import sierra.tms.utils.enums.TimeSheetStatus;
 
-import static sierra.tms.config.ApplicationConfig.TIME_ZONE;
-import static sierra.tms.config.ApplicationConfig.TIME_ZONE_ID;
+import static sierra.tms.utils.ConfigService.TIME_ZONE_ID;
 
 @Stateless
 public class ReminderServiceImpl implements ReminderService {
-
-    private static final String SENDER_EMAIL =
-            "noreply@sierra-tss.example";
-    private static final String MESSAGE_BUNDLE =
-            "sierra.tms.i18n.reminder_messages";
 
     private static final Logger LOGGER =
             Logger.getLogger(ReminderServiceImpl.class.getName());
 
     @EJB
     private TimesheetDao timesheetDao;
+
+    @EJB
+    private ConfigService configService;
 
     @Resource(lookup = "mail/tssMailSession")
     private Session mailSession;
@@ -61,24 +59,31 @@ public class ReminderServiceImpl implements ReminderService {
             timezone = TIME_ZONE_ID,
             persistent = false)
     public void sendDailyReminders() {
-        LocalDate today = LocalDate.now(TIME_ZONE);
-        Map<String, ReminderContent> remindersByRecipient =
-                collectDailyReminders(today);
+        LOGGER.log(Level.INFO, "Daily reminder job started");
+        try {
+            LocalDate today = LocalDate.now(configService.getTimeZone());
+            Map<String, ReminderContent> remindersByRecipient =
+                    new LinkedHashMap<>();
+            collectInProgressTimesheetReminders(remindersByRecipient, today);
+            collectReviewerReminders(remindersByRecipient);
+            collectSecretaryReminders(remindersByRecipient);
 
-        remindersByRecipient.forEach(this::sendEmail);
-    }
-
-    /** RE5: collect every reminder before sending one email per address. */
-    private Map<String, ReminderContent> collectDailyReminders(
-            LocalDate today) {
-        Map<String, ReminderContent> remindersByRecipient =
-                new LinkedHashMap<>();
-
-        collectInProgressTimesheetReminders(remindersByRecipient, today);
-        collectReviewerReminders(remindersByRecipient);
-        collectSecretaryReminders(remindersByRecipient);
-
-        return remindersByRecipient;
+            int sent = 0;
+            int failed = 0;
+            for (Map.Entry<String, ReminderContent> reminder : remindersByRecipient.entrySet()) {
+                if (sendEmail(reminder.getKey(), reminder.getValue())) {
+                    sent++;
+                } else {
+                    failed++;
+                }
+            }
+            LOGGER.log(Level.INFO,
+                    "Daily reminder job completed: recipients={0}, sent={1}, failed={2}",
+                    new Object[]{remindersByRecipient.size(), sent, failed});
+        } catch (RuntimeException exception) {
+            LOGGER.log(Level.SEVERE, "Daily reminder job failed", exception);
+            throw exception;
+        }
     }
 
     /**
@@ -199,7 +204,7 @@ public class ReminderServiceImpl implements ReminderService {
                         ignored -> new ReminderContent(locale));
 
         ResourceBundle bundle = ResourceBundle.getBundle(
-                MESSAGE_BUNDLE,
+                configService.getReminderMessageBundle(),
                 reminderContent.locale);
         String message = new MessageFormat(
                 bundle.getString(messageKey),
@@ -230,15 +235,15 @@ public class ReminderServiceImpl implements ReminderService {
         return localizedArguments;
     }
 
-    private void sendEmail(
+    private boolean sendEmail(
             String recipient,
             ReminderContent reminderContent) {
         try {
             ResourceBundle bundle = ResourceBundle.getBundle(
-                    MESSAGE_BUNDLE,
+                    configService.getReminderMessageBundle(),
                     reminderContent.locale);
             MimeMessage email = new MimeMessage(mailSession);
-            email.setFrom(new InternetAddress(SENDER_EMAIL));
+            email.setFrom(new InternetAddress(configService.getReminderSenderEmail()));
             email.setRecipient(
                     Message.RecipientType.TO,
                     new InternetAddress(recipient));
@@ -247,11 +252,13 @@ public class ReminderServiceImpl implements ReminderService {
                     String.join("\n\n", reminderContent.messages),
                     "UTF-8");
             Transport.send(email);
+            return true;
         } catch (MessagingException exception) {
             LOGGER.log(
                     Level.SEVERE,
-                    "Could not send timesheet reminder to " + recipient,
+                    "Could not send a timesheet reminder",
                     exception);
+            return false;
         }
     }
 

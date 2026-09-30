@@ -1,7 +1,7 @@
 package sierra.tms.utils.enums;
 
 public enum RoleType {
-    ADMINISTRATOR,
+    ADMIN,
     EMPLOYEE,
     SUPERVISOR,
     ASSISTANT,

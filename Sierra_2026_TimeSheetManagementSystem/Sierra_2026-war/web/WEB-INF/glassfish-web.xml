@@ -33,8 +33,8 @@
     <group-name>SECRETARY</group-name>
   </security-role-mapping>
   <security-role-mapping>
-    <role-name>ADMINISTRATOR</role-name>
-    <group-name>ADMINISTRATOR</group-name>
+    <role-name>ADMIN</role-name>
+    <group-name>ADMIN</group-name>
   </security-role-mapping>
   <class-loader delegate="true"/>
   <jsp-config>

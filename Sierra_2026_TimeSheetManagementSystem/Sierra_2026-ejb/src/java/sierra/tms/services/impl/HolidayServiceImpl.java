@@ -1,40 +1,43 @@
 package sierra.tms.services.impl;
 
+import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.annotation.security.RolesAllowed;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import sierra.tms.services.HolidayService;
+import sierra.tms.utils.ConfigService;
 import sierra.tms.utils.enums.States;
 import static sierra.tms.utils.enums.States.RHINELAND_PALATINATE;
 
 @Stateless
+@RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
 public class HolidayServiceImpl implements HolidayService {
-        
-    private static final States DEFAULT_STATE = States.RHINELAND_PALATINATE;   
-
-    private static final int MIN_YEAR = 2025;
-    private static final int MAX_YEAR = 2030;
-
+    
+    @EJB
+    private ConfigService configService;
 
     @Override
     public boolean isPublicHoliday(LocalDate date) {
-        return isPublicHoliday(date, DEFAULT_STATE);
+        return isPublicHoliday(date, configService.getDefaultHolidayState());
     }        
 
     @Override
     public boolean isPublicHoliday(LocalDate date, States state) {
         if (date == null) {
-            throw new IllegalArgumentException("Date must not be null.");
+            throw new IllegalArgumentException("Date is required.");
         }
 
         if (state == null) {
-            throw new IllegalArgumentException("Federal state must not be null.");
+            throw new IllegalArgumentException("Federal state is required.");
         }
 
         int year = date.getYear();
-        if (year < MIN_YEAR || year > MAX_YEAR) {
-            throw new IllegalArgumentException("Public holidays are supported from " + MIN_YEAR + " to " + MAX_YEAR + ".");
+        if (year < configService.getHolidayMinYear() || year > configService.getHolidayMaxYear() ) {
+            throw new IllegalArgumentException("Year " + year + " must be between "
+                    + configService.getHolidayMinYear() + " and "
+                    + configService.getHolidayMaxYear() + ".");
         }
 
         return holidaysFor(date.getYear(), state).contains(date);
