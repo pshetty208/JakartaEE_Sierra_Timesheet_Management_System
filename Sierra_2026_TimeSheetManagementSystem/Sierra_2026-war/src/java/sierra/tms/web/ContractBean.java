@@ -8,7 +8,9 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,6 +53,11 @@ public class ContractBean implements Serializable {
     private Long contractDetailId;
 
     private boolean terminationWarningActive;
+
+    /** Administrator search: contract name or user name (login e-mail or name) of the employee or supervisor. */
+    private String searchTerm;
+
+    private Map<Long, PersonDto> peopleById;
 
     @PostConstruct
     public void init() {
@@ -199,6 +206,46 @@ public class ContractBean implements Serializable {
             WebExceptionHandler.handle(getClass(), "load contracts",
                     "common.error.loadFailed", exception);
         }
+    }
+
+    /**
+     * Contracts shown in the overview. For the administrator the list is narrowed by
+     * {@link #searchTerm}; everyone else always sees their full list.
+     */
+    public List<ContractDto> getFilteredContracts() {
+        if (contracts == null || RecordSearch.isBlank(searchTerm)) {
+            return contracts;
+        }
+        Map<Long, PersonDto> people = getPeopleById();
+        return contracts.stream()
+                .filter(c -> RecordSearch.matches(searchTerm, c.getName(),
+                        c.getEmployeeName(), c.getSupervisorName())
+                        || RecordSearch.matches(searchTerm, RecordSearch.personValues(people.get(c.getEmployeeId())))
+                        || RecordSearch.matches(searchTerm, RecordSearch.personValues(people.get(c.getSupervisorId()))))
+                .toList();
+    }
+
+    private Map<Long, PersonDto> getPeopleById() {
+        if (peopleById == null) {
+            peopleById = new HashMap<>();
+            try {
+                for (PersonDto person : personService.findAll()) {
+                    peopleById.put(person.getId(), person);
+                }
+            } catch (RuntimeException exception) {
+                WebExceptionHandler.handle(getClass(), "load people for contract search",
+                        "common.error.loadFailed", exception);
+            }
+        }
+        return peopleById;
+    }
+
+    public String getSearchTerm() {
+        return searchTerm;
+    }
+
+    public void setSearchTerm(String searchTerm) {
+        this.searchTerm = searchTerm;
     }
 
     public void clear() {
