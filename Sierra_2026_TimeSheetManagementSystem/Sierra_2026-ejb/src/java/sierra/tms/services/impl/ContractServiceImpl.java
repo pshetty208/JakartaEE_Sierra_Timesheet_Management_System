@@ -23,6 +23,7 @@ import sierra.tms.dto.ContractDto;
 import sierra.tms.entities.ContractEntity;
 import sierra.tms.entities.PersonEntity;
 import sierra.tms.entities.TimesheetEntity;
+import sierra.tms.exceptions.ContractRuleViolation;
 import sierra.tms.exceptions.TerminationWarning;
 import sierra.tms.services.ContractService;
 import sierra.tms.utils.enums.ContractStatus;
@@ -333,17 +334,19 @@ public class ContractServiceImpl implements ContractService {
     
     private void validateStartAndEndDates(LocalDate startDate, LocalDate endDate) {
         if (!startDate.equals(startDate.withDayOfMonth(1))) {
-            throw new IllegalArgumentException(
-                    "The contract must start on the first and end on the last day of a month.");
+            throw new ContractRuleViolation("contract.validation.startDate.firstOfMonth");
         }
         if (!endDate.equals(endDate.with(TemporalAdjusters.lastDayOfMonth()))) {
-            throw new IllegalArgumentException("Contract end date must be the last day of a month: " + endDate);
+            throw new ContractRuleViolation("contract.validation.endDate.lastOfMonth");
+        }
+        if (endDate.isBefore(startDate)) {
+            throw new ContractRuleViolation("contract.validation.endDate.beforeStart");
         }
     }
     
     private void validateEmployeeHours(Long employeeId, Double hours) {
         if (hours == null || hours < 0) {
-            throw new IllegalArgumentException("Hours per week must be greater than zero.");
+            throw new ContractRuleViolation("contract.validation.hours.nonnegative");
         }
 
         double existingHours = contractDao.findByEmployee(employeeId)
@@ -356,9 +359,8 @@ public class ContractServiceImpl implements ContractService {
         if (existingHours + hours > maxHoursPerWeek) {
             LOGGER.log(Level.WARNING, "Rejected contract for employee: employee_id=" + employeeId
                     + " as working hours has exceeded " + maxHoursPerWeek + " hours per week.");
-            throw new IllegalStateException("This would bring the employee's total to "
-                    + (existingHours + hours) + " hours/week, exceeding the "
-                    + maxHoursPerWeek + "-hour limit.");
+            throw new ContractRuleViolation("contract.message.hoursLimitExceeded",
+                    existingHours, hours, maxHoursPerWeek);
         }
 
     }
