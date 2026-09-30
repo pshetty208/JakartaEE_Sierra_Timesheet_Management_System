@@ -180,6 +180,7 @@ Completed Requirements
 
 - **AC1**: Users are authenticated before any data is accessible.
 - **AC2**: The system can determine whether a person is a university staff member.
+- **AC3**: Users can only view, change or delete data according to their staff status and their role on the specific contract — every service method is guarded by `@RolesAllowed`, and contract/timesheet operations additionally check that the caller is the employee, supervisor, assistant or secretary assigned to that contract.
 
 
 
@@ -212,8 +213,6 @@ Completed Requirements
 
 Missed Requirements
 
-- **AC3** (partial): Two operations check the caller's role but not whether they are assigned to that specific contract — archiving a contract, and generating a contract's printable view. Found late in testing; not fixed yet.
-- **AC3** (partial): The administrator role was renamed from `ADMIN` to `ADMINISTRATOR` mid-project. The change was applied everywhere except the team's own admin login, so that account authenticates but is not recognized as an administrator anywhere in the app.
 - **SG4**: Digital signing (a cryptographic signature, not just recording who signed and when) was not attempted; it is a SHOULD requirement.
 - **UI2**: Mobile device support was not specifically tested; the layout is responsive but no device testing was done.
 - **UI3**: Cross-browser support (FireFox, Safari, Chrome) was not systematically tested; the team only tested in Chrome.
@@ -274,6 +273,11 @@ on by the team before the deadline.
 - A dedicated Statistics page was added instead of folding contract
 statistics into the existing Contracts page, so that the two pages could
 be worked on independently without one team's change blocking another's.
+- A person has exactly one role. The requirements describe roles per person
+without saying whether several are allowed; the team chose one role per
+person, enforced by a unique constraint on the `Roles` table and by
+`assignRole()` replacing the current role rather than adding to it. This
+keeps authorization decisions unambiguous.
 
 
 

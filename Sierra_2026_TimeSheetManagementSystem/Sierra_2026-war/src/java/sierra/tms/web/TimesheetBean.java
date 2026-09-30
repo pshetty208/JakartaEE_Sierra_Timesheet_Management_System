@@ -123,11 +123,7 @@ public class TimesheetBean implements Serializable {
         } catch (EJBAccessException e) {
             error(UiMessages.get("timesheet.message.ownEntriesOnly"));
         } catch (EJBException e) {
-            if (hasCauseMessage(e, "This entry overlaps")) {
-                error(UiMessages.get("timesheet.message.entryOverlap"));
-            } else {
-                error(UiMessages.get("timesheet.message.entryUnavailable"));
-            }
+            error(UiMessages.get("timesheet.message.entryUnavailable"));
         } catch (IllegalStateException e) {
             if (e.getMessage() != null && e.getMessage().startsWith("This entry overlaps")) {
                 error(UiMessages.get("timesheet.message.entryOverlap"));
@@ -140,7 +136,7 @@ public class TimesheetBean implements Serializable {
         }
     }
 
-    // Accept both "9:00" and the zero-padded ISO form "09:00".
+    // accepts "9:00" as well as "09:00", LocalTime.parse only accepts the latter
     private LocalTime parseTime(String value) {
         String trimmed = value.trim();
         try {
@@ -148,18 +144,6 @@ public class TimesheetBean implements Serializable {
         } catch (DateTimeParseException e) {
             return LocalTime.parse(trimmed, DateTimeFormatter.ofPattern("H:mm", Locale.ROOT));
         }
-    }
-
-    private boolean hasCauseMessage(Throwable throwable, String messagePrefix) {
-        Throwable current = throwable;
-        while (current != null) {
-            if (current.getMessage() != null
-                    && current.getMessage().startsWith(messagePrefix)) {
-                return true;
-            }
-            current = current.getCause();
-        }
-        return false;
     }
 
     /**
