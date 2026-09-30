@@ -16,6 +16,7 @@ public class ContractDao {
 
     public void save(ContractEntity contract) {
         em.persist(contract);
+        em.flush();
     }
     
     public ContractEntity findById(Long id) {

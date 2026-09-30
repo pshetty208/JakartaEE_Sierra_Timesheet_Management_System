@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="jakarta.faces.core"
+      xmlns:h="jakarta.faces.html">
+<f:loadBundle basename="sierra.tms.i18n.messages" var="msg"/>
+<h:head>
+    <title>#{msg['error.page.title']}</title>
+    <h:outputStylesheet library="appTheme" name="appTheme.css"/>
+</h:head>
+<h:body>
+    <main class="app-shell">
+        <section class="app-card">
+            <h1>#{msg['error.page.heading']}</h1>
+            <p>#{msg['error.page.description']}</p>
+            <p>#{msg['error.page.reference']} #{errorPageBean.incidentId}</p>
+            <h:link outcome="/app/dashboard" value="#{msg['error.page.back']}"/>
+        </section>
+    </main>
+</h:body>
+</html>

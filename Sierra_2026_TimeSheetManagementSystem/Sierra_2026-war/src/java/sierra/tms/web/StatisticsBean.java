@@ -16,7 +16,6 @@ import sierra.tms.dto.TimesheetDto;
 import sierra.tms.dto.TimesheetEntryDto;
 import sierra.tms.i18n.UiMessages;
 import sierra.tms.services.ContractService;
-import sierra.tms.services.FeatureAccessService;
 import sierra.tms.services.TimesheetService;
 import sierra.tms.utils.enums.ContractStatus;
 import sierra.tms.utils.enums.ReportType;
@@ -34,9 +33,6 @@ public class StatisticsBean implements Serializable {
     @EJB
     private TimesheetService timesheetService;
 
-    @EJB
-    private FeatureAccessService featureAccessService;
-
     private List<ContractSummary> summaries;
 
     public void load() {
@@ -46,11 +42,10 @@ public class StatisticsBean implements Serializable {
                 summaries.add(new ContractSummary(contract,
                         timesheetService.findByContractId(contract.getId())));
             }
-        } catch (EJBException exception) {
+        } catch (RuntimeException exception) {
             summaries = null;
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            UiMessages.get("statistics.message.loadFailed"), null));
+            WebExceptionHandler.handle(getClass(), "load statistics",
+                    "statistics.message.loadFailed", exception);
         }
     }
 
@@ -59,11 +54,13 @@ public class StatisticsBean implements Serializable {
     }
 
     public boolean isEmployee() {
-        return featureAccessService.isReportWork();
+        return FacesContext.getCurrentInstance().getExternalContext()
+                .isUserInRole("EMPLOYEE");
     }
 
     public boolean isSupervisor() {
-        return featureAccessService.isCountersignTimesheet();
+        return FacesContext.getCurrentInstance().getExternalContext()
+                .isUserInRole("SUPERVISOR");
     }
 
     public double getHoursDue() {

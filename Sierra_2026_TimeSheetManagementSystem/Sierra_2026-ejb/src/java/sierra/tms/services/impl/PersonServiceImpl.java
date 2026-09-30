@@ -3,9 +3,12 @@ package sierra.tms.services.impl;
 import jakarta.annotation.Resource;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
+import jakarta.ejb.EJBAccessException;
 import jakarta.ejb.SessionContext;
 import jakarta.ejb.Stateless;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import sierra.tms.dao.PersonDao;
 import sierra.tms.dto.PersonDto;
@@ -18,6 +21,8 @@ import sierra.tms.utils.enums.RoleType;
 @Stateless
 public class PersonServiceImpl implements PersonService {
 
+    private static final Logger LOGGER = Logger.getLogger(PersonServiceImpl.class.getName());
+
     @EJB
     private PersonDao personDao;
 
@@ -25,6 +30,7 @@ public class PersonServiceImpl implements PersonService {
     private SessionContext sessionContext;
 
     @Override
+    @RolesAllowed({"ADMIN"})
     public void createPerson(PersonDto dto) {
         PersonEntity person = new PersonEntity();
 
@@ -44,28 +50,32 @@ public class PersonServiceImpl implements PersonService {
 
         person.setUniversityStaff(dto.isUniversityStaff());
 
-        if (dto.getRoles() == null || dto.getRoles().isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Select at least one role for the user.");
+        if (dto.getRoles() == null || dto.getRoles().size() != 1) {
+            throw new IllegalArgumentException("Exactly one role is required.");
         }
 
-        for (RoleType roleType : dto.getRoles()) {
-            RoleEntity role = new RoleEntity();
-            role.setRole(roleType);
-            person.addRole(role);
-        }
+        validateStaffRoles(dto.isUniversityStaff(), dto.getRoles());
+
+        RoleEntity role = new RoleEntity();
+        role.setRole(dto.getRoles().get(0));
+        person.addRole(role);
 
         personDao.save(person);
+        LOGGER.log(Level.INFO, "Person created: person_id={0}", person.getId());
     }
 
     @Override
+    @RolesAllowed({"SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
     public PersonDto findById(Long id) {
+        requireUniversityStaffCaller();
         PersonEntity person = personDao.findById(id);
         return person == null ? null : convertToDto(person);
     }
 
     @Override
+    @RolesAllowed({"SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
     public List<PersonDto> findAll() {
+        requireUniversityStaffCaller();
         return personDao.findAll()
                 .stream()
                 .map(this::convertToDto)
@@ -73,6 +83,7 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
+    @RolesAllowed({"ADMIN"})
     public PersonDto update(PersonDto dto) {
 
         PersonEntity person = personDao.findById(dto.getId());
@@ -96,29 +107,42 @@ public class PersonServiceImpl implements PersonService {
         }
 
         person.setUniversityStaff(dto.isUniversityStaff());
+        validateStaffRoles(person.isUniversityStaff(), person.getRoles().stream()
+                .map(RoleEntity::getRole)
+                .collect(Collectors.toList()));
 
         PersonEntity updated = personDao.update(person);
+        LOGGER.log(Level.INFO, "Person updated: person_id={0}", person.getId());
 
         return convertToDto(updated);
     }
 
     @Override
+    @RolesAllowed({"ADMIN"})
     public void delete(Long id) {
         PersonEntity person = personDao.findById(id);
 
         if (person != null) {
             personDao.delete(person);
+            LOGGER.log(Level.INFO, "Person deleted: person_id={0}", id);
+        } else {
+            LOGGER.log(Level.WARNING, "Person deletion skipped because the record was not found: person_id={0}", id);
         }
     }
 
     @Override
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
     public void giveConsent(Long personId) {
-
         PersonEntity person = personDao.findById(personId);
 
         if (person != null) {
+            String callerEmail = sessionContext.getCallerPrincipal().getName();
+            if (!callerEmail.equalsIgnoreCase(person.getEmailAddress())) {
+                throw new EJBAccessException("Users may only give consent for their own account.");
+            }
             person.setConsent(true);
             personDao.update(person);
+            LOGGER.log(Level.INFO, "Person consent recorded: person_id={0}", personId);
         }
     }
 
@@ -128,7 +152,7 @@ public class PersonServiceImpl implements PersonService {
         "SUPERVISOR",
         "ASSISTANT",
         "SECRETARY",
-        "ADMINISTRATOR"
+        "ADMIN"
     })
     public void changeCurrentPersonPreferredLanguage(String language) {
         String normalizedLanguage = LanguageResolver.normalize(language);
@@ -141,10 +165,12 @@ public class PersonServiceImpl implements PersonService {
         if (person != null) {
             person.setPreferredLanguage(normalizedLanguage);
             personDao.update(person);
+            LOGGER.log(Level.INFO, "Preferred language changed: person_id={0}", person.getId());
         }
     }
 
     @Override
+    @RolesAllowed({"ADMIN"})
     public void assignRole(Long personId, RoleType roleType) {
 
         PersonEntity person = personDao.findById(personId);
@@ -153,31 +179,46 @@ public class PersonServiceImpl implements PersonService {
             return;
         }
 
-        boolean exists = person.getRoles()
+        validateStaffRoles(person.isUniversityStaff(), List.of(roleType));
+
+        boolean alreadyAssigned = person.getRoles()
                 .stream()
                 .anyMatch(role -> role.getRole() == roleType);
 
-        if (!exists) {
+        if (!alreadyAssigned) {
+            person.getRoles().forEach(existingRole -> existingRole.setPerson(null));
+            person.getRoles().clear();
             RoleEntity role = new RoleEntity();
             role.setRole(roleType);
             person.addRole(role);
             personDao.update(person);
+            LOGGER.log(Level.INFO, "Person role assigned: person_id={0}, role={1}",
+                    new Object[]{personId, roleType});
         }
     }
 
-    @Override
-    public void removeRole(Long personId, RoleType roleType) {
-
-        PersonEntity person = personDao.findById(personId);
-
-        if (person == null) {
-            return;
-        }
-
-        person.getRoles().removeIf(role -> role.getRole() == roleType);
-
-        personDao.update(person);
-    }
+    // Removed: with the single-role-per-user model, assignRole() already performs an atomic
+    // swap (clears the existing role and sets the new one), so a separate removeRole() has no
+    // valid use case - a person must always have exactly one role, and this never worked
+    // correctly anyway (it threw when a role was assigned and silently did nothing otherwise).
+    // @Override
+    // @RolesAllowed({"ADMIN"})
+    // public void removeRole(Long personId, RoleType roleType) {
+    //
+    //     PersonEntity person = personDao.findById(personId);
+    //
+    //     if (person == null) {
+    //         return;
+    //     }
+    //
+    //     boolean assigned = person.getRoles()
+    //             .stream()
+    //             .anyMatch(role -> role.getRole() == roleType);
+    //     if (assigned) {
+    //         throw new IllegalStateException(
+    //                 "A person's only role cannot be removed; assign a replacement role instead.");
+    //     }
+    // }
 
     @Override
     @RolesAllowed({
@@ -185,7 +226,7 @@ public class PersonServiceImpl implements PersonService {
         "SUPERVISOR",
         "ASSISTANT",
         "SECRETARY",
-        "ADMINISTRATOR"
+        "ADMIN"
     })
     public PersonDto getCurrentPerson() {
 
@@ -225,5 +266,25 @@ public class PersonServiceImpl implements PersonService {
                         .collect(Collectors.toList()));
 
         return dto;
+    }
+
+    private void requireUniversityStaffCaller() {
+        String emailAddress = sessionContext.getCallerPrincipal().getName();
+        PersonEntity currentPerson = personDao.findByEmailAddress(emailAddress);
+        if (currentPerson == null || !currentPerson.isUniversityStaff()) {
+            throw new EJBAccessException("This operation is restricted to university staff.");
+        }
+    }
+
+    private void validateStaffRoles(boolean universityStaff, List<RoleType> roles) {
+        boolean containsStaffRole = roles.stream().anyMatch(role ->
+                role == RoleType.SUPERVISOR
+                || role == RoleType.ASSISTANT
+                || role == RoleType.SECRETARY
+                || role == RoleType.ADMIN);
+        if (containsStaffRole && !universityStaff) {
+            throw new IllegalArgumentException(
+                    "Supervisor, assistant, secretary, and admin roles require university staff status.");
+        }
     }
 }

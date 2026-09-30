@@ -2,7 +2,6 @@ package sierra.tms.web;
 
 import sierra.tms.dto.TimesheetDto;
 import sierra.tms.dto.TimesheetEntryDto;
-import sierra.tms.exceptions.TimesheetEntryOverlapException;
 import sierra.tms.i18n.UiMessages;
 import sierra.tms.services.TimesheetService;
 import sierra.tms.utils.enums.ReportType;
@@ -35,6 +34,7 @@ public class TimesheetBean implements Serializable {
     private String startTime;
     private String endTime;
     private String description;
+    private TimesheetDto printableTimesheet;
     private List<TimesheetDto> entryManageableTimesheets;
     private List<TimesheetDto> employeeSignatureRevocableTimesheets;
     private List<TimesheetDto> supervisorSignableTimesheets;
@@ -43,10 +43,50 @@ public class TimesheetBean implements Serializable {
     private Long timesheetDetailId;
     private TimesheetDto timesheetForPrinting;
 
+//Check if needed - before deleting
+//    public void saveTimesheet() {
+//
+//        try {
+//            TimesheetDto dto = new TimesheetDto();
+//            dto.setContractId(Long.valueOf(contractId.trim()));
+//            dto.setStartDate(LocalDate.parse(startDate.trim()));
+//            dto.setEndDate(LocalDate.parse(endDate.trim()));
+//
+//            if (dto.getEndDate().isBefore(dto.getStartDate())) {
+//                error("End date is before start date.");
+//                return;
+//            }
+//
+//            Long id = service.save(dto);
+//
+//            if (id == null) {
+//                error("Contract " + dto.getContractId() + " not found.");
+//                return;
+//            }
+//
+//            info("Created timesheet " + id + ".");
+//            contractId = "";
+//            startDate = "";
+//            endDate = "";
+//
+//        } catch (NumberFormatException e) {
+//            error("Contract must be a number.");
+//        } catch (DateTimeParseException e) {
+//            error("Dates must be in ISO form, e.g. 2026-07-01.");
+//        }
+//    }
+
     public void addEntry() {
 
         if (selectedTimesheetId == null) {
             error(UiMessages.get("timesheet.message.selectFirst"));
+            return;
+        }
+
+        if (entryDate == null || entryDate.isBlank()
+                || startTime == null || startTime.isBlank()
+                || endTime == null || endTime.isBlank()) {
+            error(UiMessages.get("timesheet.message.invalidDateTime"));
             return;
         }
 
@@ -81,13 +121,16 @@ public class TimesheetBean implements Serializable {
         } catch (EJBAccessException e) {
             error(UiMessages.get("timesheet.message.ownEntriesOnly"));
         } catch (EJBException e) {
-            if (e.getCause() instanceof TimesheetEntryOverlapException) {
-                error(UiMessages.get("timesheet.message.entryOverlap"));
-                return;
-            }
-            throw e;
-        } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.entryUnavailable"));
+        } catch (IllegalStateException e) {
+            if (e.getMessage() != null && e.getMessage().startsWith("This entry overlaps")) {
+                error(UiMessages.get("timesheet.message.entryOverlap"));
+            } else {
+                error(UiMessages.get("timesheet.message.entryUnavailable"));
+            }
+        } catch (RuntimeException e) {
+            WebExceptionHandler.handle(getClass(), "add timesheet entry",
+                    "common.error.operationFailed", e);
         }
     }
 
@@ -97,6 +140,9 @@ public class TimesheetBean implements Serializable {
             refreshTimesheets();
         } catch (EJBAccessException e) {
             error(UiMessages.get("timesheet.message.ownEntriesOnly"));
+        } catch (RuntimeException e) {
+            WebExceptionHandler.handle(getClass(), "delete timesheet entry",
+                    "common.error.operationFailed", e);
         }
     }
 
@@ -109,6 +155,9 @@ public class TimesheetBean implements Serializable {
             error(UiMessages.get("timesheet.message.employeeSignOnly"));
         } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.signUnavailable"));
+        } catch (RuntimeException e) {
+            WebExceptionHandler.handle(getClass(), "sign timesheet",
+                    "common.error.operationFailed", e);
         }
     }
 
@@ -121,6 +170,9 @@ public class TimesheetBean implements Serializable {
             error(UiMessages.get("timesheet.message.employeeRevokeOnly"));
         } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.revokeUnavailable"));
+        } catch (RuntimeException e) {
+            WebExceptionHandler.handle(getClass(), "revoke timesheet signature",
+                    "common.error.operationFailed", e);
         }
     }
 
@@ -133,6 +185,9 @@ public class TimesheetBean implements Serializable {
             error(UiMessages.get("timesheet.message.supervisorSignOnly"));
         } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.supervisorSignUnavailable"));
+        } catch (RuntimeException e) {
+            WebExceptionHandler.handle(getClass(), "supervisor sign timesheet",
+                    "common.error.operationFailed", e);
         }
     }
 
@@ -145,6 +200,9 @@ public class TimesheetBean implements Serializable {
             error(UiMessages.get("timesheet.message.requestChangesOnly"));
         } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.requestChangesUnavailable"));
+        } catch (RuntimeException e) {
+            WebExceptionHandler.handle(getClass(), "request timesheet changes",
+                    "common.error.operationFailed", e);
         }
     }
 
@@ -157,18 +215,19 @@ public class TimesheetBean implements Serializable {
             error(UiMessages.get("timesheet.message.archiveOnly"));
         } catch (IllegalStateException e) {
             error(UiMessages.get("timesheet.message.archiveUnavailable"));
+        } catch (RuntimeException e) {
+            WebExceptionHandler.handle(getClass(), "archive timesheet",
+                    "common.error.operationFailed", e);
         }
     }
 
     public void loadTimesheetForPrinting() {
         try {
             timesheetForPrinting = service.getForPrinting(timesheetDetailId);
-        } catch (EJBException e) {
+        } catch (RuntimeException e) {
             timesheetForPrinting = null;
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            UiMessages.get("timesheet.message.printUnavailable"),
-                            null));
+            WebExceptionHandler.handle(getClass(), "load printable timesheet",
+                    "timesheet.message.printUnavailable", e);
         }
     }
 
@@ -181,28 +240,32 @@ public class TimesheetBean implements Serializable {
 
     public List<TimesheetDto> getEntryManageableTimesheets() {
         if (entryManageableTimesheets == null) {
-            entryManageableTimesheets = service.findForEntryManagement();
+            entryManageableTimesheets = safelyLoad(
+                    service::findForEntryManagement, "load manageable timesheets");
         }
         return entryManageableTimesheets;
     }
 
     public List<TimesheetDto> getEmployeeSignatureRevocableTimesheets() {
         if (employeeSignatureRevocableTimesheets == null) {
-            employeeSignatureRevocableTimesheets = service.findForEmployeeSignatureRevocation();
+            employeeSignatureRevocableTimesheets = safelyLoad(
+                    service::findForEmployeeSignatureRevocation, "load revocable timesheets");
         }
         return employeeSignatureRevocableTimesheets;
     }
 
     public List<TimesheetDto> getSupervisorSignableTimesheets() {
         if (supervisorSignableTimesheets == null) {
-            supervisorSignableTimesheets = service.findForSupervisorSigning();
+            supervisorSignableTimesheets = safelyLoad(
+                    service::findForSupervisorSigning, "load supervisor-signable timesheets");
         }
         return supervisorSignableTimesheets;
     }
 
     public List<TimesheetDto> getChangeRequestableTimesheets() {
         if (changeRequestableTimesheets == null) {
-            changeRequestableTimesheets = service.findForChangeRequest();
+            changeRequestableTimesheets = safelyLoad(
+                    service::findForChangeRequest, "load change-requestable timesheets");
         }
         return changeRequestableTimesheets;
     }
@@ -251,11 +314,22 @@ public class TimesheetBean implements Serializable {
     }
 
     private void refreshTimesheets() {
-        timesheets = service.findAll();
+        timesheets = safelyLoad(service::findAll, "load timesheets");
         entryManageableTimesheets = null;
         employeeSignatureRevocableTimesheets = null;
         supervisorSignableTimesheets = null;
         changeRequestableTimesheets = null;
+    }
+
+    private List<TimesheetDto> safelyLoad(
+            java.util.function.Supplier<List<TimesheetDto>> loader, String operation) {
+        try {
+            return loader.get();
+        } catch (RuntimeException exception) {
+            WebExceptionHandler.handle(getClass(), operation,
+                    "common.error.loadFailed", exception);
+            return List.of();
+        }
     }
 
     public ReportType[] getReportTypes() {

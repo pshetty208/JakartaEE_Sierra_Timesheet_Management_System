@@ -17,6 +17,7 @@ public class PersonDao {
 
     public void save(PersonEntity person) {
         em.persist(person);
+        em.flush();
     }
     
     public PersonEntity findById(Long id) {

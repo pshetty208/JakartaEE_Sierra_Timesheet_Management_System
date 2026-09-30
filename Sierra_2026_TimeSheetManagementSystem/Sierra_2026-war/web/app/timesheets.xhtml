@@ -26,7 +26,7 @@
                             styleClass="timesheet-overview__messages"/>
 
                 <p:panel header="#{msg['timesheet.entry.add']}" toggleable="true" collapsed="true"
-                         rendered="#{featureAccess.reportWork and not empty timesheetBean.entryManageableTimesheets}"
+                         rendered="#{request.isUserInRole('EMPLOYEE') and not empty timesheetBean.entryManageableTimesheets}"
                          styleClass="timesheet-entry-form">
                     <p class="timesheet-entry-form__hint">#{msg['timesheet.entry.hint']}</p>
                     <div class="timesheet-entry-form__grid">
@@ -136,7 +136,7 @@
                                              process="@this"
                                              update="timesheetsForm"
                                              styleClass="timesheet-card__sign"
-                                             rendered="#{featureAccess.signTimesheet and timesheetBean.canSignTimesheet(timesheet.id)}">
+                                             rendered="#{request.isUserInRole('EMPLOYEE') and timesheetBean.canSignTimesheet(timesheet.id)}">
                                 <p:confirm header="#{msg['timesheet.sign.action']}"
                                            message="#{msg['timesheet.sign.confirm']}"
                                            icon="pi pi-exclamation-triangle"/>
@@ -146,7 +146,7 @@
                                              process="@this"
                                              update="timesheetsForm"
                                              styleClass="timesheet-card__revoke"
-                                             rendered="#{featureAccess.signTimesheet and timesheetBean.canRevokeSignature(timesheet.id)}">
+                                             rendered="#{request.isUserInRole('EMPLOYEE') and timesheetBean.canRevokeSignature(timesheet.id)}">
                                 <p:confirm header="#{msg['timesheet.revoke.confirm.title']}"
                                            message="#{msg['timesheet.revoke.confirm.description']}"
                                            icon="pi pi-exclamation-triangle"/>
@@ -156,7 +156,7 @@
                                              process="@this"
                                              update="timesheetsForm"
                                              styleClass="timesheet-card__supervisor-sign"
-                                             rendered="#{featureAccess.countersignTimesheet and timesheetBean.canSignAsSupervisor(timesheet.id)}">
+                                             rendered="#{request.isUserInRole('SUPERVISOR') and timesheetBean.canSignAsSupervisor(timesheet.id)}">
                                 <p:confirm header="#{msg['timesheet.supervisorSign.confirm.title']}"
                                            message="#{msg['timesheet.supervisorSign.confirm.description']}"
                                            icon="pi pi-exclamation-triangle"/>
@@ -166,14 +166,14 @@
                                              process="@this"
                                              update="timesheetsForm"
                                              styleClass="timesheet-card__request-changes"
-                                             rendered="#{featureAccess.requestTimesheetChanges and timesheetBean.canRequestChanges(timesheet.id)}">
+                                             rendered="#{(request.isUserInRole('SUPERVISOR') or request.isUserInRole('ASSISTANT')) and timesheetBean.canRequestChanges(timesheet.id)}">
                                 <p:confirm header="#{msg['timesheet.requestChanges.action']}"
                                            message="#{msg['timesheet.requestChanges.confirm']}"
                                            icon="pi pi-exclamation-triangle"/>
                             </p:commandButton>
                             <h:link outcome="/app/timesheet-print"
                                     styleClass="timesheet-card__print-link"
-                                    rendered="#{featureAccess.printTimesheet}">
+                                    rendered="#{request.isUserInRole('SECRETARY')}">
                                 <span class="pi pi-print" aria-hidden="true"></span>
                                 <span>#{msg['common.print']}</span>
                                 <f:param name="id" value="#{timesheet.id}"/>
@@ -183,7 +183,7 @@
                                              process="@this"
                                              update="timesheetsForm"
                                              styleClass="timesheet-card__archive"
-                                             rendered="#{featureAccess.archiveTimesheet and timesheetBean.canArchive(timesheet)}">
+                                             rendered="#{request.isUserInRole('SECRETARY') and timesheetBean.canArchive(timesheet)}">
                                 <p:confirm header="#{msg['timesheet.archive.confirm.title']}"
                                            message="#{msg['timesheet.archive.confirm.description']}"
                                            icon="pi pi-exclamation-triangle"/>
@@ -193,10 +193,10 @@
                         <section class="timesheet-card__entries" aria-labelledby="timesheet-#{timesheet.id}-entries">
                             <header class="timesheet-card__entries-heading">
                                 <h3 id="timesheet-#{timesheet.id}-entries">#{msg['common.entries']}</h3>
-                                <ui:fragment rendered="#{featureAccess.reportWork and timesheetBean.canManageEntries(timesheet.id)}">
+                                <ui:fragment rendered="#{request.isUserInRole('EMPLOYEE') and timesheetBean.canManageEntries(timesheet.id)}">
                                     <span>#{msg['common.editable']}</span>
                                 </ui:fragment>
-                                <ui:fragment rendered="#{not featureAccess.reportWork or not timesheetBean.canManageEntries(timesheet.id)}">
+                                <ui:fragment rendered="#{not request.isUserInRole('EMPLOYEE') or not timesheetBean.canManageEntries(timesheet.id)}">
                                     <span>#{msg['common.readOnly']}</span>
                                 </ui:fragment>
                             </header>
@@ -233,7 +233,7 @@
                                                      process="@this"
                                                      update="timesheetsForm"
                                                      styleClass="timesheet-card__delete"
-                                                     rendered="#{featureAccess.reportWork and timesheetBean.canManageEntries(entry.timesheetId)}"/>
+                                                     rendered="#{request.isUserInRole('EMPLOYEE') and timesheetBean.canManageEntries(entry.timesheetId)}"/>
                                 </p:column>
                             </p:dataTable>
                         </section>

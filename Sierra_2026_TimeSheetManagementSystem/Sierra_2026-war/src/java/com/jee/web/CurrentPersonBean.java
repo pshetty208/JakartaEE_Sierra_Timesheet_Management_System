@@ -12,6 +12,8 @@ import java.security.Principal;
 import java.util.Locale;
 import sierra.tms.dto.PersonDto;
 import sierra.tms.services.PersonService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -20,6 +22,8 @@ import sierra.tms.services.PersonService;
 @RequestScoped
 @Named
 public class CurrentPersonBean {
+
+    private static final Logger LOGGER = Logger.getLogger(CurrentPersonBean.class.getName());
 
     @EJB
     private PersonService personService;
@@ -52,7 +56,12 @@ public class CurrentPersonBean {
         }
 
         if (currentPerson == null) {
-            currentPerson = personService.getCurrentPerson();
+            try {
+                currentPerson = personService.getCurrentPerson();
+            } catch (RuntimeException exception) {
+                LOGGER.log(Level.SEVERE, "Unable to load the current user.", exception);
+                return null;
+            }
         }
         return currentPerson;
     }
@@ -99,6 +108,7 @@ public class CurrentPersonBean {
                     + "/faces/login.xhtml");
             context.responseComplete();
         } catch (ServletException | IOException exception) {
+            LOGGER.log(Level.SEVERE, "Unable to log out the current user.", exception);
             throw new FacesException("Unable to log out the current user.", exception);
         }
     }

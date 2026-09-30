@@ -3,6 +3,7 @@ package sierra.tms.web;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBException;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
@@ -17,7 +18,6 @@ import sierra.tms.dto.ContractDto;
 import sierra.tms.dto.PersonDto;
 import sierra.tms.dto.TimesheetDto;
 import sierra.tms.services.ContractService;
-import sierra.tms.services.FeatureAccessService;
 import sierra.tms.services.PersonService;
 import sierra.tms.services.TimesheetService;
 import sierra.tms.utils.enums.ContractStatus;
@@ -39,9 +39,6 @@ public class DashboardBean implements Serializable {
     @EJB
     private PersonService personService;
 
-    @EJB
-    private FeatureAccessService featureAccessService;
-
     private RoleType dashboardRole;
     private List<TimesheetDto> timesheets;
     private List<TimesheetDto> pendingTimesheets;
@@ -58,12 +55,14 @@ public class DashboardBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        dashboardRole = featureAccessService.getPrimaryRole();
+        dashboardRole = resolveRole();
         contracts = loadContracts();
         contractsById = contracts.stream()
                 .collect(Collectors.toMap(ContractDto::getId, Function.identity()));
-        peopleById = loadPeople().stream()
-                .collect(Collectors.toMap(PersonDto::getId, Function.identity()));
+        peopleById = dashboardRole == RoleType.EMPLOYEE
+                ? Map.of()
+                : loadPeople().stream()
+                        .collect(Collectors.toMap(PersonDto::getId, Function.identity()));
         timesheets = loadTimesheets();
 
         pendingTimesheets = byStatus(TimeSheetStatus.SIGNED_BY_EMPLOYEE,
@@ -101,6 +100,16 @@ public class DashboardBean implements Serializable {
                 .count();
     }
 
+    private RoleType resolveRole() {
+        var externalContext = FacesContext.getCurrentInstance().getExternalContext();
+        for (RoleType role : RoleType.values()) {
+            if (externalContext.isUserInRole(role.name())) {
+                return role;
+            }
+        }
+        return RoleType.EMPLOYEE;
+    }
+
     private List<TimesheetDto> byStatus(TimeSheetStatus status,
             Comparator<TimesheetDto> comparator) {
         return timesheets.stream()
@@ -123,7 +132,9 @@ public class DashboardBean implements Serializable {
     private List<TimesheetDto> loadTimesheets() {
         try {
             return timesheetService.findAll();
-        } catch (EJBException exception) {
+        } catch (RuntimeException exception) {
+            WebExceptionHandler.handle(getClass(), "load dashboard timesheets",
+                    "common.error.loadFailed", exception);
             return List.of();
         }
     }
@@ -131,7 +142,9 @@ public class DashboardBean implements Serializable {
     private List<ContractDto> loadContracts() {
         try {
             return contractService.findAll();
-        } catch (EJBException exception) {
+        } catch (RuntimeException exception) {
+            WebExceptionHandler.handle(getClass(), "load dashboard contracts",
+                    "common.error.loadFailed", exception);
             return List.of();
         }
     }
@@ -139,15 +152,24 @@ public class DashboardBean implements Serializable {
     private List<PersonDto> loadPeople() {
         try {
             return personService.findAll();
-        } catch (EJBException exception) {
+        } catch (RuntimeException exception) {
+            WebExceptionHandler.handle(getClass(), "load dashboard people",
+                    "common.error.loadFailed", exception);
             return List.of();
         }
     }
 
     public String getViewPath() {
         return "/WEB-INF/dashboard/"
-                + dashboardRole.name().toLowerCase(Locale.ROOT)
+                + dashboardFileName()
                 + ".xhtml";
+    }
+
+    /** The dashboard include files are named after the role, except ADMIN, whose file is "administrator.xhtml". */
+    private String dashboardFileName() {
+        return dashboardRole == RoleType.ADMIN
+                ? "administrator"
+                : dashboardRole.name().toLowerCase(Locale.ROOT);
     }
 
     public String getPageTitleKey() {

@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import sierra.tms.dao.ContractDao;
 import sierra.tms.dao.PersonDao;
@@ -26,9 +28,13 @@ import sierra.tms.services.ContractService;
 import sierra.tms.utils.enums.ContractStatus;
 import sierra.tms.utils.enums.TimeSheetStatus;
 import sierra.tms.services.ContractHoursCalculationService;
+import sierra.tms.utils.ConfigService;
+import sierra.tms.utils.enums.RoleType;
 
 @Stateless
 public class ContractServiceImpl implements ContractService {
+    
+    private static final Logger LOGGER = Logger.getLogger(ContractServiceImpl.class.getName());
 
     @EJB
     private ContractDao contractDao;
@@ -45,11 +51,15 @@ public class ContractServiceImpl implements ContractService {
     @EJB
     private ContractHoursCalculationService calculationService;
 
+    @EJB
+    private ConfigService configService;
+
     @Override
-    @RolesAllowed({"SUPERVISOR", "ASSISTANT", "SECRETARY"})
+    @RolesAllowed({"SUPERVISOR", "ASSISTANT"})
     public void createContract(ContractDto dto) {
+        PersonEntity currentPerson = requireUniversityStaffCaller();
         if (dto == null) {
-            throw new IllegalArgumentException("Contract must not be null.");
+            throw new IllegalArgumentException("Contract is required.");
         }
 
         if (dto.getName() == null || dto.getName().isBlank()) {
@@ -72,14 +82,17 @@ public class ContractServiceImpl implements ContractService {
         contract.setEndDate(dto.getEndDate());
         contract.setFrequency(dto.getFrequency());
         contract.setHoursPerWeek(dto.getHoursPerWeek());
-        contract.setWorkingDaysPerWeek(dto.getWorkingDaysPerWeek());
-        contract.setVacationDaysPerYear(dto.getVacationDaysPerYear());
+        contract.setWorkingDaysPerWeek(dto.getWorkingDaysPerWeek() != null
+                ? dto.getWorkingDaysPerWeek() : configService.getDefaultWorkingDaysPerWeek());
+        contract.setVacationDaysPerYear(dto.getVacationDaysPerYear() != null
+                ? dto.getVacationDaysPerYear() : configService.getDefaultVacationDaysPerYear());
         contract.setTerminationDate(dto.getTerminationDate());
-        contract.setArchiveDuration(dto.getArchiveDuration());
+        contract.setArchiveDuration(dto.getArchiveDuration() != null
+                ? dto.getArchiveDuration() : configService.getDefaultArchiveDurationMonths());
         
         PersonEntity employee = personDao.findById(dto.getEmployeeId());
         if (employee == null) {
-            throw new EntityNotFoundException("Employee not found: " + dto.getEmployeeId());
+            throw new EntityNotFoundException("Person not found: " + dto.getEmployeeId());
         }
         
 //        boolean existingContract = contractDao.findByEmployee(dto.getEmployeeId())
@@ -89,36 +102,48 @@ public class ContractServiceImpl implements ContractService {
 //            throw new IllegalStateException("Employee already has a contract.");
 //        }
         
+        boolean isEmployee = employee.getRoles().stream().anyMatch(role -> role.getRole() == RoleType.EMPLOYEE);
+        if (!isEmployee) {
+            throw new IllegalArgumentException("Person " + dto.getEmployeeId()
+                    + " does not have the EMPLOYEE role.");
+        }
         contract.setEmployee(employee);
 
         PersonEntity supervisor = personDao.findById(dto.getSupervisorId());
         if (supervisor == null) {
-            throw new EntityNotFoundException("Supervisor not found: " + dto.getSupervisorId());
+            throw new EntityNotFoundException("Person not found: " + dto.getSupervisorId());
         }
+        validateStaffRole(supervisor, RoleType.SUPERVISOR);
         contract.setSupervisor(supervisor);
-        contract.setAssistants(findPerson(dto.getAssistantRoleIds()));
-        contract.setSecretaries(findPerson(dto.getSecretaryRoleIds()));
+        contract.setAssistants(findPeopleWithRole(dto.getAssistantRoleIds(), RoleType.ASSISTANT));
+        contract.setSecretaries(findPeopleWithRole(dto.getSecretaryRoleIds(), RoleType.SECRETARY));
+
+        if (!isAuthorizedToManageContract(currentPerson, contract)) {
+            throw new EJBAccessException(
+                    "Only the selected supervisor or an assigned assistant may create this contract.");
+        }
         
         contractDao.save(contract);
+        LOGGER.log(Level.INFO, "Contract created: contract_id=" + contract.getId() + ", employee=" + employee.getId() + ", supervisor=" + supervisor.getId());
     }
 
     @Override
-    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMINISTRATOR"})
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
     public ContractDto findById(Long id) {
         ContractEntity entity = getRequiredContract(id);
-        if (!sessionContext.isCallerInRole("ADMINISTRATOR")) {
+        if (!sessionContext.isCallerInRole("ADMIN")) {
             PersonEntity currentPerson = getCurrentPerson();
             if (currentPerson == null || !isAuthorizedToViewContract(currentPerson, entity)) {
-                throw new EJBAccessException("The current user is not authorized to view this contract.");
+                throw new EJBAccessException("The current user is not authorized to view contract " + id + ".");
             }
         }
         return createDto(entity);
     }
 
     @Override
-    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMINISTRATOR"})
+    @RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
     public List<ContractDto> findAll() {
-        boolean isAdministrator = sessionContext.isCallerInRole("ADMINISTRATOR");
+        boolean isAdministrator = sessionContext.isCallerInRole("ADMIN");
         PersonEntity person = isAdministrator ? null : getCurrentPerson();
         return contractDao.findAll().stream()
             .filter(c -> isAdministrator || isAuthorizedToViewContract(person, c))
@@ -164,18 +189,21 @@ public class ContractServiceImpl implements ContractService {
             if (supervisor == null) {
                 throw new EntityNotFoundException("Supervisor not found: "+ dto.getSupervisorId());
             }
+            validateStaffRole(supervisor, RoleType.SUPERVISOR);
             contract.setSupervisor(supervisor);
         }
         
         if (dto.getAssistantRoleIds() != null) {
-            contract.setAssistants(findPerson(dto.getAssistantRoleIds()));
+            contract.setAssistants(findPeopleWithRole(dto.getAssistantRoleIds(), RoleType.ASSISTANT));
         }
         
         if (dto.getSecretaryRoleIds() != null) {
-            contract.setSecretaries(findPerson(dto.getSecretaryRoleIds()));
+            contract.setSecretaries(findPeopleWithRole(dto.getSecretaryRoleIds(), RoleType.SECRETARY));
         }
 
         ContractEntity updated = contractDao.update(contract);
+        LOGGER.log(Level.INFO, "Contract updated: contract_id=" + contract.getId());
+
         return createDto(updated);
     }
 
@@ -188,6 +216,8 @@ public class ContractServiceImpl implements ContractService {
         }
         validateState(contract);
         contractDao.delete(getRequiredContract(id));
+        LOGGER.log(Level.INFO, "Contract deleted: contract_id=" + contract.getId());
+
     }
     
     @Override
@@ -198,22 +228,30 @@ public class ContractServiceImpl implements ContractService {
             throw new EJBAccessException("The current user is not authorized to start this contract.");
         }
         if (contract.getStatus() != ContractStatus.PREPARED) {
-            throw new IllegalStateException("Only contracts in PREPARED status can be started.");
+            throw new IllegalStateException("Only prepared contracts can be started.");
         }
         contract.setStatus(ContractStatus.STARTED);
-        for (TimesheetEntity timesheet : generateTimesheets(contract)) {
+        List<TimesheetEntity> generateTimesheets = generateTimesheets(contract);
+        for (TimesheetEntity timesheet : generateTimesheets) {
             timesheetDao.save(timesheet);
         }
+        LOGGER.log(Level.INFO, "Contract started: contract_id=" + contract.getId() + " and " + generateTimesheets.size() + " timesheets created");
     }
     
     @Override
     @RolesAllowed({"SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public void archiveContract(Long contractId) {
         ContractEntity contract = getRequiredContract(contractId);
+        PersonEntity currentPerson = getCurrentPerson();
+        if (!isAuthorizedToViewContract(currentPerson, contract)) {
+            throw new EJBAccessException(
+                    "Only a participant assigned to this contract may archive it.");
+        }
         List<TimesheetEntity> timesheets = timesheetDao.findByContractId(contractId);
         boolean allArchived = !timesheets.isEmpty() && timesheets.stream().allMatch(t -> t.getStatus() == TimeSheetStatus.ARCHIVED);
         if (allArchived) {
             contract.setStatus(ContractStatus.ARCHIVED);
+        LOGGER.log(Level.INFO, "Contract archived: contract_id=" + contract.getId());
         }
     }
     
@@ -225,7 +263,7 @@ public class ContractServiceImpl implements ContractService {
             throw new EJBAccessException("The current user is not authorized to terminate this contract.");
         }
         if (contract.getStatus() != ContractStatus.STARTED) {
-            throw new IllegalStateException("Only contracts in STARTED status can be terminated.");
+            throw new IllegalStateException("Only started contracts can be terminated.");
         }
 
         List<TimesheetEntity> timesheets = timesheetDao.findByContractId(id);
@@ -234,38 +272,52 @@ public class ContractServiceImpl implements ContractService {
                         && t.getStatus() != TimeSheetStatus.SIGNED_BY_SUPERVISOR
                         && t.getStatus() != TimeSheetStatus.ARCHIVED);
         if (hasBlockingTimesheet) {
-            throw new IllegalStateException("Cannot terminate: a timesheet is signed by the employee but not yet by the supervisor!");
+            throw new IllegalStateException("Contract " + id
+                    + " cannot be terminated while a supervisor signature is pending.");
         }
         
         if (!confirmed) {
         boolean hasInProgressWithEntries = timesheets.stream()
                 .anyMatch(t -> t.getStatus() == TimeSheetStatus.IN_PROGRESS && !t.getEntries().isEmpty());
             if (hasInProgressWithEntries) {
-                throw new TerminationWarning("This contract has IN_PROGRESS timesheets with entries that will be permanently deleted. Confirm to Proceed");
+                throw new TerminationWarning("Terminating contract " + id
+                        + " will delete in-progress timesheet entries.");
             }
         }
 
         timesheets.stream().filter(t -> t.getStatus() == TimeSheetStatus.IN_PROGRESS).forEach(timesheetDao::delete);// TS4
 
         contract.setStatus(ContractStatus.TERMINATED);
-        contract.setTerminationDate(LocalDate.now());
+        LocalDate date = LocalDate.now();
+        contract.setTerminationDate(date);
+        LOGGER.log(Level.INFO, "Contract terminated: contract_id=" + contract.getId() + ", at " + date);
     }
     
     @Override
     @RolesAllowed({"SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public ContractDto getContractDetails(Long contractId) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return findById(contractId);
     }
     
     @Override
-    @RolesAllowed({"SECRETARY", "ADMINISTRATOR"})
+    @RolesAllowed({"SECRETARY", "ADMIN"})
     public ContractDto getContractForPrinting(Long id) {
-        return createDto(getRequiredContract(id));
+        ContractEntity contract = getRequiredContract(id);
+        if (!sessionContext.isCallerInRole("ADMIN")) {
+            PersonEntity currentPerson = getCurrentPerson();
+            if (currentPerson == null
+                    || !currentPerson.isUniversityStaff()
+                    || !containsPerson(contract.getSecretaries(), currentPerson.getId())) {
+                throw new EJBAccessException(
+                        "Only a secretary assigned to this contract may print it.");
+            }
+        }
+        return createDto(contract);
     }
     
     private ContractEntity getRequiredContract(Long id) {
         if (id == null) {
-            throw new IllegalArgumentException("Contract id must not be null.");
+            throw new IllegalArgumentException("Contract id is required.");
         }
 
         ContractEntity entity = contractDao.findById(id);
@@ -277,51 +329,59 @@ public class ContractServiceImpl implements ContractService {
     
     private void validateRequiredFields(Object value, String message) {
         if (value == null) {
-            throw new IllegalArgumentException(message);
+            throw new IllegalArgumentException(message + " is required.");
         }
     }
     
     private void validateStartAndEndDates(LocalDate startDate, LocalDate endDate) {
         if (!startDate.equals(startDate.withDayOfMonth(1))) {
-            throw new IllegalArgumentException("Start date must be the first day of a month.");
+            throw new IllegalArgumentException(
+                    "The contract must start on the first and end on the last day of a month.");
         }
         if (!endDate.equals(endDate.with(TemporalAdjusters.lastDayOfMonth()))) {
-            throw new IllegalArgumentException("End date must be the last day of a month.");
+            throw new IllegalArgumentException("Contract end date must be the last day of a month: " + endDate);
         }
     }
     
-    private void validateEmployeeHours(Long employeeId, Integer hours) {
+    private void validateEmployeeHours(Long employeeId, Double hours) {
         if (hours == null || hours < 0) {
-            throw new IllegalArgumentException("Hours per week must not be negative.");
+            throw new IllegalArgumentException("Hours per week must be greater than zero.");
         }
 
-        int existingHours = contractDao.findByEmployee(employeeId)
+        double existingHours = contractDao.findByEmployee(employeeId)
                 .stream()
                 .filter(contract -> contract.getStatus() == ContractStatus.PREPARED || contract.getStatus() == ContractStatus.STARTED)
-                .mapToInt(ContractEntity::getHoursPerWeek)
+                .mapToDouble(ContractEntity::getHoursPerWeek)
                 .sum();
 
-        if (existingHours + hours > 20) {
-            throw new IllegalArgumentException("Working hours has exceeded 20 hours per week.");
+        int maxHoursPerWeek = configService.getMaxHoursPerWeek();
+        if (existingHours + hours > maxHoursPerWeek) {
+            LOGGER.log(Level.WARNING, "Rejected contract for employee: employee_id=" + employeeId
+                    + " as working hours has exceeded " + maxHoursPerWeek + " hours per week.");
+            throw new IllegalStateException("This would bring the employee's total to "
+                    + (existingHours + hours) + " hours/week, exceeding the "
+                    + maxHoursPerWeek + "-hour limit.");
         }
+
     }
     
     private boolean isAuthorizedToViewContract(PersonEntity person, ContractEntity contract) {
         if (person == null || person.getId() == null) {
-            throw new IllegalArgumentException("Missing Person Entity.");
+            throw new EJBAccessException("The current user is not authorized to manage this contract.");
         }
         
         Long personId = person.getId();
 
         return personId.equals(contract.getEmployee().getId())
-                || personId.equals(contract.getSupervisor().getId())
+                || person.isUniversityStaff()
+                && (personId.equals(contract.getSupervisor().getId())
                 || containsPerson(contract.getAssistants(), personId)
-                || containsPerson(contract.getSecretaries(), personId);
+                || containsPerson(contract.getSecretaries(), personId));
         
     }
 
     private boolean isAuthorizedToManageContract(PersonEntity person, ContractEntity contract) {
-        if (person == null || person.getId() == null) {
+        if (person == null || person.getId() == null || !person.isUniversityStaff()) {
             return false;
         }
 
@@ -342,11 +402,11 @@ public class ContractServiceImpl implements ContractService {
     
     private void validateState(ContractEntity contract) {
         if (contract.getStatus() != ContractStatus.PREPARED) {
-            throw new IllegalStateException("Only contracts in PREPARED status can be updated or deleted.");
+            throw new IllegalStateException("Only prepared contracts can be changed.");
         }
     }
     
-    private Set<PersonEntity> findPerson(Set<Long> personIds) {
+    private Set<PersonEntity> findPeopleWithRole(Set<Long> personIds, RoleType requiredRole) {
         Set<PersonEntity> persons = new LinkedHashSet<>();
 
         if (personIds == null) {
@@ -360,13 +420,29 @@ public class ContractServiceImpl implements ContractService {
 
             PersonEntity person = personDao.findById(personId);
             if (person == null) {
-                throw new EntityNotFoundException(
-                        "Person not found: " + personId
-                );
+                throw new EntityNotFoundException("Person not found: " + personId);
             }
+            validateStaffRole(person, requiredRole);
             persons.add(person);
         }
         return persons;
+    }
+
+    private PersonEntity requireUniversityStaffCaller() {
+        PersonEntity currentPerson = getCurrentPerson();
+        if (currentPerson == null || !currentPerson.isUniversityStaff()) {
+            throw new EJBAccessException("This operation is restricted to university staff.");
+        }
+        return currentPerson;
+    }
+
+    private void validateStaffRole(PersonEntity person, RoleType requiredRole) {
+        boolean hasRequiredRole = person.getRoles().stream()
+                .anyMatch(role -> role.getRole() == requiredRole);
+        if (!person.isUniversityStaff() || !hasRequiredRole) {
+            throw new IllegalArgumentException(
+                    "Person " + person.getId() + " must be university staff with role " + requiredRole + ".");
+        }
     }
     
     private List<TimesheetEntity> generateTimesheets(ContractEntity contract) {
@@ -393,17 +469,6 @@ public class ContractServiceImpl implements ContractService {
             periodStart = periodEnd.plusDays(1);
         }
         return timesheets;
-    }
-    
-    public void archiveContractIfComplete(Long contractId) {
-        ContractEntity contract = getRequiredContract(contractId);
-        List<TimesheetEntity> timesheets = timesheetDao.findByContractId(contractId);
-        boolean allArchived = !timesheets.isEmpty()
-                && timesheets.stream()
-                        .allMatch(t -> t.getStatus() == TimeSheetStatus.ARCHIVED);
-        if (allArchived) {
-            contract.setStatus(ContractStatus.ARCHIVED);
-        }
     }
     
     private ContractDto createDto(ContractEntity entity) {

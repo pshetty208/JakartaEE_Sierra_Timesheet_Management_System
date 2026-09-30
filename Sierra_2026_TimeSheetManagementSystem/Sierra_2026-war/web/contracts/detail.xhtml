@@ -41,7 +41,7 @@
                 </div>
                 <h:link outcome="/contracts/print"
                         styleClass="contract-detail__print-link"
-                        rendered="#{not empty contractBean.contract.id and featureAccess.printContract}">
+                        rendered="#{not empty contractBean.contract.id and (request.isUserInRole('SECRETARY') or request.isUserInRole('ADMIN'))}">
                     <span class="pi pi-print" aria-hidden="true"></span>
                     <span>#{msg['contract.print.action']}</span>
                     <f:param name="id" value="#{contractBean.contract.id}"/>
@@ -161,7 +161,7 @@
                                          process="@this"
                                          update="contractDetailForm"
                                          rendered="#{contractBean.isPrepared()
-                                                     and featureAccess.startContract}">
+                                                     and (request.isUserInRole('SUPERVISOR') or request.isUserInRole('ASSISTANT'))}">
                             <f:param name="id" value="#{contractBean.contractDetailId}"/>
                         </p:commandButton>
                         <p:commandButton value="#{msg['contract.terminate.action']}"
@@ -171,7 +171,7 @@
                                          process="@this"
                                          update="contractDetailForm"
                                          rendered="#{contractBean.isStarted()
-                                                     and featureAccess.terminateContract}">
+                                                     and (request.isUserInRole('SUPERVISOR') or request.isUserInRole('ASSISTANT'))}">
                             <p:confirm header="#{msg['contract.terminate.action']}"
                                        message="#{msg['contract.terminate.confirm']}"
                                        icon="pi pi-exclamation-triangle"/>

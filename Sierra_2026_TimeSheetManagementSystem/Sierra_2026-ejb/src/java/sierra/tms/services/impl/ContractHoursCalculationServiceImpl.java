@@ -2,6 +2,7 @@ package sierra.tms.services.impl;
 
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -15,8 +16,9 @@ import sierra.tms.services.HolidayService;
 import sierra.tms.services.ContractHoursCalculationService;
 
 @Stateless
+@RolesAllowed({"EMPLOYEE", "SUPERVISOR", "ASSISTANT", "SECRETARY", "ADMIN"})
 public class ContractHoursCalculationServiceImpl implements ContractHoursCalculationService {
-
+    
     @EJB
     private ContractDao contractDao;
     
@@ -43,7 +45,7 @@ public class ContractHoursCalculationServiceImpl implements ContractHoursCalcula
         int publicHolidays = 0;
         
         if (periodStart == null || periodEnd == null || periodEnd.isBefore(periodStart)) {
-            throw new IllegalArgumentException("Invalid timesheet period.");
+            throw new IllegalArgumentException("The timesheet period is invalid.");
         }
 
         for (LocalDate date = periodStart; !date.isAfter(periodEnd); date = date.plusDays(1)) {
@@ -64,12 +66,12 @@ public class ContractHoursCalculationServiceImpl implements ContractHoursCalcula
     @Override
     public double calculateTimesheetHoursDue(Long timesheetId) {
         if (timesheetId == null) {
-            throw new EntityNotFoundException("Timesheet not found.");
+            throw new IllegalArgumentException("Timesheet id is required.");
         }
         
         TimesheetEntity timesheet = timesheetDao.findById(timesheetId); 
         if (timesheet == null) {
-            throw new EntityNotFoundException("Timesheet with id: " + timesheetId + " not found.");
+            throw new EntityNotFoundException("Timesheet not found: " + timesheetId);
         }
 
         ContractEntity contract = timesheet.getContract();
@@ -79,11 +81,11 @@ public class ContractHoursCalculationServiceImpl implements ContractHoursCalcula
     @Override
     public double calculateTotalHoursDueForContract(Long contractId) {
         if (contractId == null) {
-            throw new EntityNotFoundException("Contract not found.");
+            throw new IllegalArgumentException("Contract id is required.");
         }
         ContractEntity contract = contractDao.findById(contractId);
         if (contract == null) {
-            throw new EntityNotFoundException("Contract with id: " + contractId + " not found.");
+            throw new EntityNotFoundException("Contract not found: " + contractId);
         }
         return timesheetDao.findByContractId(contractId)
                 .stream()
@@ -96,7 +98,7 @@ public class ContractHoursCalculationServiceImpl implements ContractHoursCalcula
         ContractEntity contract = contractDao.findById(contractId);
 
         if (contract == null) {
-            throw new EntityNotFoundException("Contract with id: " + contractId + " not found.");
+            throw new IllegalArgumentException("Contract id is required.");
         }
 
         return timesheetDao.findByContractId(contractId)
@@ -116,11 +118,13 @@ public class ContractHoursCalculationServiceImpl implements ContractHoursCalcula
                 || contract.getEndDate() == null
                 || contract.getHoursPerWeek() == null
                 || contract.getWorkingDaysPerWeek() == null) {
-            throw new IllegalArgumentException("Contract data is incomplete.");
+            throw new IllegalArgumentException("Contract data is required.");
+
         }
         
         if (contract.getWorkingDaysPerWeek() < 1 || contract.getWorkingDaysPerWeek() > 5) {
             throw new IllegalArgumentException("Working days per week must be between 1 and 5.");
+
         }
     }
 

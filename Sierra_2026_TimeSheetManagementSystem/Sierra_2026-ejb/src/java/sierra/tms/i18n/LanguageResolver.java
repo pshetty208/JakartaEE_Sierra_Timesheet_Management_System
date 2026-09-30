@@ -22,8 +22,7 @@ public final class LanguageResolver {
             return normalizedCode;
         }
 
-        throw new IllegalArgumentException(
-                "Unsupported language code: " + languageCode);
+        throw new IllegalArgumentException("Unsupported language: " + languageCode);
     }
 
     /** Uses English when an existing preference is missing or unsupported. */
