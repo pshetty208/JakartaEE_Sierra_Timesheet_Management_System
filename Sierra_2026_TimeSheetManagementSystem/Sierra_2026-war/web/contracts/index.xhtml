@@ -62,15 +62,14 @@
                             </span>
                         </p:column>
 
-                        <!-- TODO: Replace person IDs with backend-provided display names. -->
                         <p:column headerText="#{msg['contract.employee']}"
                                   styleClass="contract-overview__column--person">
-                            <h:outputText value="#{row.employeeId}"/>
+                            <h:outputText value="#{row.employeeName}"/>
                         </p:column>
 
                         <p:column headerText="#{msg['contract.supervisor']}"
                                   styleClass="contract-overview__column--person">
-                            <h:outputText value="#{row.supervisorId}"/>
+                            <h:outputText value="#{row.supervisorName}"/>
                         </p:column>
 
                         <p:column headerText="#{msg['common.period']}"

@@ -18,6 +18,10 @@ public class ContractDto implements Serializable {
 
     private Long supervisorId;
 
+    private String employeeName;
+
+    private String supervisorName;
+
     private String name;
 
     private ContractStatus status;
@@ -117,6 +121,24 @@ public class ContractDto implements Serializable {
 
     public void setSupervisorId(Long supervisorId) {
         this.supervisorId = supervisorId;
+    }
+
+
+    public String getEmployeeName() {
+        return employeeName;
+    }
+
+    public void setEmployeeName(String employeeName) {
+        this.employeeName = employeeName;
+    }
+
+
+    public String getSupervisorName() {
+        return supervisorName;
+    }
+
+    public void setSupervisorName(String supervisorName) {
+        this.supervisorName = supervisorName;
     }
 
 
