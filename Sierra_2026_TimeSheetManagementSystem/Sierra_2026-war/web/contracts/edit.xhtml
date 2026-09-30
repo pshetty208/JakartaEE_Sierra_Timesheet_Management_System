@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
-<!-- CN1 / CN6: edit a PREPARED contract. Only its supervisor or an assigned assistant sees the form;
-     ContractServiceImpl.update enforces the same rules on the server. -->
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:f="jakarta.faces.core"
                 xmlns:h="jakarta.faces.html"
-                xmlns:p="http://primefaces.org/ui"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:appButton="jakarta.faces.composite/appButton"
                 xmlns:ui="jakarta.faces.facelets"
                 template="/WEB-INF/templates/app-layout.xhtml">
     <ui:define name="metadata">
@@ -32,11 +31,10 @@
 
         <section class="contract-create" aria-labelledby="contract-edit-title">
             <header class="contract-create__heading">
-                <h:link outcome="/contracts/detail"
+                <h:link outcome="/contracts/index"
                         styleClass="contract-create__back"
-                        aria-label="#{msg['contract.backToDetails']}">
+                        aria-label="#{msg['common.back']}">
                     <span class="pi pi-arrow-left" aria-hidden="true"></span>
-                    <f:param name="id" value="#{contractBean.contractDetailId}"/>
                 </h:link>
 
                 <div>
@@ -45,10 +43,9 @@
                 </div>
             </header>
 
-            <h:form id="editContractForm"
-                    styleClass="contract-create__card"
-                    rendered="#{contractBean.canEditOrDelete}">
-                <p:messages id="messages" globalOnly="true" closable="true"/>
+            <h:form id="editContractForm" styleClass="contract-create__card"
+                    rendered="#{contractBean.contract ne null}">
+                <p:messages showDetail="false" closable="true"/>
 
                 <div class="contract-create__grid">
                     <div class="contract-create__field contract-create__field--wide">
@@ -65,21 +62,38 @@
                     </div>
 
                     <div class="contract-create__field">
-                        <span class="contract-create__readonly-label">#{msg['contract.employee']}</span>
-                        <h:outputText value="#{contractBean.contract.employeeName}"
-                                      styleClass="contract-create__readonly-value"/>
+                        <p:outputLabel for="employee" value="#{msg['contract.employee']}"/>
+                        <p:selectOneMenu id="employee"
+                                         value="#{contractBean.contract.employeeId}"
+                                         panelStyleClass="contract-create__select-panel">
+                            <f:selectItem itemLabel="#{msg['contract.create.employee.placeholder']}"
+                                          itemValue="#{null}"
+                                          noSelectionOption="true"/>
+                            <f:selectItems value="#{contractBean.employees}" var="person"
+                                           itemValue="#{person.id}"
+                                           itemLabel="#{person.firstName} #{person.lastName}"/>
+                        </p:selectOneMenu>
                     </div>
 
                     <div class="contract-create__field">
-                        <span class="contract-create__readonly-label">#{msg['contract.supervisor']}</span>
-                        <h:outputText value="#{contractBean.contract.supervisorName}"
-                                      styleClass="contract-create__readonly-value"/>
+                        <p:outputLabel for="supervisor" value="#{msg['contract.supervisor']}"/>
+                        <p:selectOneMenu id="supervisor"
+                                         value="#{contractBean.contract.supervisorId}"
+                                         panelStyleClass="contract-create__select-panel">
+                            <f:selectItem itemLabel="#{msg['contract.create.supervisor.placeholder']}"
+                                          itemValue="#{null}"
+                                          noSelectionOption="true"/>
+                            <f:selectItems value="#{contractBean.supervisors}" var="person"
+                                           itemValue="#{person.id}"
+                                           itemLabel="#{person.firstName} #{person.lastName}"/>
+                        </p:selectOneMenu>
                     </div>
 
                     <div class="contract-create__field">
                         <p:outputLabel for="startDate" value="#{msg['contract.startDate.first']}"/>
                         <p:datePicker id="startDate"
                                       value="#{contractBean.contract.startDate}"
+                                      placeholder="dd.mm.yyyy"
                                       pattern="dd.MM.yyyy"
                                       showIcon="true"
                                       panelStyleClass="contract-create__date-panel"
@@ -93,6 +107,7 @@
                         <p:outputLabel for="endDate" value="#{msg['contract.endDate.last']}"/>
                         <p:datePicker id="endDate"
                                       value="#{contractBean.contract.endDate}"
+                                      placeholder="dd.mm.yyyy"
                                       pattern="dd.MM.yyyy"
                                       showIcon="true"
                                       panelStyleClass="contract-create__date-panel"
@@ -109,6 +124,9 @@
                                          value="#{contractBean.contract.frequency}"
                                          required="true"
                                          requiredMessage="#{msg['contract.validation.frequency.required']}">
+                            <f:selectItem itemLabel="#{msg['contract.create.frequency.placeholder']}"
+                                          itemValue="#{null}"
+                                          noSelectionOption="true"/>
                             <f:selectItems value="#{contractBean.frequencies}"
                                            var="frequency"
                                            itemLabel="#{contractBean.frequencyLabel(frequency)}"
@@ -137,11 +155,11 @@
                                        value="#{contractBean.contract.workingDaysPerWeek}"
                                        decimalPlaces="0"
                                        minValue="1"
-                                       maxValue="5"
+                                       maxValue="7"
                                        required="true"
                                        requiredMessage="#{msg['contract.validation.workingDays.required']}"
-                                       validatorMessage="#{msg['contract.validation.workingDays.range5']}">
-                            <f:validateLongRange minimum="1" maximum="5"/>
+                                       validatorMessage="#{msg['contract.validation.workingDays.range']}">
+                            <f:validateLongRange minimum="1" maximum="7"/>
                         </p:inputNumber>
                         <p:message for="workingDays"/>
                     </div>
@@ -159,46 +177,17 @@
                         </p:inputNumber>
                         <p:message for="vacationDays"/>
                     </div>
-
-                    <div class="contract-create__field">
-                        <p:outputLabel for="archiveDuration" value="#{msg['contract.archiveDurationMonths']}"/>
-                        <p:inputNumber id="archiveDuration"
-                                       value="#{contractBean.contract.archiveDuration}"
-                                       decimalPlaces="0"
-                                       minValue="1"
-                                       required="true"
-                                       requiredMessage="#{msg['contract.validation.archiveDuration.required']}"/>
-                        <p:message for="archiveDuration"/>
-                    </div>
                 </div>
 
                 <div class="contract-create__actions">
-                    <p:button value="#{msg['common.cancel']}"
-                              outcome="/contracts/detail"
-                              styleClass="ui-button-outlined contract-create__button">
-                        <f:param name="id" value="#{contractBean.contractDetailId}"/>
-                    </p:button>
-                    <p:commandButton value="#{msg['contract.edit.save']}"
-                                     action="#{contractBean.update}"
-                                     icon="pi pi-check"
-                                     process="@form"
-                                     update="@form"
-                                     styleClass="contract-create__button">
-                        <f:param name="id" value="#{contractBean.contractDetailId}"/>
-                    </p:commandButton>
+                    <appButton:appButton value="#{msg['common.cancel']}"
+                                               outcome="/contracts/index"
+                                               styleClass="ui-button-outlined contract-create__button"/>
+                    <h:commandButton value="#{msg['contract.edit.save']}"
+                                     action="#{contractBean.updateAndReturn}"
+                                     styleClass="ui-button contract-create__button"/>
                 </div>
             </h:form>
-
-            <h:panelGroup layout="block"
-                          rendered="#{not contractBean.canEditOrDelete}"
-                          styleClass="contract-detail__state"
-                          role="status">
-                <span class="pi pi-lock" aria-hidden="true"></span>
-                <div>
-                    <h2>#{msg['contract.edit.notEditable.title']}</h2>
-                    <p>#{msg['contract.edit.notEditable.description']}</p>
-                </div>
-            </h:panelGroup>
         </section>
     </ui:define>
 </ui:composition>

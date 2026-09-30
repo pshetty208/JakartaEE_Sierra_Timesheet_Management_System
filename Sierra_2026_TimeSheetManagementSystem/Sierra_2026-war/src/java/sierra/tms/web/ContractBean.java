@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import sierra.tms.dto.ContractDto;
 import sierra.tms.dto.PersonDto;
+import sierra.tms.exceptions.ContractRuleViolation;
 import sierra.tms.exceptions.TerminationWarning;
 import sierra.tms.i18n.UiMessages;
 import sierra.tms.services.ContractService;
@@ -65,6 +66,8 @@ public class ContractBean implements Serializable {
             contract = newContractWithDefaults();
             selectedAssistantId = null;
             loadContracts();
+        } catch (ContractRuleViolation violation) {
+            showRuleViolation(violation);
         } catch (RuntimeException exception) {
             WebExceptionHandler.handle(getClass(), "create contract",
                     "common.error.operationFailed", exception);
@@ -84,6 +87,12 @@ public class ContractBean implements Serializable {
             WebExceptionHandler.handle(getClass(), "load contract participants",
                     "common.error.loadFailed", exception);
         }
+    }
+
+    private void showRuleViolation(ContractRuleViolation violation) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        UiMessages.get(violation.getMessageKey(), violation.getArguments()), null));
     }
 
     private static List<PersonDto> withRole(List<PersonDto> people, RoleType role) {
@@ -134,9 +143,22 @@ public class ContractBean implements Serializable {
             contractService.update(contract);
             contract = newContractWithDefaults();
             loadContracts();
+        } catch (ContractRuleViolation violation) {
+            showRuleViolation(violation);
         } catch (RuntimeException exception) {
             WebExceptionHandler.handle(getClass(), "update contract",
                     "common.error.operationFailed", exception);
+        }
+    }
+
+    public String updateAndReturn() {
+        try {
+            contractService.update(contract);
+            return "/contracts/index?faces-redirect=true";
+        } catch (RuntimeException exception) {
+            WebExceptionHandler.handle(getClass(), "update contract",
+                    "common.error.operationFailed", exception);
+            return null;
         }
     }
 
@@ -154,6 +176,8 @@ public class ContractBean implements Serializable {
         try {
             contractService.startContract(contractDetailId);
             loadContractDetails();
+        } catch (ContractRuleViolation violation) {
+            showRuleViolation(violation);
         } catch (RuntimeException e) {
             WebExceptionHandler.handle(getClass(), "start contract",
                     "contract.message.startFailed", e);
@@ -169,6 +193,8 @@ public class ContractBean implements Serializable {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN,
                             UiMessages.get("contract.message.terminationWarning"), null));
+        } catch (ContractRuleViolation violation) {
+            showRuleViolation(violation);
         } catch (RuntimeException exception) {
             WebExceptionHandler.handle(getClass(), "terminate contract",
                     "contract.message.terminateFailed", exception);
@@ -180,6 +206,9 @@ public class ContractBean implements Serializable {
             contractService.terminateContract(contractDetailId, true);
             terminationWarningActive = false;
             loadContractDetails();
+        } catch (ContractRuleViolation violation) {
+            terminationWarningActive = false;
+            showRuleViolation(violation);
         } catch (RuntimeException e) {
             terminationWarningActive = false;
             WebExceptionHandler.handle(getClass(), "confirm contract termination",
@@ -234,6 +263,10 @@ public class ContractBean implements Serializable {
 
     public boolean isPrepared() {
       return ContractStatus.PREPARED == contract.getStatus();
+    }
+
+    public boolean isPrepared(ContractDto dto) {
+        return dto != null && ContractStatus.PREPARED == dto.getStatus();
     }
 
     public boolean isStarted() {
