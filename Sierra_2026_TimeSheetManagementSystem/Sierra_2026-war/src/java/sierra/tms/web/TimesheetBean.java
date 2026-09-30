@@ -33,6 +33,8 @@ import java.util.Locale;
 @ViewScoped
 public class TimesheetBean implements Serializable {
 
+    private static final DateTimeFormatter SEARCH_DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
     @EJB
     private TimesheetService service;
 
@@ -354,7 +356,7 @@ public class TimesheetBean implements Serializable {
             return all;
         }
         return all.stream()
-                .filter(t -> RecordSearch.matches(searchTerm, employeeSearchValues(t)))
+                .filter(t -> RecordSearch.matches(searchTerm, timesheetSearchValues(t)))
                 .toList();
     }
 
@@ -369,14 +371,26 @@ public class TimesheetBean implements Serializable {
         return values[1].isEmpty() ? values[0] : values[1] + " (" + values[0] + ")";
     }
 
-    private String[] employeeSearchValues(TimesheetDto timesheet) {
+    /** Employee user name and name, contract name, status and period of a timesheet. */
+    private String[] timesheetSearchValues(TimesheetDto timesheet) {
         ContractDto contract = getContractsById().get(timesheet.getContractId());
-        PersonDto employee = employeeOf(timesheet);
-        String[] personValues = RecordSearch.personValues(employee);
-        String[] values = new String[personValues.length + 1];
-        System.arraycopy(personValues, 0, values, 0, personValues.length);
-        values[personValues.length] = contract == null ? null : contract.getEmployeeName();
-        return values;
+        List<String> values = new ArrayList<>(List.of(RecordSearch.personValues(employeeOf(timesheet))));
+        if (contract != null) {
+            values.add(contract.getEmployeeName());
+            values.add(contract.getName());
+        }
+        if (timesheet.getStatus() != null) {
+            values.add(statusLabel(timesheet.getStatus()));
+        }
+        if (timesheet.getStartDate() != null) {
+            values.add(timesheet.getStartDate().toString());
+            values.add(timesheet.getStartDate().format(SEARCH_DATE_FORMAT));
+        }
+        if (timesheet.getEndDate() != null) {
+            values.add(timesheet.getEndDate().toString());
+            values.add(timesheet.getEndDate().format(SEARCH_DATE_FORMAT));
+        }
+        return values.toArray(String[]::new);
     }
 
     private PersonDto employeeOf(TimesheetDto timesheet) {
@@ -402,6 +416,9 @@ public class TimesheetBean implements Serializable {
     private Map<Long, PersonDto> getPeopleById() {
         if (peopleById == null) {
             peopleById = new HashMap<>();
+            if (!RecordSearch.canListPeople()) {
+                return peopleById;
+            }
             try {
                 for (PersonDto person : personService.findAll()) {
                     peopleById.put(person.getId(), person);

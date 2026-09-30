@@ -83,19 +83,22 @@
                     </div>
 
                     <div class="contract-create__field">
-                        <p:outputLabel for="assistant" value="#{msg['contract.assistant']}"/>
-                        <p:selectOneMenu id="assistant"
-                                         panelStyleClass="contract-create__select-panel"
-                                         value="#{contractBean.selectedAssistantId}">
-                            <f:selectItem itemLabel="#{msg['contract.create.assistant.placeholder']}"
-                                          itemValue="#{null}"
-                                          noSelectionOption="true"/>
+                        <p:outputLabel for="assistants" value="#{msg['contract.assistants']}"/>
+                        <p:selectCheckboxMenu id="assistants"
+                                              value="#{contractBean.selectedAssistantIds}"
+                                              multiple="true"
+                                              filter="true"
+                                              filterMatchMode="contains"
+                                              emptyLabel="#{msg['contract.assistants.placeholder']}"
+                                              updateLabel="true"
+                                              panelStyleClass="contract-create__select-panel">
                             <f:selectItems value="#{contractBean.assistants}"
                                            var="assistant"
                                            itemLabel="#{assistant.firstName} #{assistant.lastName}"
                                            itemValue="#{assistant.id}"/>
-                        </p:selectOneMenu>
-                        <p:message for="assistant"/>
+                        </p:selectCheckboxMenu>
+                        <small class="contract-create__hint">#{msg['contract.assistants.hint']}</small>
+                        <p:message for="assistants"/>
                     </div>
 
                     <!-- TODO: Add CN6a complete-month validation after backend enforcement is implemented. -->

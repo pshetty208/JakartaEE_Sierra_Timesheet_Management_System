@@ -51,7 +51,8 @@ public class FeatureAccessBean {
                 VIEW_TIMESHEETS,
                 REPORT_WORK, 
                 SIGN_TIMESHEET, 
-                REVOKE_SIGNATURE));
+                REVOKE_SIGNATURE,
+                SEARCH_RECORDS));
         FEATURES_BY_ROLE.put(
                 RoleType.SUPERVISOR, EnumSet.of(
                 VIEW_CONTRACT, 
@@ -61,7 +62,8 @@ public class FeatureAccessBean {
                 START_CONTRACT, 
                 TERMINATE_CONTRACT,
                 COUNTERSIGN_TIMESHEET, 
-                REQUEST_TIMESHEET_CHANGES));
+                REQUEST_TIMESHEET_CHANGES,
+                SEARCH_RECORDS));
         FEATURES_BY_ROLE.put(
                 RoleType.ASSISTANT, EnumSet.of(
                 VIEW_CONTRACT, 
@@ -71,7 +73,8 @@ public class FeatureAccessBean {
                 CREATE_CONTRACT,
                 START_CONTRACT, 
                 TERMINATE_CONTRACT,
-                REQUEST_TIMESHEET_CHANGES));
+                REQUEST_TIMESHEET_CHANGES,
+                SEARCH_RECORDS));
         FEATURES_BY_ROLE.put(RoleType.SECRETARY, EnumSet.of(
                 VIEW_CONTRACT, 
                 VIEW_STATISTICS, 
@@ -79,7 +82,8 @@ public class FeatureAccessBean {
                 CREATE_CONTRACT,
                 PRINT_CONTRACT, 
                 PRINT_TIMESHEET, 
-                ARCHIVE_TIMESHEET));
+                ARCHIVE_TIMESHEET,
+                SEARCH_RECORDS));
         FEATURES_BY_ROLE.put(RoleType.ADMIN, EnumSet.of(
                 VIEW_CONTRACT, 
                 VIEW_STATISTICS, 

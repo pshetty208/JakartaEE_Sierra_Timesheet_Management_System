@@ -21,6 +21,7 @@
             <f:viewAction action="#{contractBean.loadContractDetails}"
                           if="#{not empty param.id}"
                           onPostback="false"/>
+            <f:viewAction action="#{contractBean.loadCreateOptions}" onPostback="false"/>
         </f:metadata>
     </ui:define>
 
@@ -87,6 +88,25 @@
                                            itemValue="#{person.id}"
                                            itemLabel="#{person.firstName} #{person.lastName}"/>
                         </p:selectOneMenu>
+                    </div>
+
+                    <div class="contract-create__field">
+                        <p:outputLabel for="assistants" value="#{msg['contract.assistants']}"/>
+                        <p:selectCheckboxMenu id="assistants"
+                                              value="#{contractBean.selectedAssistantIds}"
+                                              multiple="true"
+                                              filter="true"
+                                              filterMatchMode="contains"
+                                              emptyLabel="#{msg['contract.assistants.placeholder']}"
+                                              updateLabel="true"
+                                              panelStyleClass="contract-create__select-panel">
+                            <f:selectItems value="#{contractBean.assistants}"
+                                           var="assistant"
+                                           itemLabel="#{assistant.firstName} #{assistant.lastName}"
+                                           itemValue="#{assistant.id}"/>
+                        </p:selectCheckboxMenu>
+                        <small class="contract-create__hint">#{msg['contract.assistants.hint']}</small>
+                        <p:message for="assistants"/>
                     </div>
 
                     <div class="contract-create__field">

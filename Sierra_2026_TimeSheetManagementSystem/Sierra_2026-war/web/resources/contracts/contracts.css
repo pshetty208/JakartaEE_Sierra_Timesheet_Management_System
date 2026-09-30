@@ -1008,3 +1008,88 @@ body .contract-confirm-dialog.ui-dialog .ui-button.p-button-outlined:not(:disabl
 .record-search__field .ui-inputfield {
     width: 100%;
 }
+
+/* Assistants multi-select (create and edit). The Saga theme styles it with "body ..."
+   selectors, so the rules below use the same prefix to win in light and dark mode. */
+.contract-create__hint {
+    color: var(--sierra-text-muted);
+    font-size: 0.72rem;
+}
+
+body .contract-create .ui-selectcheckboxmenu {
+    display: flex;
+    width: 100%;
+    min-height: var(--sierra-control-height);
+    color: var(--sierra-text);
+    background: transparent;
+    border-color: var(--sierra-border);
+    box-shadow: none;
+}
+
+body .contract-create .ui-selectcheckboxmenu .ui-selectcheckboxmenu-label-container {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+body .contract-create .ui-selectcheckboxmenu .ui-selectcheckboxmenu-label,
+body .contract-create .ui-selectcheckboxmenu .ui-selectcheckboxmenu-trigger,
+body .contract-create .ui-selectcheckboxmenu .ui-selectcheckboxmenu-trigger .ui-icon {
+    color: var(--sierra-text);
+    background: transparent;
+}
+
+body .contract-create .ui-selectcheckboxmenu.ui-state-hover {
+    border-color: var(--sierra-text-muted);
+}
+
+body .contract-create .ui-selectcheckboxmenu.ui-state-focus {
+    border-color: var(--sierra-accent);
+    box-shadow: 0 0 0 3px var(--sierra-focus-color);
+}
+
+body .contract-create__select-panel.ui-selectcheckboxmenu-panel {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-raised);
+    border: 1px solid var(--sierra-border);
+    box-shadow: 0 0.8rem 2rem var(--sierra-shadow-color);
+}
+
+body .contract-create__select-panel.ui-selectcheckboxmenu-panel .ui-selectcheckboxmenu-header {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-subtle);
+    border-bottom: 1px solid var(--sierra-border);
+}
+
+body .contract-create__select-panel.ui-selectcheckboxmenu-panel .ui-selectcheckboxmenu-filter-container .ui-inputfield {
+    color: var(--sierra-text);
+    background: var(--sierra-input-background);
+    border-color: var(--sierra-border);
+}
+
+body .contract-create__select-panel.ui-selectcheckboxmenu-panel .ui-selectcheckboxmenu-filter-container .ui-icon,
+body .contract-create__select-panel.ui-selectcheckboxmenu-panel .ui-selectcheckboxmenu-close {
+    color: var(--sierra-text-muted);
+}
+
+body .contract-create__select-panel.ui-selectcheckboxmenu-panel .ui-selectcheckboxmenu-items .ui-selectcheckboxmenu-item,
+body .contract-create__select-panel.ui-selectcheckboxmenu-panel .ui-selectcheckboxmenu-items .ui-selectcheckboxmenu-item label {
+    color: var(--sierra-text);
+    background: transparent;
+}
+
+body .contract-create__select-panel.ui-selectcheckboxmenu-panel .ui-selectcheckboxmenu-items .ui-selectcheckboxmenu-item.ui-state-hover,
+body .contract-create__select-panel.ui-selectcheckboxmenu-panel .ui-selectcheckboxmenu-items .ui-selectcheckboxmenu-item.ui-state-highlight {
+    color: var(--sierra-text);
+    background: var(--sierra-surface-active);
+}
+
+body .contract-create__select-panel.ui-selectcheckboxmenu-panel .ui-chkbox .ui-chkbox-box {
+    background: var(--sierra-input-background);
+    border-color: var(--sierra-border-hover);
+}
+
+body .contract-create__select-panel.ui-selectcheckboxmenu-panel .ui-chkbox .ui-chkbox-box.ui-state-active {
+    color: var(--sierra-on-accent);
+    background: var(--sierra-accent);
+    border-color: var(--sierra-accent);
+}

@@ -510,6 +510,16 @@ public class ContractServiceImpl implements ContractService {
                         .stream()
                         .map(PersonEntity::getId)
                         .collect(Collectors.toCollection(LinkedHashSet::new)));
+
+        dto.setAssistantNames(entity.getAssistants()
+                        .stream()
+                        .map(person -> person.getFirstName() + " " + person.getLastName())
+                        .collect(Collectors.toList()));
+
+        dto.setSecretaryNames(entity.getSecretaries()
+                        .stream()
+                        .map(person -> person.getFirstName() + " " + person.getLastName())
+                        .collect(Collectors.toList()));
         
         double reportedHours = calculationService.calculateTotalReportedHoursForContract(entity.getId());
         double hoursDue = calculationService.calculateTotalHoursDueForContract(entity.getId());

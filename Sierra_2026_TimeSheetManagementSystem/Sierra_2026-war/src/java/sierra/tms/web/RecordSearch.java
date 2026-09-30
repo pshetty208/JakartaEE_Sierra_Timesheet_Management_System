@@ -1,13 +1,16 @@
 package sierra.tms.web;
 
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Stream;
 import sierra.tms.dto.PersonDto;
 
 /**
- * Case-insensitive text matching for the administrator search on the contract and
- * timesheet pages. A record matches when any of its searchable values contains the term.
+ * Case-insensitive text matching for the search on the contract and timesheet pages.
+ * A record matches when any of its searchable values contains the term. Every role can
+ * search, but only within the records it is already allowed to see.
  */
 final class RecordSearch {
 
@@ -37,6 +40,20 @@ final class RecordSearch {
         String fullName = ((person.getFirstName() == null ? "" : person.getFirstName()) + " "
                 + (person.getLastName() == null ? "" : person.getLastName())).trim();
         return new String[]{person.getEmailAddress(), fullName};
+    }
+
+    /**
+     * Whether the caller may load the person directory (PersonService.findAll). Employees
+     * may not, so their search uses the names already carried by their contracts.
+     */
+    static boolean canListPeople() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        if (context == null) {
+            return false;
+        }
+        ExternalContext external = context.getExternalContext();
+        return external.isUserInRole("SUPERVISOR") || external.isUserInRole("ASSISTANT")
+                || external.isUserInRole("SECRETARY") || external.isUserInRole("ADMIN");
     }
 
     private static String normalize(String value) {
