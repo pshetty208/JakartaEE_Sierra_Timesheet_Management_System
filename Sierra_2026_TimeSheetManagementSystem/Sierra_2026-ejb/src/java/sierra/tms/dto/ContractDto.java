@@ -2,7 +2,9 @@ package sierra.tms.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import sierra.tms.utils.enums.ContractStatus;
 import sierra.tms.utils.enums.Frequency;
@@ -51,6 +53,10 @@ public class ContractDto implements Serializable {
     private Set<Long> assistantRoleIds;
 
     private Set<Long> secretaryRoleIds;
+
+    private List<String> assistantNames = new ArrayList<>();
+
+    private List<String> secretaryNames = new ArrayList<>();
 
 
     public ContractDto() {
@@ -258,4 +264,20 @@ public class ContractDto implements Serializable {
         this.secretaryRoleIds = secretaryRoleIds;
     }
 
+
+    public List<String> getAssistantNames() {
+        return assistantNames;
+    }
+
+    public void setAssistantNames(List<String> assistantNames) {
+        this.assistantNames = assistantNames != null ? assistantNames : new ArrayList<>();
+    }
+
+    public List<String> getSecretaryNames() {
+        return secretaryNames;
+    }
+
+    public void setSecretaryNames(List<String> secretaryNames) {
+        this.secretaryNames = secretaryNames != null ? secretaryNames : new ArrayList<>();
+    }
 }

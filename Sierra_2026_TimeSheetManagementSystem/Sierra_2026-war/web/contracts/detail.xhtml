@@ -81,6 +81,18 @@
                                 <dd><h:outputText value="#{contractBean.contract.supervisorName}"/></dd>
                             </div>
                             <div class="contract-detail__item">
+                                <dt>#{msg['contract.assistants']}</dt>
+                                <dd><h:outputText value="#{contractBean.joinNames(contractBean.contract.assistantNames) ne null
+                                                           ? contractBean.joinNames(contractBean.contract.assistantNames)
+                                                           : msg['contract.assistants.none']}"/></dd>
+                            </div>
+                            <div class="contract-detail__item">
+                                <dt>#{msg['contract.secretaries']}</dt>
+                                <dd><h:outputText value="#{contractBean.joinNames(contractBean.contract.secretaryNames) ne null
+                                                           ? contractBean.joinNames(contractBean.contract.secretaryNames)
+                                                           : '—'}"/></dd>
+                            </div>
+                            <div class="contract-detail__item">
                                 <dt>#{msg['contract.startDate']}</dt>
                                 <dd>
                                     <h:outputText value="#{contractBean.contract.startDate}">

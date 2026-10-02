@@ -348,6 +348,20 @@ limit is rejected. The requirements do not set a limit; the team added it to
 reflect the usual 20-hour weekly limit for student assistants. The value is
 configurable in `sierra.properties` (`tss.contract.max-hours-per-week`).
 Terminated and archived contracts do not count towards the limit.
+- A contract has exactly one employee and one supervisor, and zero or more
+assistants and secretaries. Assistants and secretaries are chosen with a
+multi-select on the create and edit pages, and the contract details page
+lists them. A contract without an assistant is managed by its supervisor
+alone.
+- Multiple supervisors per contract were considered and decided not to be
+implemented. The requirements describe the supervisor as a single person
+who countersigns a timesheet, and the workflow has a single
+SIGNED_BY_SUPERVISOR status. Several supervisors would raise questions the
+requirements do not answer (whether one signature is enough or all are
+needed, and whose name goes on the printed signature line), and would mean
+changing the data model, the database schema and seed data, the signing and
+reminder logic, and every page that shows the supervisor. The benefit did
+not justify that effort and risk before the deadline.
 
 
 

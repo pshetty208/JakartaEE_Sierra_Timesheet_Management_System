@@ -311,11 +311,6 @@ public class TimesheetServiceImpl implements TimesheetService {
         }
     }
 
-    /**
-     * Retention (AR): a timesheet is deleted once its archive duration (default 24 months,
-     * per contract) has passed since the supervisor signed it, whether or not a secretary
-     * archived it. When the last timesheet of a contract is deleted, the contract is deleted too.
-     */
     @Schedule(hour = "2", minute = "0", second = "0", persistent = true)
     public void deleteExpiredTimesheets() {
         LOGGER.log(Level.INFO, "Expired-timesheet cleanup started");
@@ -345,8 +340,6 @@ public class TimesheetServiceImpl implements TimesheetService {
                 }
             }
 
-            // Only contracts that just lost a timesheet are candidates, so prepared contracts
-            // (which have no timesheets yet) are never touched.
             for (Long contractId : affectedContractIds) {
                 if (timesheetDao.findByContractId(contractId).isEmpty()) {
                     ContractEntity contract = contractDao.findById(contractId);
@@ -685,7 +678,22 @@ public class TimesheetServiceImpl implements TimesheetService {
         );
         timesheet.setChangesRequested(
                 changesRequested && entity.getStatus() == TimeSheetStatus.IN_PROGRESS);
+        timesheet.setHoursDue(hoursDue(entity));
         return timesheet;
+    }
+
+    private Double hoursDue(TimesheetEntity entity) {
+        if (entity.getContract() == null) {
+            return null;
+        }
+        try {
+            return calculationService.calculateHoursDue(
+                    entity.getContract(), entity.getStartDate(), entity.getEndDate());
+        } catch (IllegalArgumentException exception) {
+            LOGGER.log(Level.WARNING, "Hours due not available: timesheet_id={0}, reason={1}",
+                    new Object[]{entity.getId(), exception.getMessage()});
+            return null;
+        }
     }
 
     private TimesheetEntryDto createDTO(TimesheetEntryEntity entity) {

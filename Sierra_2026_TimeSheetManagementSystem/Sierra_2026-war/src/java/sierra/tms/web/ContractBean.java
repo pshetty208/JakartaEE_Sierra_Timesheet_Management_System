@@ -9,6 +9,7 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,13 +50,11 @@ public class ContractBean implements Serializable {
 
     private List<PersonDto> assistants = List.of();
 
-    private Long selectedAssistantId;
 
     private Long contractDetailId;
 
     private boolean terminationWarningActive;
 
-    /** Administrator search: contract name or user name (login e-mail or name) of the employee or supervisor. */
     private String searchTerm;
 
     private Map<Long, PersonDto> peopleById;
@@ -67,11 +66,8 @@ public class ContractBean implements Serializable {
 
     public void create() {
         try {
-            contract.setAssistantRoleIds(selectedAssistantId == null
-                    ? Set.of() : Set.of(selectedAssistantId));
             contractService.createContract(contract);
             contract = newContractWithDefaults();
-            selectedAssistantId = null;
             loadContracts();
         } catch (RuleViolation violation) {
             WebExceptionHandler.showRuleViolation(violation);
@@ -231,10 +227,6 @@ public class ContractBean implements Serializable {
         }
     }
 
-    /**
-     * Contracts shown in the overview. For the administrator the list is narrowed by
-     * {@link #searchTerm}; everyone else always sees their full list.
-     */
     public List<ContractDto> getFilteredContracts() {
         if (contracts == null || RecordSearch.isBlank(searchTerm)) {
             return contracts;
@@ -242,7 +234,8 @@ public class ContractBean implements Serializable {
         Map<Long, PersonDto> people = getPeopleById();
         return contracts.stream()
                 .filter(c -> RecordSearch.matches(searchTerm, c.getName(),
-                        c.getEmployeeName(), c.getSupervisorName())
+                        c.getEmployeeName(), c.getSupervisorName(),
+                        c.getStatus() == null ? null : statusLabel(c.getStatus()))
                         || RecordSearch.matches(searchTerm, RecordSearch.personValues(people.get(c.getEmployeeId())))
                         || RecordSearch.matches(searchTerm, RecordSearch.personValues(people.get(c.getSupervisorId()))))
                 .toList();
@@ -251,6 +244,9 @@ public class ContractBean implements Serializable {
     private Map<Long, PersonDto> getPeopleById() {
         if (peopleById == null) {
             peopleById = new HashMap<>();
+            if (!RecordSearch.canListPeople()) {
+                return peopleById;
+            }
             try {
                 for (PersonDto person : personService.findAll()) {
                     peopleById.put(person.getId(), person);
@@ -342,12 +338,30 @@ public class ContractBean implements Serializable {
         return assistants;
     }
 
-    public Long getSelectedAssistantId() {
-        return selectedAssistantId;
+    public Long[] getSelectedAssistantIds() {
+        if (contract == null || contract.getAssistantRoleIds() == null) {
+            return new Long[0];
+        }
+        return contract.getAssistantRoleIds().toArray(Long[]::new);
     }
 
-    public void setSelectedAssistantId(Long selectedAssistantId) {
-        this.selectedAssistantId = selectedAssistantId;
+    public void setSelectedAssistantIds(Long[] assistantIds) {
+        if (contract == null) {
+            return;
+        }
+        Set<Long> ids = new LinkedHashSet<>();
+        if (assistantIds != null) {
+            for (Long id : assistantIds) {
+                if (id != null) {
+                    ids.add(id);
+                }
+            }
+        }
+        contract.setAssistantRoleIds(ids);
+    }
+
+    public String joinNames(List<String> names) {
+        return names == null || names.isEmpty() ? null : String.join(", ", names);
     }
 
     public void setContracts(List<ContractDto> contracts) {

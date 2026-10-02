@@ -274,7 +274,7 @@ body.sierra-shell .timesheet-entry-form.ui-panel .ui-panel-titlebar .ui-panel-ti
 
 .timesheet-card__metrics {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     margin: 0;
     border-bottom: 1px solid var(--sierra-border);
 }
@@ -503,7 +503,6 @@ body .timesheet-confirm-dialog.ui-dialog .ui-button.p-button-outlined:not(:disab
     }
 }
 
-/* Administrator search bar (contracts and timesheets) */
 .record-search {
     display: flex;
     flex-wrap: wrap;

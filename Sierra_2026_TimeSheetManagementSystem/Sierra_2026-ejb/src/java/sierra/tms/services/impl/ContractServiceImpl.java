@@ -56,7 +56,7 @@ public class ContractServiceImpl implements ContractService {
     private ConfigService configService;
 
     @Override
-    @RolesAllowed({"ASSISTANT", "SECRETARY"})
+    @RolesAllowed({"SUPERVISOR", "ASSISTANT", "SECRETARY"})
     public void createContract(ContractDto dto) {
         PersonEntity currentPerson = requireUniversityStaffCaller();
         if (dto == null) {
@@ -118,10 +118,12 @@ public class ContractServiceImpl implements ContractService {
         contract.setSupervisor(supervisor);
         contract.setAssistants(findPeopleWithRole(dto.getAssistantRoleIds(), RoleType.ASSISTANT));
         contract.setSecretaries(findPeopleWithRole(dto.getSecretaryRoleIds(), RoleType.SECRETARY));
-        Set<PersonEntity> creatorParticipants = sessionContext.isCallerInRole("ASSISTANT")
-                ? contract.getAssistants() : contract.getSecretaries();
-        if (!containsPerson(creatorParticipants, currentPerson.getId())) {
-            creatorParticipants.add(currentPerson);
+        if (!sessionContext.isCallerInRole("SUPERVISOR")) {
+            Set<PersonEntity> creatorParticipants = sessionContext.isCallerInRole("ASSISTANT")
+                    ? contract.getAssistants() : contract.getSecretaries();
+            if (!containsPerson(creatorParticipants, currentPerson.getId())) {
+                creatorParticipants.add(currentPerson);
+            }
         }
 
         contractDao.save(contract);
@@ -289,7 +291,7 @@ public class ContractServiceImpl implements ContractService {
         timesheets.stream().filter(t -> t.getStatus() == TimeSheetStatus.IN_PROGRESS).forEach(timesheetDao::delete);// TS4
 
         contract.setStatus(ContractStatus.TERMINATED);
-        LocalDate date = LocalDate.now();
+        LocalDate date = LocalDate.now(configService.getTimeZone());
         contract.setTerminationDate(date);
         LOGGER.log(Level.INFO, "Contract terminated: contract_id=" + contract.getId() + ", at " + date);
     }
@@ -345,9 +347,7 @@ public class ContractServiceImpl implements ContractService {
     }
     
     private void validateEmployeeHours(Long employeeId, Double hours) {
-        if (hours == null || hours < 0) {
-            throw new RuleViolation("contract.validation.hours.nonnegative");
-        }
+        validatePositiveHours(hours);
 
         double existingHours = contractDao.findByEmployee(employeeId)
                 .stream()
@@ -367,7 +367,7 @@ public class ContractServiceImpl implements ContractService {
 
     private void validatePositiveHours(Double hours) {
         if (hours == null || hours <= 0) {
-            throw new IllegalArgumentException("Hours per week must be greater than zero.");
+            throw new RuleViolation("contract.validation.hours.nonnegative");
         }
     }
     
@@ -512,6 +512,16 @@ public class ContractServiceImpl implements ContractService {
                         .stream()
                         .map(PersonEntity::getId)
                         .collect(Collectors.toCollection(LinkedHashSet::new)));
+
+        dto.setAssistantNames(entity.getAssistants()
+                        .stream()
+                        .map(person -> person.getFirstName() + " " + person.getLastName())
+                        .collect(Collectors.toList()));
+
+        dto.setSecretaryNames(entity.getSecretaries()
+                        .stream()
+                        .map(person -> person.getFirstName() + " " + person.getLastName())
+                        .collect(Collectors.toList()));
         
         double reportedHours = calculationService.calculateTotalReportedHoursForContract(entity.getId());
         double hoursDue = calculationService.calculateTotalHoursDueForContract(entity.getId());
