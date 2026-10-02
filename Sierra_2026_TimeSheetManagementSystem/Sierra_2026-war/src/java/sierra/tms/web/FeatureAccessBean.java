@@ -36,7 +36,7 @@ import sierra.tms.utils.enums.RoleType;
 public class FeatureAccessBean {
     /*
     MANAGE_CONTRACT - CN1: only supervisor/assistant manage contracts
-    CREATE_CONTRACT - only assistants and secretaries create contracts
+    CREATE_CONTRACT - supervisors, assistants and secretaries create contracts
     PRINT_CONTRACT - CN2: only the secretary prints contracts
     REVOKE_SIGNATURE - SG1a
     */
@@ -60,6 +60,7 @@ public class FeatureAccessBean {
                 VIEW_STATISTICS, 
                 VIEW_TIMESHEETS,
                 MANAGE_CONTRACT, 
+                CREATE_CONTRACT, 
                 START_CONTRACT, 
                 TERMINATE_CONTRACT,
                 COUNTERSIGN_TIMESHEET, 
