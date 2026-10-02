@@ -1,7 +1,6 @@
 # Sierra Timesheet Management System
 Time Sheet Management System
 JakartaEE Web Applications 2026
-Team: Sierra · University of Koblenz
 
 
 ## Script to create Database and Tables
